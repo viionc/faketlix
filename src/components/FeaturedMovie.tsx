@@ -31,7 +31,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
     return (
         <section className="w-full h-[60rem] relative mt-10">
             <img src={bg} className="w-full h-full absolute top-0 left-0 object-cover brightness-75 "></img>
-            <div className="w-full h-full z-10 absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
+            <div className="w-full h-[15rem] z-10 absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
                 {movieLogo ? (
                     <img src={`https://image.tmdb.org/t/p/original/${movieLogo}`} height={100} width={400} alt={movie.original_title + " logo"}></img>
                 ) : (

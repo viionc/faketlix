@@ -1,9 +1,11 @@
 import {useEffect, useState} from "react";
 import Navbar from "./Navbar";
 import FeaturedMovie from "./FeaturedMovie";
+import MovieCarousel from "./MovieCarousel";
+import Footer from "./Footer";
 
 function Content() {
-    const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[]>([]);
+    const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[] | null>(null);
     const [featuredMovie, setFeaturedMovie] = useState<MovieProps | null>(null);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
@@ -30,6 +32,8 @@ function Content() {
         <section className="flex min-w-full min-h-[100vh] relative flex-col">
             <Navbar></Navbar>
             {dataLoaded && featuredMovie && <FeaturedMovie movie={featuredMovie}></FeaturedMovie>}
+            {dataLoaded && topRatedMovies && <MovieCarousel movies={topRatedMovies} title="Top Rated"></MovieCarousel>}
+            <Footer></Footer>
         </section>
     );
 }
