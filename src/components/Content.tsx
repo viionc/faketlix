@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import FeaturedMovie from "./FeaturedMovie";
 import MovieCarousel from "./MovieCarousel";
 import Footer from "./Footer";
+import Spinner from "./Spinner";
 
 function Content() {
     const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[] | null>(null);
@@ -25,7 +26,11 @@ function Content() {
                 let number = Math.floor(Math.random() * response.results.length);
                 setFeaturedMovie(response.results[number]);
             })
-            .then(() => setDataLoaded(true))
+            .then(() =>
+                setTimeout(() => {
+                    setDataLoaded(true);
+                }, 500)
+            )
             .catch(err => console.error(err));
     }, []);
     return (
@@ -33,6 +38,11 @@ function Content() {
             <Navbar></Navbar>
             {dataLoaded && featuredMovie && <FeaturedMovie movie={featuredMovie}></FeaturedMovie>}
             {dataLoaded && topRatedMovies && <MovieCarousel movies={topRatedMovies} title="Top Rated"></MovieCarousel>}
+            {!dataLoaded && (
+                <div className="h-[100vh] flex justify-center items-center">
+                    <Spinner></Spinner>
+                </div>
+            )}
             <Footer></Footer>
         </section>
     );

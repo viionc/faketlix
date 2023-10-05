@@ -15,4 +15,5 @@ type MovieProps = {
     vote_average: number;
     vote_count: number;
     poster_path: string;
+    adult: boolean;
 };
