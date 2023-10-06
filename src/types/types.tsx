@@ -33,4 +33,24 @@ export type DataContextProps = {
     getTopRatedMovies: () => Promise<boolean>;
     getPopularMovies: () => Promise<boolean>;
     popularMovies: MovieProps[] | null;
+    getMovieLogo: (movieId: number) => Promise<false | string>;
+    getMovieCredits: (movieId: number) => Promise<false | MovieCredits>;
+    getMovieDetails: (movieId: number) => Promise<false | MovieDetails>;
+    getSimilarMovies: (movie: MovieProps) => Promise<false | MovieProps[]>;
+    getMovieTrailer: (movieId: number) => Promise<false | string>;
+};
+
+export type MovieCredits = {
+    cast: Array<{name: string}>;
+    director: string;
+};
+
+export type MovieDetails = {
+    adult: boolean;
+    release_date: string;
+    runtime: string;
+};
+
+export type MovieTrailer = {
+    key: string;
 };

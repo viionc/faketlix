@@ -2,54 +2,31 @@ import {useEffect, useState} from "react";
 import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
 import {IMAGE_ORIGINAL_PATH} from "../types/constants";
+import {useDataContext} from "../context/DataContext";
 
-interface MovieTrailer extends Response {
-    key: string;
-}
 function FeaturedMovie({movie}: {movie: MovieProps}) {
     const [movieLogo, setMovieLogo] = useState<string | null>();
-    const [movieTrailer, setMovieTrailer] = useState<MovieTrailer | null>();
+    const [movieTrailer, setMovieTrailer] = useState<string | null>();
 
     const {openModal} = useModalContext();
+    const {getMovieLogo, getMovieTrailer} = useDataContext();
 
     useEffect(() => {
-        const options = {
-            method: "GET",
-            headers: {
-                accept: "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_MOVIEDB_ACCESS_TOKEN}`,
-            },
-        };
-
-        fetch(`https://api.themoviedb.org/3/movie/${movie.id}/images`, options)
-            .then(response => response.json())
-            .then(response => {
-                const englishLogo = response.logos.find((logo: any) => logo.iso_639_1 === "en");
-                if (englishLogo) {
-                    setMovieLogo(englishLogo.file_path);
-                } else {
-                    setMovieLogo(response.logos[0].file_path);
-                }
-            })
-            .catch(err => console.error(err));
-
-        fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos`, options)
-            .then(response => {
-                return response.json();
-            })
-            .then(response => {
-                const number = Math.floor(Math.random() * (response.results.length - 1));
-                setMovieTrailer(response.results[number].key);
-            });
+        getMovieLogo(movie.id).then(response => {
+            if (response) {
+                setMovieLogo(response);
+            }
+        });
+        getMovieTrailer(movie.id).then(response => {
+            if (response) {
+                setMovieTrailer(response);
+            }
+        });
     }, []);
 
     return (
         <section className="w-full h-[60rem] relative mt-10">
-            {/* <img
-                src={`${IMAGE_ORIGINAL_PATH}${movie.backdrop_path}`}
-                className="w-full h-[60rem] absolute top-0 left-0 object-cover brightness-75 "
-            ></img> */}
-            {movieTrailer && (
+            {movieTrailer ? (
                 <div className="video-responsive">
                     <iframe
                         width={window.innerWidth}
@@ -59,6 +36,11 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                         title="Embedded youtube"
                     />
                 </div>
+            ) : (
+                <img
+                    src={`${IMAGE_ORIGINAL_PATH}${movie.backdrop_path}`}
+                    className="w-full h-[60rem] absolute top-0 left-0 object-cover brightness-75 "
+                ></img>
             )}
             <div className="h-[15rem] absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
                 {movieLogo ? (

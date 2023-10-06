@@ -1,6 +1,14 @@
 import {ReactNode, createContext, useContext, useState} from "react";
-import {DataContextProps, MovieProps} from "../types/types";
-import {fetchPopularMovies, fetchTopRatedMovies} from "../utils/fetchData";
+import {DataContextProps, MovieCredits, MovieDetails, MovieProps} from "../types/types";
+import {
+    fetchMovieCredits,
+    fetchMovieDetails,
+    fetchMovieLogo,
+    fetchMovieTrailer,
+    fetchPopularMovies,
+    fetchSimilarMovies,
+    fetchTopRatedMovies,
+} from "../utils/fetchData";
 
 const DataContext = createContext<DataContextProps | null>(null);
 
@@ -35,8 +43,58 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return true;
     };
 
+    const getMovieLogo = async (movieId: number): Promise<false | string> => {
+        const logo = await fetchMovieLogo(movieId);
+        if (!logo) {
+            return false;
+        }
+        return logo;
+    };
+    const getMovieCredits = async (movieId: number): Promise<false | MovieCredits> => {
+        const credits = await fetchMovieCredits(movieId);
+        if (!credits) {
+            return false;
+        }
+        return credits;
+    };
+
+    const getMovieDetails = async (movieId: number): Promise<false | MovieDetails> => {
+        const details = await fetchMovieDetails(movieId);
+        if (!details) {
+            return false;
+        }
+        return details;
+    };
+    const getSimilarMovies = async (movie: MovieProps): Promise<false | MovieProps[]> => {
+        const similarMovies = await fetchSimilarMovies(movie);
+        if (!similarMovies) {
+            return false;
+        }
+        return similarMovies;
+    };
+    const getMovieTrailer = async (movieId: number): Promise<false | string> => {
+        const trailer = await fetchMovieTrailer(movieId);
+        if (!trailer) {
+            return false;
+        }
+        return trailer;
+    };
+
     return (
-        <DataContext.Provider value={{getTopRatedMovies, topRatedMovies, featuredMovie, popularMovies, getPopularMovies}}>
+        <DataContext.Provider
+            value={{
+                getTopRatedMovies,
+                topRatedMovies,
+                featuredMovie,
+                popularMovies,
+                getPopularMovies,
+                getMovieLogo,
+                getMovieCredits,
+                getMovieDetails,
+                getSimilarMovies,
+                getMovieTrailer,
+            }}
+        >
             {children}
         </DataContext.Provider>
     );

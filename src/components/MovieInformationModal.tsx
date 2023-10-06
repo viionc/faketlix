@@ -1,40 +1,11 @@
-import {MovieProps} from "../types/types";
+import {MovieCredits, MovieDetails, MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
 import {IMAGE_ORIGINAL_PATH, MovieGenres} from "../types/constants";
 import {useEffect, useState} from "react";
 import Spinner from "./Spinner";
 import {motion} from "framer-motion";
 import MovieCard from "./MovieCard";
-
-interface LogoResponse extends Response {
-    logos: Array<Logo>;
-}
-interface CreditsResponse extends Response {
-    crew: Array<{known_for_department: string; name: string}>;
-    cast: Array<{name: string}>;
-}
-
-interface DetailsResponse extends Response {
-    adult: boolean;
-    release_date: string;
-    runtime: number;
-}
-interface SimilarMoviesResponse extends Response {
-    results: Array<MovieProps>;
-}
-interface Logo {
-    iso_639_1: string;
-    file_path: string;
-}
-type MovieCredits = {
-    cast: Array<{name: string}>;
-    director: string;
-};
-type MovieDetails = {
-    adult: boolean;
-    release_date: string;
-    runtime: string;
-};
+import {useDataContext} from "../context/DataContext";
 
 function MovieInformationModal({movie}: {movie: MovieProps}) {
     const {closeModal} = useModalContext();
@@ -45,99 +16,33 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
 
+    const {getMovieLogo, getMovieCredits, getMovieDetails, getSimilarMovies} = useDataContext();
+
     const getMovieInformation = async () => {
-        const options = {
-            method: "GET",
-            headers: {
-                accept: "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_MOVIEDB_ACCESS_TOKEN}`,
-            },
-        };
         // logo
-        let logoResponse = {} as LogoResponse;
-        try {
-            logoResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/images`, options)) as LogoResponse;
-            if (logoResponse.status !== 200) {
-                setError(true);
-                return;
+        getMovieLogo(movie.id).then(response => {
+            if (response) {
+                setMovieLogo(response);
             }
-            logoResponse = await logoResponse.json();
-        } catch (err) {
-            console.error(err);
-            setError(true);
-            return;
-        }
-
-        const englishLogo = logoResponse.logos.find(logo => logo.iso_639_1 === "en");
-        englishLogo ? setMovieLogo(englishLogo.file_path) : setMovieLogo(logoResponse.logos[0].file_path);
-
-        // credits
-        let creditsResponse = {} as CreditsResponse;
-        try {
-            creditsResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/credits`, options)) as CreditsResponse;
-            if (creditsResponse.status !== 200) {
-                setError(true);
-                return;
-            }
-            creditsResponse = await creditsResponse.json();
-        } catch (err) {
-            console.error(err);
-            setError(true);
-            return;
-        }
-
-        const cast = creditsResponse.cast.slice(0, 4);
-        let director = creditsResponse.crew.find(crew => crew.known_for_department === "Directing")?.name;
-        if (!director) director = "Unknown";
-        setMovieCredits({cast, director});
-
-        //details
-        let detailsResponse = {} as DetailsResponse;
-        try {
-            detailsResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movie.id}`, options)) as DetailsResponse;
-            if (detailsResponse.status !== 200) {
-                setError(true);
-                return;
-            }
-            detailsResponse = await detailsResponse.json();
-        } catch (err) {
-            console.error(err);
-            setError(true);
-            return;
-        }
-
-        const hours = Math.floor(detailsResponse.runtime / 60);
-        const minutes = Math.floor(detailsResponse.runtime % 60);
-        const runtime = `${hours ? hours + "h " : null}${minutes}m`;
-        setMovieDetails({
-            adult: detailsResponse.adult,
-            release_date: detailsResponse.release_date.split("-")[0],
-            runtime,
         });
 
-        let similarMoviesResponse = {} as SimilarMoviesResponse;
-        try {
-            similarMoviesResponse = (await fetch(
-                `https://api.themoviedb.org/3/discover/movie?with_genres=${movie.genre_ids.join(",")}`,
-                options
-            )) as SimilarMoviesResponse;
-
-            if (similarMoviesResponse.status !== 200) {
-                setError(true);
-                return;
+        getMovieCredits(movie.id).then(response => {
+            if (response) {
+                setMovieCredits(response);
             }
-            similarMoviesResponse = await similarMoviesResponse.json();
-        } catch (err) {
-            console.error(err);
-            setError(true);
-            return;
-        }
-        const movies = similarMoviesResponse.results
-            .filter(m => m.id !== movie.id)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 9);
-        setSimilarMovies(movies);
-        setDataLoaded(true);
+        });
+        getMovieDetails(movie.id).then(response => {
+            if (response) {
+                setMovieDetails(response);
+            }
+        });
+        getSimilarMovies(movie)
+            .then(response => {
+                if (response) {
+                    setSimilarMovies(response);
+                }
+            })
+            .then(() => setDataLoaded(true));
     };
 
     useEffect(() => {
