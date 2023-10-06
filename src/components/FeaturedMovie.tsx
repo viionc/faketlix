@@ -37,7 +37,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
             ></img>
             <div className="w-full h-[15rem] z-10 absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
                 {movieLogo ? (
-                    <img src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`} height={100} width={400} alt={movie.title + " logo"}></img>
+                    <img src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`} className="w-[12rem] h-[10rem] object-contain" alt={movie.title + " logo"}></img>
                 ) : (
                     <div className="font-4xl">{movie.title}</div>
                 )}

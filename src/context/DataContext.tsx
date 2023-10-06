@@ -1,5 +1,5 @@
-import {ReactNode, createContext, useContext, useEffect, useState} from "react";
-import {DataContextProps, ModalContextProps, MovieProps} from "../types/types";
+import {ReactNode, createContext, useContext, useState} from "react";
+import {DataContextProps, MovieProps} from "../types/types";
 import {fetchPopularMovies, fetchTopRatedMovies} from "../utils/fetchData";
 
 const DataContext = createContext<DataContextProps | null>(null);

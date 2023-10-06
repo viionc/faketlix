@@ -1,5 +1,5 @@
 import {initializeApp} from "firebase/app";
-import {User, getAuth, createUserWithEmailAndPassword, signInAnonymously, signInWithEmailAndPassword, signOut, updateProfile} from "firebase/auth";
+import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
 import {FirebaseContextProps} from "../types/types";
@@ -28,7 +28,7 @@ const auth = getAuth(app);
 export const db = getFirestore(app);
 
 export function FirebaseProvider({children}: {children: ReactNode}) {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [, setCurrentUser] = useState<User | null>(null);
     const [formTypeOpen, setFormTypeOpen] = useState<null | "LOGIN" | "REGISTER">("LOGIN");
 
     useEffect(() => {
@@ -62,15 +62,15 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         });
     };
 
-    const loginAnonymously = async () => {
-        const userCredential = await signInAnonymously(auth);
-        await updateProfile(userCredential.user, {
-            displayName: `anon-${Math.floor(Math.random() * 10000)}`,
-        });
-        setCurrentUser(userCredential.user);
-        // const profile = await createCurrentUserProfile(userCredential.user, null);
-        // await addUserToDatabase(profile);
-    };
+    // const loginAnonymously = async () => {
+    //     const userCredential = await signInAnonymously(auth);
+    //     await updateProfile(userCredential.user, {
+    //         displayName: `anon-${Math.floor(Math.random() * 10000)}`,
+    //     });
+    //     setCurrentUser(userCredential.user);
+    //     // const profile = await createCurrentUserProfile(userCredential.user, null);
+    //     // await addUserToDatabase(profile);
+    // };
 
     return <FirebaseContext.Provider value={{loginUser, formTypeOpen, setFormTypeOpen, registerUser}}>{children}</FirebaseContext.Provider>;
 }

@@ -4,14 +4,12 @@ import FeaturedMovie from "./FeaturedMovie";
 import MovieCarousel from "./MovieCarousel";
 import Footer from "./Footer";
 import Spinner from "./Spinner";
-import {MovieProps} from "../types/types";
-import {fetchTopRatedMovies} from "../utils/fetchData";
 import {useDataContext} from "../context/DataContext";
 import CarouselPlaceholder from "./CarouselPlaceholder";
 
 function Content() {
-    const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [error, setError] = useState(false);
+    const [, setDataLoaded] = useState<boolean>(false);
+    // const [error, setError] = useState(false);
 
     const {getTopRatedMovies, topRatedMovies, featuredMovie, popularMovies, getPopularMovies} = useDataContext();
 
