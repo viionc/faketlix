@@ -5,46 +5,40 @@ import MovieCarousel from "./MovieCarousel";
 import Footer from "./Footer";
 import Spinner from "./Spinner";
 import {MovieProps} from "../types/types";
-import {useModalContext} from "../context/ModalContext";
+import {fetchTopRatedMovies} from "../utils/fetchData";
+import {useDataContext} from "../context/DataContext";
+import CarouselPlaceholder from "./CarouselPlaceholder";
 
 function Content() {
-    const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[] | null>(null);
-    const [featuredMovie, setFeaturedMovie] = useState<MovieProps | null>(null);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+    const [error, setError] = useState(false);
+
+    const {getTopRatedMovies, topRatedMovies, featuredMovie, popularMovies, getPopularMovies} = useDataContext();
 
     useEffect(() => {
-        const options = {
-            method: "GET",
-            headers: {
-                accept: "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_MOVIEDB_ACCESS_TOKEN}`,
-            },
-        };
-
-        fetch("https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1", options)
-            .then(response => response.json())
-            .then(response => {
-                setTopRatedMovies(response.results);
-                const number = Math.floor(Math.random() * response.results.length);
-                setFeaturedMovie(response.results[number]);
-            })
-            .then(() =>
-                setTimeout(() => {
-                    setDataLoaded(true);
-                }, 500)
-            )
-            .catch(err => console.error(err));
+        getTopRatedMovies().then(response => {
+            if (response) {
+                setDataLoaded(true);
+            }
+        });
+        getPopularMovies().then(response => {
+            if (response) {
+                setDataLoaded(true);
+            }
+        });
     }, []);
     return (
         <section className="flex min-w-full min-h-[100vh] relative flex-col">
             <Navbar></Navbar>
-            {dataLoaded && featuredMovie && <FeaturedMovie movie={featuredMovie}></FeaturedMovie>}
-            {dataLoaded && topRatedMovies && <MovieCarousel movies={topRatedMovies} title="Top Rated"></MovieCarousel>}
-            {!dataLoaded && (
+            {featuredMovie ? (
+                <FeaturedMovie movie={featuredMovie}></FeaturedMovie>
+            ) : (
                 <div className="h-[100vh] flex justify-center items-center">
                     <Spinner></Spinner>
                 </div>
             )}
+            {topRatedMovies ? <MovieCarousel movies={topRatedMovies} title="Top Rated"></MovieCarousel> : <CarouselPlaceholder></CarouselPlaceholder>}
+            {popularMovies ? <MovieCarousel movies={popularMovies} title="Popular"></MovieCarousel> : <CarouselPlaceholder></CarouselPlaceholder>}
             <Footer></Footer>
         </section>
     );

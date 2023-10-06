@@ -45,10 +45,6 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
 
-    useEffect(() => {
-        getMovieInformation();
-    }, []);
-
     const getMovieInformation = async () => {
         const options = {
             method: "GET",
@@ -143,6 +139,10 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
         setSimilarMovies(movies);
         setDataLoaded(true);
     };
+
+    useEffect(() => {
+        getMovieInformation();
+    }, []);
 
     return (
         <div
@@ -280,7 +280,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                 </div>
                                 <div className="flex flex-col gap-2 mt-10">
                                     <h2 className="text-2xl text-white">Similar Movies:</h2>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2 justify-center">
                                         {similarMovies?.map(movie => {
                                             return <MovieCard movie={movie}></MovieCard>;
                                         })}

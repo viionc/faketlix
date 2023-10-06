@@ -26,3 +26,11 @@ export type ModalContextProps = {
     openModal: (movie: MovieProps) => void;
     closeModal: () => void;
 };
+
+export type DataContextProps = {
+    topRatedMovies: MovieProps[] | null;
+    featuredMovie: MovieProps | null;
+    getTopRatedMovies: () => Promise<boolean>;
+    getPopularMovies: () => Promise<boolean>;
+    popularMovies: MovieProps[] | null;
+};

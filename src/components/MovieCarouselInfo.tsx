@@ -9,7 +9,8 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
 
     return (
         <div className="p-4 gap-2 hidden group-hover:flex flex-col w-full bg-[#181818] shadow-2xl">
-            <div className="w-full h-[3rem] flex gap-2">
+            <p className="text-sm">{movie.title}</p>
+            <div className="w-full h-[2rem] flex gap-2">
                 <span className="h-[1.75rem] w-[1.75rem] bg-white rounded-full flex justify-center items-center hover:bg-opacity-50 cursor-pointer">
                     <i className="fa-solid fa-play" style={{color: "#000000"}}></i>
                 </span>

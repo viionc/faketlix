@@ -5,6 +5,7 @@ function MovieCard({movie}: {movie: MovieProps}) {
     return (
         <div className="w-[16rem] flex flex-col gap-2">
             <img src={`${IMAGE_SMALL_PATH}${movie.backdrop_path}`} alt={`${movie.title} backdrop`}></img>
+            <p className="text-sm">{movie.title}</p>
             <div className="flex gap-2 justify-between items-center">
                 <span className="text-lime-600 text-sm font-semibold">Votes: {Math.floor((movie.vote_average / 10) * 100)}%</span>
                 <span className="h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer">
