@@ -2,8 +2,13 @@ import {useEffect, useState} from "react";
 import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
 import {IMAGE_ORIGINAL_PATH} from "../types/constants";
+
+interface MovieTrailer extends Response {
+    key: string;
+}
 function FeaturedMovie({movie}: {movie: MovieProps}) {
     const [movieLogo, setMovieLogo] = useState<string | null>();
+    const [movieTrailer, setMovieTrailer] = useState<MovieTrailer | null>();
 
     const {openModal} = useModalContext();
 
@@ -27,21 +32,45 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                 }
             })
             .catch(err => console.error(err));
+
+        fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos`, options)
+            .then(response => {
+                return response.json();
+            })
+            .then(response => {
+                const number = Math.floor(Math.random() * (response.results.length - 1));
+                setMovieTrailer(response.results[number].key);
+            });
     }, []);
 
     return (
         <section className="w-full h-[60rem] relative mt-10">
-            <img
+            {/* <img
                 src={`${IMAGE_ORIGINAL_PATH}${movie.backdrop_path}`}
                 className="w-full h-[60rem] absolute top-0 left-0 object-cover brightness-75 "
-            ></img>
-            <div className="w-full h-[15rem] z-10 absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
+            ></img> */}
+            {movieTrailer && (
+                <div className="video-responsive">
+                    <iframe
+                        width={window.innerWidth}
+                        className="h-[90vh]"
+                        src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=1&mute=1`}
+                        allow="autoplay"
+                        title="Embedded youtube"
+                    />
+                </div>
+            )}
+            <div className="h-[15rem] absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
                 {movieLogo ? (
-                    <img src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`} className="w-[12rem] h-[10rem] object-contain" alt={movie.title + " logo"}></img>
+                    <img
+                        src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`}
+                        className="w-[12rem] h-[10rem] object-contain z-10"
+                        alt={movie.title + " logo"}
+                    ></img>
                 ) : (
-                    <div className="font-4xl">{movie.title}</div>
+                    <div className="font-4xl z-10">{movie.title}</div>
                 )}
-                <div className="flex gap-2 font-semibold">
+                <div className="flex gap-2 font-semibold z-10">
                     <button className="py-3 px-10 bg-white text-black text-2xl rounded-md hover:bg-opacity-[75%]">
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>
