@@ -26,3 +26,6 @@ export const MovieGenres: Record<string, string> = {
     "10767": "Talk",
     "10768": "War & Politics",
 };
+
+export const IMAGE_ORIGINAL_PATH = "https://image.tmdb.org/t/p/original";
+export const IMAGE_SMALL_PATH = "https://image.tmdb.org/t/p/w500";

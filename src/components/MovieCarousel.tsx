@@ -1,6 +1,8 @@
 import clsx from "clsx";
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import MovieCarouselInfo from "./MovieCarouselInfo";
+import {IMAGE_SMALL_PATH} from "../types/constants";
+import {MovieProps} from "../types/types";
 
 function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
     const [splitMovies, setSplitMovies] = useState<MovieProps[][]>([]);
@@ -9,8 +11,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
     const numberPerPage = Math.floor((window.outerWidth - 64) / 304);
 
     useEffect(() => {
-        console.log(numberPerPage);
-        let result: MovieProps[][] = [];
+        const result: MovieProps[][] = [];
         for (let i = 0; i < movies.length; i += numberPerPage) {
             const page = movies.slice(i, i + numberPerPage);
             result.push(page);
@@ -43,16 +44,14 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                     onClick={() => handlePageChange(false)}
                     style={{
                         backgroundImage:
-                            currentPage > 0
-                                ? `url('https://image.tmdb.org/t/p/w500/${splitMovies[currentPage - 1][numberPerPage - 1].backdrop_path}')`
-                                : "none",
+                            currentPage > 0 ? `url('${IMAGE_SMALL_PATH}${splitMovies[currentPage - 1][numberPerPage - 1].backdrop_path}')` : "none",
                     }}
                 >
                     <i className="fa-solid fa-chevron-left" style={{color: "#ffffff"}}></i>
                 </div>
                 {loaded &&
                     splitMovies[currentPage].map((movie, i) => {
-                        let position = i === 0 ? "group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
+                        const position = i === 0 ? "group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
                         return (
                             <div key={movie.id} className="group hover:scale-150 transition w-[19rem] relative hover:z-[10] duration-500 ">
                                 <div
@@ -62,7 +61,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                                     )}
                                 >
                                     <img
-                                        src={`https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`}
+                                        src={`${IMAGE_SMALL_PATH}${movie.backdrop_path}`}
                                         className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
                                     ></img>
                                     <MovieCarouselInfo movie={movie}></MovieCarouselInfo>
@@ -78,7 +77,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                     style={{
                         backgroundImage:
                             currentPage < splitMovies.length - 1
-                                ? `url('https://image.tmdb.org/t/p/w500/${splitMovies[currentPage + 1][0].backdrop_path}')`
+                                ? `url('${IMAGE_SMALL_PATH}${splitMovies[currentPage + 1][0].backdrop_path}')`
                                 : "none",
                     }}
                     onClick={() => handlePageChange(true)}

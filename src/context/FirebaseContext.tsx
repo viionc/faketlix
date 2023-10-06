@@ -2,6 +2,7 @@ import {initializeApp} from "firebase/app";
 import {User, getAuth, createUserWithEmailAndPassword, signInAnonymously, signInWithEmailAndPassword, signOut, updateProfile} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
+import {FirebaseContextProps} from "../types/types";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -16,7 +17,7 @@ const firebaseConfig = {
 const FirebaseContext = createContext<FirebaseContextProps | null>(null);
 
 export function useFirebaseContext() {
-    let context = useContext(FirebaseContext);
+    const context = useContext(FirebaseContext);
     if (!context) throw new Error("Couldn't initialize Firebase Context.");
     return context;
 }

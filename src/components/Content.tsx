@@ -4,6 +4,8 @@ import FeaturedMovie from "./FeaturedMovie";
 import MovieCarousel from "./MovieCarousel";
 import Footer from "./Footer";
 import Spinner from "./Spinner";
+import {MovieProps} from "../types/types";
+import {useModalContext} from "../context/ModalContext";
 
 function Content() {
     const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[] | null>(null);
@@ -23,7 +25,7 @@ function Content() {
             .then(response => response.json())
             .then(response => {
                 setTopRatedMovies(response.results);
-                let number = Math.floor(Math.random() * response.results.length);
+                const number = Math.floor(Math.random() * response.results.length);
                 setFeaturedMovie(response.results[number]);
             })
             .then(() =>

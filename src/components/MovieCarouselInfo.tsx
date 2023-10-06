@@ -1,8 +1,11 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {MovieGenres} from "../types/constants";
+import {MovieProps} from "../types/types";
+import {useModalContext} from "../context/ModalContext";
 
 function MovieCarouselInfo({movie}: {movie: MovieProps}) {
     const [showTooltip, setShowTooltip] = useState(false);
+    const {openModal} = useModalContext();
 
     return (
         <div className="p-4 gap-2 hidden group-hover:flex flex-col w-full bg-[#181818] shadow-2xl">
@@ -41,6 +44,7 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
                 <span
                     onMouseEnter={() => setShowTooltip(true)}
                     onMouseLeave={() => setShowTooltip(false)}
+                    onClick={() => openModal(movie)}
                     className="relative group ms-auto h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer"
                 >
                     <svg
@@ -68,7 +72,11 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
             </div>
             <div className="flex gap-2">
                 {movie.genre_ids.map(id => {
-                    return <span className="text-zinc-400 text-xs">{MovieGenres[id.toString()]}</span>;
+                    return (
+                        <span key={id} className="text-zinc-400 text-xs">
+                            {MovieGenres[id.toString()]}
+                        </span>
+                    );
                 })}
             </div>
         </div>
