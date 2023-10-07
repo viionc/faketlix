@@ -9,6 +9,7 @@ import {
     fetchSimilarMovies,
     fetchTopRatedMovies,
 } from "../utils/fetchData";
+import {useFirebaseContext} from "./FirebaseContext";
 
 const DataContext = createContext<DataContextProps | null>(null);
 
@@ -22,6 +23,11 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const [topRatedMovies, setTopRatedMovies] = useState<MovieProps[] | null>(null);
     const [featuredMovie, setFeaturedMovie] = useState<MovieProps | null>(null);
     const [popularMovies, setPopularMovies] = useState<MovieProps[] | null>(null);
+    const [planToWatch, setPlanToWatch] = useState<MovieProps[] | null>(null);
+    const [favoritedMovies, setFavoritedMovies] = useState<MovieProps[] | null>(null);
+    const [allMovies, setAllMovies] = useState<MovieProps[]>([]);
+
+    const {currentProfile} = useFirebaseContext();
 
     const getTopRatedMovies = async (): Promise<boolean> => {
         const movies = await fetchTopRatedMovies();
@@ -31,6 +37,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
         setTopRatedMovies(movies);
         const number = Math.floor(Math.random() * movies.length);
         setFeaturedMovie(movies[number]);
+        setAllMovies(prev => [...prev, ...movies]);
         return true;
     };
 
@@ -40,6 +47,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
             return false;
         }
         setPopularMovies(movies);
+        setAllMovies(prev => [...prev, ...movies]);
         return true;
     };
 
@@ -80,19 +88,47 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return trailer;
     };
 
+    const checkPlanToWatch = () => {
+        if (!currentProfile) return;
+        if (!currentProfile.planToWatch) return;
+        if (!allMovies.length) return;
+        const temp = [] as MovieProps[];
+        allMovies.forEach(movie => {
+            if (currentProfile.planToWatch.includes(movie.id)) {
+                temp.push(movie);
+            }
+        });
+        setPlanToWatch(temp);
+    };
+
+    const checkFavorites = () => {
+        if (!currentProfile) return;
+        if (!currentProfile.favoritedMovies.length) return;
+        allMovies.forEach(movie => {
+            if (currentProfile.favoritedMovies.includes(movie.id)) {
+                if (favoritedMovies && favoritedMovies.find(m => m.id === movie.id)) return;
+                setFavoritedMovies(prev => [...(prev || []), movie]);
+            }
+        });
+    };
+
     return (
         <DataContext.Provider
             value={{
-                getTopRatedMovies,
                 topRatedMovies,
                 featuredMovie,
                 popularMovies,
+                planToWatch,
+                favoritedMovies,
+                getTopRatedMovies,
                 getPopularMovies,
                 getMovieLogo,
                 getMovieCredits,
                 getMovieDetails,
                 getSimilarMovies,
                 getMovieTrailer,
+                checkPlanToWatch,
+                checkFavorites,
             }}
         >
             {children}

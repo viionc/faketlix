@@ -6,6 +6,8 @@ import Spinner from "./Spinner";
 import {motion} from "framer-motion";
 import MovieCard from "./MovieCard";
 import {useDataContext} from "../context/DataContext";
+import {useFirebaseContext} from "../context/FirebaseContext";
+import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
 
 function MovieInformationModal({movie}: {movie: MovieProps}) {
     const {closeModal} = useModalContext();
@@ -17,6 +19,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
     const [error] = useState<boolean>(false);
 
     const {getMovieLogo, getMovieCredits, getMovieDetails, getSimilarMovies} = useDataContext();
+    const {addToFavorites} = useFirebaseContext();
 
     const getMovieInformation = async () => {
         // logo
@@ -108,19 +111,11 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                             </svg>
                                             Play
                                         </span>
-                                        <span className="h-[3rem] w-[3rem] bg-[#303030] border-2 border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth={1.5}
-                                                stroke="currentColor"
-                                                className="w-8 h-8"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                        </span>
-                                        <span className="h-[3rem] w-[3rem] bg-[#303030] border-2 border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer">
+                                        <AddToPlanToWatchButton movie={movie} size={"large"} />
+                                        <span
+                                            onClick={() => addToFavorites(movie)}
+                                            className="h-[3rem] w-[3rem] bg-[#303030] border-2 border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer"
+                                        >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 fill="none"

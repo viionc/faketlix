@@ -2,7 +2,7 @@ import {initializeApp} from "firebase/app";
 import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
-import {FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
+import {FirebaseContextProps, MovieProps, UserAccount, UserProfile} from "../types/types";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -25,7 +25,7 @@ export function useFirebaseContext() {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 export function FirebaseProvider({children}: {children: ReactNode}) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -108,26 +108,61 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setCurrentProfile(profile);
     };
 
-    // const addToPlanToWatch = async (movieId: number) => {
-    //     if (!account) return;
-    //     const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
-    //     if (!profile) return;
-    //     if (profile.planToWatch.includes(movieId)) return;
-    //     profile.planToWatch.push(movieId);
-    //     await setDoc(doc(db, "users", account.id), account);
-    // };
+    const addToPlanToWatch = (movie: MovieProps) => {
+        if (!account) return;
+        const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
+        if (!profile) return;
+        if (profile.planToWatch.includes(movie.id)) return;
+        profile.planToWatch.push(movie.id);
+        setCurrentProfile({...profile});
+        setDoc(doc(db, "users", account.id), account);
+    };
 
-    // const loginAnonymously = async () => {
-    //     const userCredential = await signInAnonymously(auth);
+    const addToFavorites = (movie: MovieProps) => {
+        if (!account) return;
+        const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
+        if (!profile) return;
+        if (profile.favoritedMovies.includes(movie.id)) return;
+        profile.favoritedMovies.push(movie.id);
+        setCurrentProfile({...profile});
+        setDoc(doc(db, "users", account.id), account);
+    };
 
-    //     setCurrentUser(userCredential.user);
-    //     // const profile = await createCurrentUserProfile(userCredential.user, null);
-    //     // await addUserToDatabase(profile);
-    // };
+    const removeFromPlanToWatch = (movie: MovieProps) => {
+        if (!account) return;
+        const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
+        if (!profile) return;
+        profile.planToWatch = profile.planToWatch.filter(id => id !== movie.id);
+        setCurrentProfile({...profile});
+        setDoc(doc(db, "users", account.id), account);
+    };
+
+    const removeFromFavorites = (movie: MovieProps) => {
+        if (!account) return;
+        const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
+        if (!profile) return;
+        profile.favoritedMovies = profile.favoritedMovies.filter(id => id !== movie.id);
+        setCurrentProfile({...profile});
+        setDoc(doc(db, "users", account.id), account);
+    };
 
     return (
         <FirebaseContext.Provider
-            value={{loginUser, formTypeOpen, setFormTypeOpen, registerUser, currentUser, logoutUser, account, currentProfile, changeUserProfile}}
+            value={{
+                loginUser,
+                formTypeOpen,
+                setFormTypeOpen,
+                registerUser,
+                currentUser,
+                logoutUser,
+                account,
+                currentProfile,
+                changeUserProfile,
+                addToFavorites,
+                addToPlanToWatch,
+                removeFromPlanToWatch,
+                removeFromFavorites,
+            }}
         >
             {children}
         </FirebaseContext.Provider>

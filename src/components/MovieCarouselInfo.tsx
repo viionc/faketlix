@@ -2,10 +2,14 @@ import {useState} from "react";
 import {MovieGenres} from "../types/constants";
 import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
+import {useFirebaseContext} from "../context/FirebaseContext";
+import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
 
 function MovieCarouselInfo({movie}: {movie: MovieProps}) {
     const [showTooltip, setShowTooltip] = useState(false);
     const {openModal} = useModalContext();
+
+    const {addToFavorites} = useFirebaseContext();
 
     return (
         <div className="p-4 gap-2 hidden group-hover:flex flex-col w-full bg-[#181818] shadow-2xl rounded-b-md">
@@ -14,19 +18,11 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
                 <span className="h-[1.75rem] w-[1.75rem] bg-white rounded-full flex justify-center items-center hover:bg-opacity-50 cursor-pointer">
                     <i className="fa-solid fa-play" style={{color: "#000000"}}></i>
                 </span>
-                <span className="h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                </span>
-                <span className="h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer">
+                <AddToPlanToWatchButton movie={movie} size={"small"} />
+                <span
+                    onClick={() => addToFavorites(movie)}
+                    className="h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer"
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

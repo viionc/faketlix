@@ -10,6 +10,10 @@ export type FirebaseContextProps = {
     currentProfile: UserProfile | null;
     account: UserAccount | null;
     changeUserProfile: (profileName: string) => void;
+    addToPlanToWatch: (movie: MovieProps) => void;
+    addToFavorites: (movie: MovieProps) => void;
+    removeFromPlanToWatch: (movie: MovieProps) => void;
+    removeFromFavorites: (movie: MovieProps) => void;
 };
 
 export type MovieProps = {
@@ -37,14 +41,18 @@ export type ModalContextProps = {
 export type DataContextProps = {
     topRatedMovies: MovieProps[] | null;
     featuredMovie: MovieProps | null;
+    popularMovies: MovieProps[] | null;
+    planToWatch: MovieProps[] | null;
+    favoritedMovies: MovieProps[] | null;
     getTopRatedMovies: () => Promise<boolean>;
     getPopularMovies: () => Promise<boolean>;
-    popularMovies: MovieProps[] | null;
     getMovieLogo: (movieId: number) => Promise<false | string>;
     getMovieCredits: (movieId: number) => Promise<false | MovieCredits>;
     getMovieDetails: (movieId: number) => Promise<false | MovieDetails>;
     getSimilarMovies: (movie: MovieProps) => Promise<false | MovieProps[]>;
     getMovieTrailer: (movieId: number) => Promise<false | string>;
+    checkPlanToWatch: () => void;
+    checkFavorites: () => void;
 };
 
 export type MovieCredits = {
