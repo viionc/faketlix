@@ -32,7 +32,10 @@ function LoginForm() {
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                         ></input>
-                        <button type="submit" className="py-2.5 bg-[#e50914] rounded-md font-semibold">
+                        <button
+                            type="submit"
+                            className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
+                        >
                             Sign in
                         </button>
                     </form>

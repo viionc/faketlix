@@ -101,7 +101,18 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setAccount(null);
         setFormTypeOpen("LOGIN");
     };
-
+    const createProfile = (name: string) => {
+        if (!account) return;
+        const profile = {
+            name: name,
+            planToWatch: [],
+            favoritedMovies: [],
+        };
+        account.profiles.push(profile);
+        setDoc(doc(db, "users", account.id), account).then(() => {
+            setAccount(account);
+        });
+    };
     const changeUserProfile = (profileName: string) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === profileName) as UserProfile;
@@ -162,6 +173,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                 addToPlanToWatch,
                 removeFromPlanToWatch,
                 removeFromFavorites,
+                createProfile,
             }}
         >
             {children}

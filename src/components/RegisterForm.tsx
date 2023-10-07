@@ -41,7 +41,10 @@ function RegisterForm() {
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
                         ></input>
-                        <button type="submit" className="py-2.5 bg-[#e50914] rounded-md font-semibold">
+                        <button
+                            type="submit"
+                            className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
+                        >
                             Register
                         </button>
                     </form>

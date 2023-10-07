@@ -1,7 +1,7 @@
 import {useFirebaseContext} from "../context/FirebaseContext";
 
 function Navbar() {
-    const {logoutUser} = useFirebaseContext();
+    const {logoutUser, currentProfile} = useFirebaseContext();
     return (
         <nav className="w-full h-[3.5rem] flex px-16 py-4 bg-[#141414] justify-between fixed top-0 left-0 z-20">
             <div className="flex gap-8">
@@ -17,7 +17,9 @@ function Navbar() {
             <div className="flex gap-6 items-center">
                 <i className="fa-solid fa-magnifying-glass fa-lg"></i>
                 <i className="fa-regular fa-bell fa-lg"></i>
+
                 <span onClick={logoutUser}>Logout</span>
+                <span>{currentProfile?.name}</span>
             </div>
         </nav>
     );
