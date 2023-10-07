@@ -103,13 +103,15 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const checkFavorites = () => {
         if (!currentProfile) return;
-        if (!currentProfile.favoritedMovies.length) return;
+        if (!currentProfile.favoritedMovies) return;
+        if (!allMovies.length) return;
+        const temp = [] as MovieProps[];
         allMovies.forEach(movie => {
             if (currentProfile.favoritedMovies.includes(movie.id)) {
-                if (favoritedMovies && favoritedMovies.find(m => m.id === movie.id)) return;
-                setFavoritedMovies(prev => [...(prev || []), movie]);
+                temp.push(movie);
             }
         });
+        setFavoritedMovies(temp);
     };
 
     return (
