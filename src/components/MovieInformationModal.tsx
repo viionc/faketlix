@@ -14,7 +14,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
     const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
     const [similarMovies, setSimilarMovies] = useState<MovieProps[] | null>(null);
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-    const [error, setError] = useState<boolean>(false);
+    const [error] = useState<boolean>(false);
 
     const {getMovieLogo, getMovieCredits, getMovieDetails, getSimilarMovies} = useDataContext();
 
