@@ -1,8 +1,8 @@
 import {initializeApp} from "firebase/app";
-import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
-import {getFirestore} from "firebase/firestore";
+import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
+import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
-import {FirebaseContextProps} from "../types/types";
+import {FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -25,19 +25,21 @@ export function useFirebaseContext() {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-export const db = getFirestore(app);
+const db = getFirestore(app);
 
 export function FirebaseProvider({children}: {children: ReactNode}) {
-    const [, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [formTypeOpen, setFormTypeOpen] = useState<null | "LOGIN" | "REGISTER">("LOGIN");
+    const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
+    const [account, setAccount] = useState<UserAccount | null>(null);
 
     useEffect(() => {
         const observer = auth.onAuthStateChanged(user => {
             if (user) {
                 console.log("user logged in", new Date(Date.now()));
-                setCurrentUser(user);
                 setFormTypeOpen(null);
-                // loadDataFromDatabase(user);
+                loadDataFromDatabase(user);
+                setCurrentUser(user);
             }
         });
         return observer;
@@ -47,6 +49,8 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         let userCredential = null;
         try {
             userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const account = await createUserAccount(userCredential.user);
+            if (!account) throw new Error("Couldn't create account.");
         } catch (error) {
             return error;
         }
@@ -62,15 +66,70 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         });
     };
 
+    const createUserAccount = async (user: User): Promise<false | UserAccount> => {
+        const account: UserAccount = {
+            id: user.uid,
+            profiles: [
+                {
+                    name: user.email?.split("@")[0] || "Anonymous",
+                    planToWatch: [],
+                    favoritedMovies: [],
+                },
+            ],
+        };
+        try {
+            await setDoc(doc(db, "users", user.uid), account);
+            return account;
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
+    };
+    const loadDataFromDatabase = async (user: User): Promise<false | UserAccount> => {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setAccount(docSnap.data() as UserAccount);
+        }
+        return false;
+    };
+
+    const logoutUser = () => {
+        signOut(auth);
+        setCurrentProfile(null);
+        setCurrentUser(null);
+        setAccount(null);
+        setFormTypeOpen("LOGIN");
+    };
+
+    const changeUserProfile = (profileName: string) => {
+        if (!account) return;
+        const profile = account.profiles.find(profile => profile.name === profileName) as UserProfile;
+        setCurrentProfile(profile);
+    };
+
+    // const addToPlanToWatch = async (movieId: number) => {
+    //     if (!account) return;
+    //     const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
+    //     if (!profile) return;
+    //     if (profile.planToWatch.includes(movieId)) return;
+    //     profile.planToWatch.push(movieId);
+    //     await setDoc(doc(db, "users", account.id), account);
+    // };
+
     // const loginAnonymously = async () => {
     //     const userCredential = await signInAnonymously(auth);
-    //     await updateProfile(userCredential.user, {
-    //         displayName: `anon-${Math.floor(Math.random() * 10000)}`,
-    //     });
+
     //     setCurrentUser(userCredential.user);
     //     // const profile = await createCurrentUserProfile(userCredential.user, null);
     //     // await addUserToDatabase(profile);
     // };
 
-    return <FirebaseContext.Provider value={{loginUser, formTypeOpen, setFormTypeOpen, registerUser}}>{children}</FirebaseContext.Provider>;
+    return (
+        <FirebaseContext.Provider
+            value={{loginUser, formTypeOpen, setFormTypeOpen, registerUser, currentUser, logoutUser, account, currentProfile, changeUserProfile}}
+        >
+            {children}
+        </FirebaseContext.Provider>
+    );
 }

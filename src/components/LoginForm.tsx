@@ -36,6 +36,9 @@ function LoginForm() {
                             Sign in
                         </button>
                     </form>
+                    <button onClick={() => loginUser("a@a.pl", "123123")} className="my-2 py-2.5 bg-[#caa34f] rounded-md font-semibold">
+                        Demo Account
+                    </button>
                     <div className="flex justify-between mb-12">
                         <div className="flex gap-1 text-zinc-400 items-center">
                             <input id="remember" type="checkbox" className="h-[1rem] w-[1rem]"></input>

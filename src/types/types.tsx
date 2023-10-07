@@ -1,8 +1,15 @@
+import {User} from "firebase/auth";
+
 export type FirebaseContextProps = {
     loginUser: (email: string, password: string) => void;
     registerUser: (email: string, password: string) => void;
     formTypeOpen: null | "LOGIN" | "REGISTER";
     setFormTypeOpen: React.Dispatch<React.SetStateAction<"LOGIN" | "REGISTER" | null>>;
+    currentUser: User | null;
+    logoutUser: () => void;
+    currentProfile: UserProfile | null;
+    account: UserAccount | null;
+    changeUserProfile: (profileName: string) => void;
 };
 
 export type MovieProps = {
@@ -53,4 +60,15 @@ export type MovieDetails = {
 
 export type MovieTrailer = {
     key: string;
+};
+
+export type UserProfile = {
+    name: string;
+    planToWatch: number[];
+    favoritedMovies: number[];
+};
+
+export type UserAccount = {
+    id: string;
+    profiles: UserProfile[];
 };
