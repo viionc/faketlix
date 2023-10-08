@@ -1,5 +1,5 @@
 import {FormEvent, useState} from "react";
-import {useFirebaseContext} from "../context/FirebaseContext";
+import {useFirebaseContext} from "../../context/FirebaseContext";
 
 function LoginForm() {
     const [email, setEmail] = useState<string>("");

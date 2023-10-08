@@ -1,14 +1,14 @@
-import {MovieCredits, MovieDetails, MovieProps} from "../types/types";
-import {useModalContext} from "../context/ModalContext";
-import {IMAGE_ORIGINAL_PATH, MovieGenres} from "../types/constants";
+import {MovieCredits, MovieDetails, MovieProps} from "../../types/types";
+import {useModalContext} from "../../context/ModalContext";
+import {IMAGE_ORIGINAL_PATH, MovieGenres} from "../../types/constants";
 import {useEffect, useState} from "react";
-import Spinner from "./Spinner";
+import Spinner from "../Spinner";
 import {motion} from "framer-motion";
-import MovieCard from "./MovieCard";
-import {useDataContext} from "../context/DataContext";
-import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
-import AddToFavoritesButton from "./AddToFavoritesButton";
-import CloseModalButton from "./CloseModalButton";
+import MovieCard from "../MovieCard";
+import {useDataContext} from "../../context/DataContext";
+import AddToPlanToWatchButton from "../buttons/AddToPlanToWatchButton";
+import AddToFavoritesButton from "../buttons/AddToFavoritesButton";
+import CloseModalButton from "../buttons/CloseModalButton";
 
 function MovieInformationModal({movie}: {movie: MovieProps}) {
     const {closeModal} = useModalContext();

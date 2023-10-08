@@ -2,8 +2,8 @@ import {useState} from "react";
 import {MovieGenres} from "../types/constants";
 import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
-import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
-import AddToFavoritesButton from "./AddToFavoritesButton";
+import AddToPlanToWatchButton from "./buttons/AddToPlanToWatchButton";
+import AddToFavoritesButton from "./buttons/AddToFavoritesButton";
 
 function MovieCarouselInfo({movie}: {movie: MovieProps}) {
     const [showTooltip, setShowTooltip] = useState(false);

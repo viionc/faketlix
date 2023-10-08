@@ -74,6 +74,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                     name: user.email?.split("@")[0] || "Anonymous",
                     planToWatch: [],
                     favoritedMovies: [],
+                    profileColor: "bg-blue-400",
                 },
             ],
         };
@@ -101,12 +102,13 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setAccount(null);
         setFormTypeOpen("LOGIN");
     };
-    const createProfile = (name: string) => {
+    const createProfile = (name: string, profileColor: string) => {
         if (!account) return;
         const profile = {
             name: name,
             planToWatch: [],
             favoritedMovies: [],
+            profileColor,
         };
         account.profiles.push(profile);
         setDoc(doc(db, "users", account.id), account).then(() => {

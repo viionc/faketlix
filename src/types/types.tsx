@@ -14,7 +14,7 @@ export type FirebaseContextProps = {
     addToFavorites: (movie: MovieProps) => void;
     removeFromPlanToWatch: (movie: MovieProps) => void;
     removeFromFavorites: (movie: MovieProps) => void;
-    createProfile: (name: string) => void;
+    createProfile: (name: string, profileColor: string) => void;
 };
 
 export type MovieProps = {
@@ -72,6 +72,7 @@ export type UserProfile = {
     name: string;
     planToWatch: number[];
     favoritedMovies: number[];
+    profileColor: string;
 };
 
 export type UserAccount = {

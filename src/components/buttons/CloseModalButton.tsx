@@ -1,5 +1,5 @@
-import {useModalContext} from "../context/ModalContext";
-import {ModalActionNames} from "../types/types";
+import {useModalContext} from "../../context/ModalContext";
+import {ModalActionNames} from "../../types/types";
 
 function CloseModalButton({modal}: {modal: ModalActionNames}) {
     const {closeModal} = useModalContext();

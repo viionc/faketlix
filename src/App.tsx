@@ -1,9 +1,9 @@
 import "./App.css";
 import Content from "./components/Content";
-import LoginForm from "./components/LoginForm";
-import MovieInformationModal from "./components/MovieInformationModal";
+import LoginForm from "./components/forms/LoginForm";
+import MovieInformationModal from "./components/modals/MovieInformationModal";
 import ProfileScreen from "./components/ProfileScreen";
-import RegisterForm from "./components/RegisterForm";
+import RegisterForm from "./components/forms/RegisterForm";
 import {useFirebaseContext} from "./context/FirebaseContext";
 import {useModalContext} from "./context/ModalContext";
 

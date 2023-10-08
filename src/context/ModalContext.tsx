@@ -55,7 +55,7 @@ function ModalContextProvider({children}: {children: ReactNode}) {
     };
 
     useEffect(() => {
-        if (modalState.isMovieModalOpen || modalState.isCreateProfileModalOpen || modalState.isProfileSettingsModalOpen) {
+        if (modalState.isMovieModalOpen || modalState.isCreateProfileModalOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";

@@ -1,6 +1,6 @@
 import {MovieProps} from "../types/types";
 import {IMAGE_SMALL_PATH} from "../types/constants";
-import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
+import AddToPlanToWatchButton from "./buttons/AddToPlanToWatchButton";
 
 function MovieCard({movie}: {movie: MovieProps}) {
     return (
