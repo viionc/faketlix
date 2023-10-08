@@ -1,4 +1,4 @@
-import {ReactNode, createContext, useContext, useEffect, useState, useReducer} from "react";
+import {ReactNode, createContext, useContext, useEffect, useReducer} from "react";
 import {ModalAction, ModalActionNames, ModalContextProps, ModalReducerState, MovieProps} from "../types/types";
 
 const ModalContext = createContext<ModalContextProps | null>(null);
