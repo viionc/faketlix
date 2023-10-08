@@ -31,12 +31,9 @@ export type MovieProps = {
 };
 
 export type ModalContextProps = {
-    isModalOpen: boolean;
-    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    movieClicked: MovieProps | null;
-    setMovieClicked: React.Dispatch<React.SetStateAction<MovieProps | null>>;
-    openModal: (movie: MovieProps) => void;
-    closeModal: () => void;
+    modalState: ModalReducerState;
+    openModal: (name: ModalActionNames, movie?: MovieProps) => void;
+    closeModal: (name: ModalActionNames) => void;
 };
 
 export type DataContextProps = {
@@ -81,3 +78,18 @@ export type UserAccount = {
     id: string;
     profiles: UserProfile[];
 };
+
+export type ModalReducerState = {
+    isMovieModalOpen: boolean;
+    movieClicked: MovieProps | null;
+    isCreateProfileModalOpen: boolean;
+    isProfileSettingsModalOpen: boolean;
+};
+
+export type ModalAction = {
+    type: "OPEN_MODAL" | "CLOSE_MODAL";
+    name: ModalActionNames;
+    payload?: MovieProps | null;
+};
+
+export type ModalActionNames = "isMovieModalOpen" | "isCreateProfileModalOpen" | "isProfileSettingsModalOpen";

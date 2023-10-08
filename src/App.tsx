@@ -9,14 +9,16 @@ import {useModalContext} from "./context/ModalContext";
 
 function App() {
     const {formTypeOpen, account, currentProfile} = useFirebaseContext();
-    const {isModalOpen, movieClicked} = useModalContext();
+    const {modalState} = useModalContext();
     return (
         <>
             {formTypeOpen === "LOGIN" && <LoginForm></LoginForm>}
             {formTypeOpen === "REGISTER" && <RegisterForm></RegisterForm>}
             {account && !currentProfile && <ProfileScreen></ProfileScreen>}
             {currentProfile && <Content></Content>}
-            {isModalOpen && movieClicked && <MovieInformationModal movie={movieClicked}></MovieInformationModal>}
+            {modalState.isMovieModalOpen && modalState.movieClicked && (
+                <MovieInformationModal movie={modalState.movieClicked}></MovieInformationModal>
+            )}
         </>
     );
 }

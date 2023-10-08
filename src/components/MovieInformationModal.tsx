@@ -8,6 +8,7 @@ import MovieCard from "./MovieCard";
 import {useDataContext} from "../context/DataContext";
 import AddToPlanToWatchButton from "./AddToPlanToWatchButton";
 import AddToFavoritesButton from "./AddToFavoritesButton";
+import CloseModalButton from "./CloseModalButton";
 
 function MovieInformationModal({movie}: {movie: MovieProps}) {
     const {closeModal} = useModalContext();
@@ -56,7 +57,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
             className="w-full h-full top-0 left-0 fixed bg-black bg-opacity-25 flex items-center z-10 justify-center"
             onClick={e => {
                 e.stopPropagation();
-                closeModal();
+                closeModal("isMovieModalOpen");
             }}
         >
             <div className="h-full mt-28 w-1/2 overflow-x-hidden overflow-hidden z-30" onClick={e => e.stopPropagation()}>
@@ -66,23 +67,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                         initial={{scale: 0.8}}
                         animate={{scale: 1}}
                     >
-                        <button
-                            type="button"
-                            className="z-30 bg-gray-800 absolute top-2 right-2 cursor-pointer rounded-full border-2 border-white p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:border-gray-800 hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                            onClick={closeModal}
-                        >
-                            <span className="sr-only">Close menu</span>
-                            <svg
-                                className="h-6 w-6 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                        <CloseModalButton modal={"isMovieModalOpen"}></CloseModalButton>
                         <div className="relative h-[36rem]">
                             <img
                                 src={`${IMAGE_ORIGINAL_PATH}${movie.backdrop_path}`}
@@ -163,7 +148,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                     <h2 className="text-2xl text-white">Similar Movies:</h2>
                                     <div className="flex flex-wrap gap-2 justify-center">
                                         {similarMovies?.map(movie => {
-                                            return <MovieCard movie={movie}></MovieCard>;
+                                            return <MovieCard key={movie.id} movie={movie}></MovieCard>;
                                         })}
                                     </div>
                                 </div>

@@ -57,7 +57,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>
                     <button
-                        onClick={() => openModal(movie)}
+                        onClick={() => openModal("isMovieModalOpen", movie)}
                         className="py-3 px-10 bg-[#6E6D6D] text-2xl rounded-md text-white bg-opacity-[70%] hover:bg-opacity-[60%] flex justify-center items-center gap-2"
                     >
                         <svg
