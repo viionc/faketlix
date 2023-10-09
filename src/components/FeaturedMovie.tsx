@@ -31,7 +31,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
             {movieTrailer ? (
                 <div className="video-responsive">
                     <iframe
-                        width={window.innerWidth}
+                        width={window.innerWidth - 20}
                         className="h-[90vh]"
                         src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1`}
                         allow="autoplay"

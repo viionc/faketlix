@@ -2,7 +2,7 @@ function CarouselPlaceholder() {
     const numberPerPage = Math.floor((window.outerWidth - 64) / 304);
 
     return (
-        <div className="flex w-full gap-2 relative h-[10rem] justify-center">
+        <div className="py-2 pt-6 ps-4 flex w-full gap-2 relative h-[10rem] justify-center">
             {Array(numberPerPage)
                 .fill("")
                 .map((_, i) => {

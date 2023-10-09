@@ -33,6 +33,45 @@ export type MovieProps = {
     adult: boolean;
 };
 
+export interface MovieInformationResponse extends Response {
+    credits: {cast: Array<{name: string}>; crew: Array<{known_for_department: string; name: string}>};
+    images: {logos: Array<{iso_639_1: string; file_path: string}>};
+    keywords: {keywords: Array<{name: string; id: number}>};
+    similar: {results: Array<MovieProps>};
+    videos: {results: Array<{key: string; type: string}>};
+    adult: boolean;
+    release_date: string;
+    runtime: number;
+    id: number;
+    genre_ids: number[];
+    backdrop_path: string;
+    title: string;
+    overview: string;
+    vote_average: number;
+    vote_count: number;
+    poster_path: string;
+}
+
+export type MovieInformation = {
+    cast: Array<string>;
+    director: string;
+    logoURL: string;
+    keywords: Array<string>;
+    similar: Array<MovieProps>;
+    trailerURL: string;
+    adult: boolean;
+    release_date: string;
+    runtime: string;
+    id: number;
+    genre_ids: number[];
+    backdrop_path: string;
+    title: string;
+    overview: string;
+    vote_average: number;
+    vote_count: number;
+    poster_path: string;
+};
+
 export type ModalContextProps = {
     modalState: ModalReducerState;
     openModal: (name: ModalActionNames, payload?: ModalActionPayload) => void;
@@ -54,6 +93,9 @@ export type DataContextProps = {
     getMovieTrailer: (movieId: number) => Promise<false | string>;
     checkPlanToWatch: () => void;
     checkFavorites: () => void;
+    getMovieInformation: (movieId: number) => Promise<false | MovieInformation>;
+    getMoviesByGenre: (genres: number[]) => Promise<boolean>;
+    moviesByGenre: Record<string, MovieProps[]>;
 };
 
 export type MovieCredits = {

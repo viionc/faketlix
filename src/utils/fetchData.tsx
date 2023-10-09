@@ -1,4 +1,4 @@
-import {MovieCredits, MovieDetails, MovieProps} from "../types/types";
+import {MovieCredits, MovieDetails, MovieInformation, MovieInformationResponse, MovieProps} from "../types/types";
 
 const options = {
     method: "GET",
@@ -33,6 +33,9 @@ interface TrailerResponse extends Response {
     results: Array<{key: string; type: string}>;
 }
 
+//https://api.themoviedb.org/3/movie/upcoming
+//https://api.themoviedb.org/3/movie/popular?region=PL
+
 export const fetchTopRatedMovies = async (): Promise<false | MovieProps[]> => {
     let topRatedResponse = {} as MovieResponse;
     try {
@@ -64,8 +67,75 @@ export const fetchPopularMovies = async (): Promise<false | MovieProps[]> => {
     return popularMoviesResponse.results;
 };
 
+export const fetchMoviesByGenre = async (genre: number): Promise<false | MovieProps[]> => {
+    let movies = {} as MovieResponse;
+    try {
+        movies = (await fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=${genre}`, options)) as MovieResponse;
+        if (!movies.ok) {
+            return false;
+        }
+        movies = await movies.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    return movies.results;
+};
+
+export const fetchMovieInformation = async (movieId: number): Promise<false | MovieInformation> => {
+    let movieInformationResponse = {} as MovieInformationResponse;
+    try {
+        movieInformationResponse = (await fetch(
+            `https://api.themoviedb.org/3/movie/${movieId}?append_to_response=images,videos,credits,keywords,details`,
+            options
+        )) as MovieInformationResponse;
+        if (!movieInformationResponse.ok) {
+            return false;
+        }
+
+        movieInformationResponse = await movieInformationResponse.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+
+    const englishLogo = movieInformationResponse.images.logos.find(logo => logo.iso_639_1 === "en");
+    const logo = englishLogo ? englishLogo.file_path : movieInformationResponse.images.logos[0].file_path;
+    const cast = movieInformationResponse.credits.cast.slice(0, 4).map(c => c.name);
+    let director = movieInformationResponse.credits.crew.find(crew => crew.known_for_department === "Directing")?.name;
+    const hours = Math.floor(movieInformationResponse.runtime / 60);
+    const minutes = Math.floor(movieInformationResponse.runtime % 60);
+    const runtime = `${hours ? hours + "h " : null}${minutes}m`;
+    const trailerURL = movieInformationResponse.videos.results.filter(r => r.type === "Trailer")[0].key;
+    const keywords = movieInformationResponse.keywords.keywords.map(k => k.name);
+    if (!director) director = "Unknown";
+
+    const movie: MovieInformation = {
+        id: movieInformationResponse.id,
+        adult: movieInformationResponse.adult,
+        logoURL: logo,
+        cast,
+        director,
+        runtime,
+        trailerURL,
+        genre_ids: movieInformationResponse.genre_ids,
+        backdrop_path: movieInformationResponse.backdrop_path,
+        title: movieInformationResponse.title,
+        overview: movieInformationResponse.overview,
+        vote_average: movieInformationResponse.vote_average,
+        keywords,
+        similar: [],
+        release_date: movieInformationResponse.release_date,
+        vote_count: movieInformationResponse.vote_count,
+        poster_path: movieInformationResponse.poster_path,
+    };
+    console.log(movie);
+    return movie;
+};
+
 export const fetchMovieLogo = async (movieId: number): Promise<false | string> => {
     let logoResponse = {} as LogoResponse;
+    fetchMovieInformation(2);
     try {
         logoResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movieId}/images`, options)) as LogoResponse;
         if (!logoResponse.ok) {

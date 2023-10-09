@@ -1,15 +1,18 @@
 import {ReactNode, createContext, useContext, useState} from "react";
-import {DataContextProps, MovieCredits, MovieDetails, MovieProps} from "../types/types";
+import {DataContextProps, MovieCredits, MovieDetails, MovieInformation, MovieProps} from "../types/types";
 import {
     fetchMovieCredits,
     fetchMovieDetails,
+    fetchMovieInformation,
     fetchMovieLogo,
     fetchMovieTrailer,
+    fetchMoviesByGenre,
     fetchPopularMovies,
     fetchSimilarMovies,
     fetchTopRatedMovies,
 } from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
+import {MOVIE_GENRES} from "../types/constants";
 
 const DataContext = createContext<DataContextProps | null>(null);
 
@@ -25,6 +28,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const [popularMovies, setPopularMovies] = useState<MovieProps[] | null>(null);
     const [planToWatch, setPlanToWatch] = useState<MovieProps[] | null>(null);
     const [favoritedMovies, setFavoritedMovies] = useState<MovieProps[] | null>(null);
+    const [moviesByGenre, setMoviesByGenre] = useState<Record<string, MovieProps[]>>({});
     const [allMovies, setAllMovies] = useState<MovieProps[]>([]);
 
     const {currentProfile} = useFirebaseContext();
@@ -41,6 +45,35 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return true;
     };
 
+    const getMoviesByGenre = async (genres: number[]): Promise<boolean> => {
+        let movies = await fetchMoviesByGenre(genres[0]);
+        if (!movies) {
+            return false;
+        }
+        let genre = MOVIE_GENRES[genres[0]];
+        setMoviesByGenre(prev => {
+            return (prev = {
+                ...prev,
+                [genre]: movies as MovieProps[],
+            });
+        });
+        setAllMovies(prev => [...prev, ...(movies as MovieProps[])]);
+
+        movies = await fetchMoviesByGenre(genres[1]);
+        if (!movies) {
+            return false;
+        }
+        genre = MOVIE_GENRES[genres[1]];
+        setMoviesByGenre(prev => {
+            return (prev = {
+                ...prev,
+                [genre]: movies as MovieProps[],
+            });
+        });
+        setAllMovies(prev => [...prev, ...(movies as MovieProps[])]);
+
+        return true;
+    };
     const getPopularMovies = async (): Promise<boolean> => {
         const movies = await fetchPopularMovies();
         if (!movies) {
@@ -57,6 +90,14 @@ function DataContextProvider({children}: {children: ReactNode}) {
             return false;
         }
         return logo;
+    };
+
+    const getMovieInformation = async (movieId: number): Promise<false | MovieInformation> => {
+        const details = await fetchMovieInformation(movieId);
+        if (!details) {
+            return false;
+        }
+        return details;
     };
     const getMovieCredits = async (movieId: number): Promise<false | MovieCredits> => {
         const credits = await fetchMovieCredits(movieId);
@@ -122,6 +163,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 popularMovies,
                 planToWatch,
                 favoritedMovies,
+                moviesByGenre,
                 getTopRatedMovies,
                 getPopularMovies,
                 getMovieLogo,
@@ -131,6 +173,8 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 getMovieTrailer,
                 checkPlanToWatch,
                 checkFavorites,
+                getMovieInformation,
+                getMoviesByGenre,
             }}
         >
             {children}

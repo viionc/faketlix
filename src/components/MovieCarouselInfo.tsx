@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {MovieGenres} from "../types/constants";
+import {MOVIE_GENRES} from "../types/constants";
 import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
 import AddToPlanToWatchButton from "./buttons/AddToPlanToWatchButton";
@@ -52,7 +52,7 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
                 {movie.genre_ids.map(id => {
                     return (
                         <span key={id} className="text-zinc-400 text-xs">
-                            {MovieGenres[id.toString()]}
+                            {MOVIE_GENRES[id]}
                         </span>
                     );
                 })}

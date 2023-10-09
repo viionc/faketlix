@@ -1,6 +1,6 @@
-import {MovieCredits, MovieDetails, MovieProps} from "../../types/types";
+import {MovieInformation, MovieProps} from "../../types/types";
 import {useModalContext} from "../../context/ModalContext";
-import {IMAGE_ORIGINAL_PATH, MovieGenres} from "../../types/constants";
+import {IMAGE_ORIGINAL_PATH, MOVIE_GENRES} from "../../types/constants";
 import {useEffect, useState} from "react";
 import Spinner from "../Spinner";
 import {motion} from "framer-motion";
@@ -12,44 +12,35 @@ import CloseModalButton from "../buttons/CloseModalButton";
 
 function MovieInformationModal({movie}: {movie: MovieProps}) {
     const {closeModal} = useModalContext();
-    const [movieLogo, setMovieLogo] = useState<string | null>();
-    const [movieCredits, setMovieCredits] = useState<MovieCredits | null>(null);
-    const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
-    const [similarMovies, setSimilarMovies] = useState<MovieProps[] | null>(null);
+
     const [dataLoaded, setDataLoaded] = useState<boolean>(false);
     const [error] = useState<boolean>(false);
+    const [movieInformation, setMovieInformation] = useState<MovieInformation | null>(null);
 
-    const {getMovieLogo, getMovieCredits, getMovieDetails, getSimilarMovies} = useDataContext();
+    const {getSimilarMovies, getMovieInformation} = useDataContext();
 
-    const getMovieInformation = async () => {
-        // logo
-        getMovieLogo(movie.id).then(response => {
-            if (response) {
-                setMovieLogo(response);
-            }
-        });
-
-        getMovieCredits(movie.id).then(response => {
-            if (response) {
-                setMovieCredits(response);
-            }
-        });
-        getMovieDetails(movie.id).then(response => {
-            if (response) {
-                setMovieDetails(response);
-            }
-        });
-        getSimilarMovies(movie)
+    const fetchData = async () => {
+        getMovieInformation(movie.id)
             .then(response => {
                 if (response) {
-                    setSimilarMovies(response);
+                    setMovieInformation(response);
                 }
+            })
+            .then(() => {
+                getSimilarMovies(movie).then(response => {
+                    if (response) {
+                        setMovieInformation(prev => {
+                            if (!prev) return prev;
+                            return {...prev, similar: response};
+                        });
+                    }
+                });
             })
             .then(() => setDataLoaded(true));
     };
 
     useEffect(() => {
-        getMovieInformation();
+        fetchData();
     }, []);
 
     return (
@@ -76,7 +67,11 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                             ></img>
                             <div className="absolute top-[60%] left-10 flex flex-col w-full">
                                 <div>
-                                    <img src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`} alt={`${movie.title} logo`} className="w-[14rem] "></img>
+                                    <img
+                                        src={`${IMAGE_ORIGINAL_PATH}${movieInformation?.logoURL}`}
+                                        alt={`${movie.title} logo`}
+                                        className="w-[14rem] "
+                                    ></img>
                                     <div className="ps-10 mt-4 w-full h-[3rem] flex gap-2">
                                         <span className="py-1 px-8 bg-white rounded-md flex gap-2 justify-center items-center hover:bg-opacity-50 cursor-pointer text-black font-semibold text-xl">
                                             <svg
@@ -110,14 +105,14 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                             <span className="text-lime-600 text-sm font-semibold">
                                                 Votes: {Math.floor((movie.vote_average / 10) * 100)}%
                                             </span>
-                                            <span>{movieDetails?.release_date}</span>
-                                            <span>{movieDetails?.runtime}</span>
+                                            <span>{movieInformation?.release_date}</span>
+                                            <span>{movieInformation?.runtime}</span>
                                             <span className="border border-zinc-400 rounded-sm h-[1.5rem]">HD</span>
                                         </div>
 
                                         <div>
                                             <span className="w-[2rem] h[1rem] text-xs border border-gray-100">
-                                                {movieDetails?.adult ? "18+" : "13+"}
+                                                {movieInformation?.adult ? "18+" : "13+"}
                                             </span>
                                         </div>
                                         <div className="mt-10">{movie.overview}</div>
@@ -127,9 +122,9 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                         <div className="flex flex-col gap-1">
                                             <span className="flex gap-x-2 text-zinc-500 text-sm flex-wrap">
                                                 Cast:{" "}
-                                                {movieCredits?.cast.map((person, i) => (
+                                                {movieInformation?.cast.map((person, i) => (
                                                     <span key={i} className="text-white after:content-[','] last:after:content-['']">
-                                                        {person.name}
+                                                        {person}
                                                     </span>
                                                 ))}
                                             </span>
@@ -137,7 +132,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                                 Genres:{" "}
                                                 {movie?.genre_ids.map(id => (
                                                     <span key={id} className="text-white after:content-[','] last:after:content-['']">
-                                                        {MovieGenres[id]}
+                                                        {MOVIE_GENRES[id]}
                                                     </span>
                                                 ))}
                                             </span>
@@ -147,7 +142,7 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                 <div className="flex flex-col gap-2 mt-10">
                                     <h2 className="text-2xl text-white">Similar Movies:</h2>
                                     <div className="flex flex-wrap gap-2 justify-center">
-                                        {similarMovies?.map(movie => {
+                                        {movieInformation?.similar.map(movie => {
                                             return <MovieCard key={movie.id} movie={movie}></MovieCard>;
                                         })}
                                     </div>
@@ -155,13 +150,13 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                 <div className="flex flex-col mt-10 gap-1 pb-5">
                                     <h2 className="text-2xl">About {movie.title}</h2>
                                     <span className="flex gap-x-2 text-zinc-500 text-sm flex-wrap">
-                                        Director: <span className="text-white">{movieCredits?.director}</span>
+                                        Director: <span className="text-white">{movieInformation?.director}</span>
                                     </span>
                                     <span className="flex gap-x-2 text-zinc-500 text-sm flex-wrap">
                                         Cast:{" "}
-                                        {movieCredits?.cast.map((person, i) => (
+                                        {movieInformation?.cast.map((person, i) => (
                                             <span key={i} className="text-white after:content-[','] last:after:content-['']">
-                                                {person.name}
+                                                {person}
                                             </span>
                                         ))}
                                     </span>
@@ -169,13 +164,15 @@ function MovieInformationModal({movie}: {movie: MovieProps}) {
                                         Genres:{" "}
                                         {movie?.genre_ids.map(id => (
                                             <span key={id} className="text-white after:content-[','] last:after:content-['']">
-                                                {MovieGenres[id]}
+                                                {MOVIE_GENRES[id]}
                                             </span>
                                         ))}{" "}
                                     </span>
                                     <div>
-                                        <span className="w-[2rem] h[1rem] text-xs border border-gray-100">{movieDetails?.adult ? "18+" : "13+"}</span>
-                                        <span> Recommended for ages {movieDetails?.adult ? "18" : "13"} or up.</span>
+                                        <span className="w-[2rem] h[1rem] text-xs border border-gray-100">
+                                            {movieInformation?.adult ? "18+" : "13+"}
+                                        </span>
+                                        <span> Recommended for ages {movieInformation?.adult ? "18" : "13"} or up.</span>
                                     </div>
                                 </div>
                             </div>
