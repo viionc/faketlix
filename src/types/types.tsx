@@ -15,6 +15,9 @@ export type FirebaseContextProps = {
     removeFromPlanToWatch: (movie: MovieProps) => void;
     removeFromFavorites: (movie: MovieProps) => void;
     createProfile: (name: string, profileColor: string) => void;
+    manageProfiles: boolean;
+    setManageProfiles: React.Dispatch<React.SetStateAction<boolean>>;
+    updateProfile: (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => void;
 };
 
 export type MovieProps = {
@@ -32,8 +35,8 @@ export type MovieProps = {
 
 export type ModalContextProps = {
     modalState: ModalReducerState;
-    openModal: (name: ModalActionNames, movie?: MovieProps) => void;
-    closeModal: (name: ModalActionNames) => void;
+    openModal: (name: ModalActionNames, payload?: ModalActionPayload) => void;
+    closeModal: (name: ModalActionNames, payload?: ModalActionPayload) => void;
 };
 
 export type DataContextProps = {
@@ -73,6 +76,7 @@ export type UserProfile = {
     planToWatch: number[];
     favoritedMovies: number[];
     profileColor: string;
+    autoplay: boolean;
 };
 
 export type UserAccount = {
@@ -84,13 +88,18 @@ export type ModalReducerState = {
     isMovieModalOpen: boolean;
     movieClicked: MovieProps | null;
     isCreateProfileModalOpen: boolean;
-    isProfileSettingsModalOpen: boolean;
+    isManageProfilesModalOpen: boolean;
+    profileCliked: UserProfile | null;
 };
 
 export type ModalAction = {
     type: "OPEN_MODAL" | "CLOSE_MODAL";
     name: ModalActionNames;
-    payload?: MovieProps | null;
+    payload?: ModalActionPayload;
 };
 
-export type ModalActionNames = "isMovieModalOpen" | "isCreateProfileModalOpen" | "isProfileSettingsModalOpen";
+export type ModalActionPayload = {
+    name: "movieClicked" | "profileCliked";
+    value: MovieProps | UserProfile | null;
+};
+export type ModalActionNames = "isMovieModalOpen" | "isCreateProfileModalOpen" | "isManageProfilesModalOpen";

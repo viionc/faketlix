@@ -3,6 +3,7 @@ import {MovieProps} from "../types/types";
 import {useModalContext} from "../context/ModalContext";
 import {IMAGE_ORIGINAL_PATH} from "../types/constants";
 import {useDataContext} from "../context/DataContext";
+import {useFirebaseContext} from "../context/FirebaseContext";
 
 function FeaturedMovie({movie}: {movie: MovieProps}) {
     const [movieLogo, setMovieLogo] = useState<string | null>();
@@ -10,6 +11,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
 
     const {openModal} = useModalContext();
     const {getMovieLogo, getMovieTrailer} = useDataContext();
+    const {currentProfile} = useFirebaseContext();
 
     useEffect(() => {
         getMovieLogo(movie.id).then(response => {
@@ -31,7 +33,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                     <iframe
                         width={window.innerWidth}
                         className="h-[90vh]"
-                        src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=1&mute=1`}
+                        src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1`}
                         allow="autoplay"
                         title="Embedded youtube"
                     />
@@ -57,7 +59,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>
                     <button
-                        onClick={() => openModal("isMovieModalOpen", movie)}
+                        onClick={() => openModal("isMovieModalOpen", {name: "movieClicked", value: movie})}
                         className="py-3 px-10 bg-[#6E6D6D] text-2xl rounded-md text-white bg-opacity-[70%] hover:bg-opacity-[60%] flex justify-center items-center gap-2"
                     >
                         <svg

@@ -22,7 +22,7 @@ function MovieCarouselInfo({movie}: {movie: MovieProps}) {
                 <span
                     onMouseEnter={() => setShowTooltip(true)}
                     onMouseLeave={() => setShowTooltip(false)}
-                    onClick={() => openModal("isMovieModalOpen", movie)}
+                    onClick={() => openModal("isMovieModalOpen", {name: "movieClicked", value: movie})}
                     className="relative group ms-auto h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer"
                 >
                     <svg

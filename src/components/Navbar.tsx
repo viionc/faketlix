@@ -1,4 +1,4 @@
-import ProfileSettingsModal from "./modals/ProfileSettingsModal";
+import ProfileSettingsModal from "./modals/ProfileMenu";
 
 function Navbar() {
     return (

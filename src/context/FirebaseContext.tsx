@@ -32,6 +32,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
     const [formTypeOpen, setFormTypeOpen] = useState<null | "LOGIN" | "REGISTER">("LOGIN");
     const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
     const [account, setAccount] = useState<UserAccount | null>(null);
+    const [manageProfiles, setManageProfiles] = useState<boolean>(false);
 
     useEffect(() => {
         const observer = auth.onAuthStateChanged(user => {
@@ -75,6 +76,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                     planToWatch: [],
                     favoritedMovies: [],
                     profileColor: "bg-blue-400",
+                    autoplay: true,
                 },
             ],
         };
@@ -109,11 +111,20 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
             planToWatch: [],
             favoritedMovies: [],
             profileColor,
+            autoplay: true,
         };
         account.profiles.push(profile);
         setDoc(doc(db, "users", account.id), account).then(() => {
             setAccount(account);
         });
+    };
+
+    const updateProfile = (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => {
+        if (!account) return;
+        profileClicked.name = name;
+        profileClicked.profileColor = profileColor;
+        profileClicked.autoplay = autoplay;
+        setDoc(doc(db, "users", account.id), account);
     };
     const changeUserProfile = (profileName: string) => {
         if (!account) return;
@@ -176,6 +187,9 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                 removeFromPlanToWatch,
                 removeFromFavorites,
                 createProfile,
+                manageProfiles,
+                setManageProfiles,
+                updateProfile,
             }}
         >
             {children}

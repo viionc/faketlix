@@ -1,32 +1,39 @@
 import {motion} from "framer-motion";
-import {FormEvent, useState} from "react";
+import {FormEvent, useEffect, useState} from "react";
 import CloseModalButton from "../buttons/CloseModalButton";
 import {useModalContext} from "../../context/ModalContext";
 import {useFirebaseContext} from "../../context/FirebaseContext";
 import {PROFILE_COLORS} from "../../types/constants";
 
-function CreateProfileModal() {
+function ManageProfilesModal() {
     const [profileName, setProfileName] = useState<string>("");
     const [profileColor, setProfileColor] = useState<string>("bg-blue-400");
+    const [autoplay, setAutoplay] = useState<boolean>(false);
 
-    const {account, createProfile} = useFirebaseContext();
-    const {closeModal} = useModalContext();
+    const {account, updateProfile} = useFirebaseContext();
+    const {closeModal, modalState} = useModalContext();
 
-    const handleCreateProfile = (e: FormEvent) => {
+    const handleUpdateProfile = (e: FormEvent) => {
         e.preventDefault();
-        if (!account) return;
+        if (!account || !modalState.profileCliked) return;
         if (profileName.length < 3 && profileName.length > 15) return;
-        if (account.profiles.find(profile => profile.name === profileName)) return;
-        createProfile(profileName, profileColor);
-        closeModal("isCreateProfileModalOpen");
-        setProfileName("");
+        if (account.profiles.find(profile => profile.name === profileName && profileName !== modalState.profileCliked?.name)) return;
+        updateProfile(modalState.profileCliked, profileName, profileColor, autoplay);
+        closeModal("isManageProfilesModalOpen");
     };
+
+    useEffect(() => {
+        if (!modalState.profileCliked) return;
+        setProfileName(modalState.profileCliked.name);
+        setProfileColor(modalState.profileCliked.profileColor);
+        setAutoplay(modalState.profileCliked.autoplay || true);
+    }, [modalState.profileCliked]);
 
     return (
         <>
             <div
                 className="w-full h-[100vh] bg-black bg-opacity-50 absolute top-0 left-0 z-10"
-                onClick={() => closeModal("isCreateProfileModalOpen")}
+                onClick={() => closeModal("isManageProfilesModalOpen")}
             ></div>
             <motion.div
                 initial={{transform: "translate(-50%, -50%) scale(0.8)"}}
@@ -35,8 +42,8 @@ function CreateProfileModal() {
                 onClick={e => e.stopPropagation()}
             >
                 <div className="relative w-full h-full flex items-center flex-col justify-center py-16">
-                    <CloseModalButton modal={"isCreateProfileModalOpen"}></CloseModalButton>
-                    <form className="flex flex-col gap-3 mb-2 p-10" onSubmit={handleCreateProfile}>
+                    <CloseModalButton modal={"isManageProfilesModalOpen"}></CloseModalButton>
+                    <form className="flex flex-col gap-6 mb-2 p-10" onSubmit={handleUpdateProfile}>
                         <label htmlFor="profile" className="text-2xl">
                             Profile name:
                         </label>
@@ -67,11 +74,21 @@ function CreateProfileModal() {
                                 ))}
                             </div>
                         </div>
+                        <div className="flex gap-2">
+                            <label htmlFor="autoplay">Autoplay preview videos? </label>
+                            <input
+                                id="autoplay"
+                                type="checkbox"
+                                className="w-6 h-6"
+                                checked={autoplay}
+                                onChange={() => setAutoplay(!autoplay)}
+                            ></input>
+                        </div>
                         <button
                             type="submit"
                             className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
                         >
-                            Add
+                            Save
                         </button>
                     </form>
                 </div>
@@ -80,4 +97,4 @@ function CreateProfileModal() {
     );
 }
 
-export default CreateProfileModal;
+export default ManageProfilesModal;
