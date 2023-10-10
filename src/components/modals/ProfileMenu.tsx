@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {useFirebaseContext} from "../../context/FirebaseContext";
 import {UserProfile} from "../../types/types";
-import ProfileIcon from "../ProfileIcon";
+import ProfileIcon from "../profile/ProfileIcon";
 
 function ProfileSettingsModal() {
     const {account, logoutUser, changeUserProfile, currentProfile} = useFirebaseContext();

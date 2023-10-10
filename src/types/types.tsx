@@ -84,6 +84,9 @@ export type DataContextProps = {
     popularMovies: MovieProps[] | null;
     planToWatch: MovieProps[] | null;
     favoritedMovies: MovieProps[] | null;
+    moviesByGenre: Record<string, MovieProps[]>;
+    upcomingMovies: MovieProps[] | null;
+    trendingInPoland: MovieProps[] | null;
     getTopRatedMovies: () => Promise<boolean>;
     getPopularMovies: () => Promise<boolean>;
     getMovieLogo: (movieId: number) => Promise<false | string>;
@@ -95,7 +98,8 @@ export type DataContextProps = {
     checkFavorites: () => void;
     getMovieInformation: (movieId: number) => Promise<false | MovieInformation>;
     getMoviesByGenre: (genres: number[]) => Promise<boolean>;
-    moviesByGenre: Record<string, MovieProps[]>;
+    getUpcomingMovies: () => Promise<boolean>;
+    getTrendingInPoland: () => Promise<boolean>;
 };
 
 export type MovieCredits = {

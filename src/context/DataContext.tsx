@@ -10,6 +10,8 @@ import {
     fetchPopularMovies,
     fetchSimilarMovies,
     fetchTopRatedMovies,
+    fetchTrendingInPoland,
+    fetchUpcomingMovies,
 } from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
 import {MOVIE_GENRES} from "../types/constants";
@@ -30,6 +32,8 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const [favoritedMovies, setFavoritedMovies] = useState<MovieProps[] | null>(null);
     const [moviesByGenre, setMoviesByGenre] = useState<Record<string, MovieProps[]>>({});
     const [allMovies, setAllMovies] = useState<MovieProps[]>([]);
+    const [upcomingMovies, setUpcomingMovies] = useState<MovieProps[] | null>(null);
+    const [trendingInPoland, setTrendingInPoland] = useState<MovieProps[] | null>(null);
 
     const {currentProfile} = useFirebaseContext();
 
@@ -129,6 +133,26 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return trailer;
     };
 
+    const getUpcomingMovies = async (): Promise<boolean> => {
+        const upcomingMovies = await fetchUpcomingMovies();
+        if (!upcomingMovies) {
+            return false;
+        }
+        setUpcomingMovies(upcomingMovies);
+        setAllMovies(prev => [...prev, ...(upcomingMovies as MovieProps[])]);
+        return true;
+    };
+
+    const getTrendingInPoland = async (): Promise<boolean> => {
+        const trendingInPoland = await fetchTrendingInPoland();
+        if (!trendingInPoland) {
+            return false;
+        }
+        setTrendingInPoland(trendingInPoland.slice(0, 10));
+        setAllMovies(prev => [...prev, ...(trendingInPoland as MovieProps[])]);
+        return true;
+    };
+
     const checkPlanToWatch = () => {
         if (!currentProfile) return;
         if (!currentProfile.planToWatch) return;
@@ -164,6 +188,8 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 planToWatch,
                 favoritedMovies,
                 moviesByGenre,
+                upcomingMovies,
+                trendingInPoland,
                 getTopRatedMovies,
                 getPopularMovies,
                 getMovieLogo,
@@ -175,6 +201,8 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 checkFavorites,
                 getMovieInformation,
                 getMoviesByGenre,
+                getUpcomingMovies,
+                getTrendingInPoland,
             }}
         >
             {children}

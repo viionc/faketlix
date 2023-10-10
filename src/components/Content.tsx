@@ -1,11 +1,11 @@
 import {useEffect, useRef, useState} from "react";
 import Navbar from "./Navbar";
 import FeaturedMovie from "./FeaturedMovie";
-import MovieCarousel from "./MovieCarousel";
+import MovieCarousel from "./carousels/MovieCarousel";
 import Footer from "./Footer";
 import Spinner from "./Spinner";
 import {useDataContext} from "../context/DataContext";
-import CarouselPlaceholder from "./CarouselPlaceholder";
+import CarouselPlaceholder from "./carousels/CarouselPlaceholder";
 import {useFirebaseContext} from "../context/FirebaseContext";
 import {MOVIE_GENRES} from "../types/constants";
 
@@ -17,11 +17,15 @@ function Content() {
         popularMovies,
         getPopularMovies,
         moviesByGenre,
+        upcomingMovies,
+        trendingInPoland,
+        getMoviesByGenre,
+        getUpcomingMovies,
+        getTrendingInPoland,
         // planToWatch,
         // favoritedMovies,
         // checkPlanToWatch,
         // checkFavorites,
-        getMoviesByGenre,
     } = useDataContext();
 
     const {currentProfile} = useFirebaseContext();
@@ -42,6 +46,14 @@ function Content() {
                 console.log("Failed to load top rated movies");
             }
             response = await getPopularMovies();
+            if (!response) {
+                console.log("Failed to load top rated movies");
+            }
+            response = await getUpcomingMovies();
+            if (!response) {
+                console.log("Failed to load top rated movies");
+            }
+            response = await getTrendingInPoland();
             if (!response) {
                 console.log("Failed to load top rated movies");
             }
@@ -101,13 +113,25 @@ function Content() {
 
             {topRatedMovies && <MovieCarousel movies={topRatedMovies} title="Top Rated"></MovieCarousel>}
             {popularMovies && <MovieCarousel movies={popularMovies} title="Popular"></MovieCarousel>}
+            {upcomingMovies && <MovieCarousel movies={upcomingMovies} title="Upcoming"></MovieCarousel>}
+            {trendingInPoland && <MovieCarousel movies={trendingInPoland} title="Top 10 Movies In Poland"></MovieCarousel>}
 
             {/* {planToWatch && planToWatch.length > 0 && <MovieCarousel movies={planToWatch} title="Plan To Watch"></MovieCarousel>}
             {favoritedMovies && favoritedMovies.length > 0 && <MovieCarousel movies={favoritedMovies} title="Favorite"></MovieCarousel>} */}
-            {moviesByGenre[Object.values(MOVIE_GENRES)[0]] && (
-                <MovieCarousel title={Object.values(MOVIE_GENRES)[0]} movies={moviesByGenre[Object.values(MOVIE_GENRES)[0]]}></MovieCarousel>
-            )}
-            {moviesByGenre[Object.values(MOVIE_GENRES)[1]] && (
+            {Array(pagesLoaded)
+                .fill("")
+                .map((_, i) => {
+                    return (
+                        moviesByGenre[Object.values(MOVIE_GENRES)[i]] && (
+                            <MovieCarousel
+                                title={Object.values(MOVIE_GENRES)[i]}
+                                movies={moviesByGenre[Object.values(MOVIE_GENRES)[i]]}
+                            ></MovieCarousel>
+                        )
+                    );
+                })}
+
+            {/* {moviesByGenre[Object.values(MOVIE_GENRES)[1]] && (
                 <MovieCarousel title={Object.values(MOVIE_GENRES)[1]} movies={moviesByGenre[Object.values(MOVIE_GENRES)[1]]}></MovieCarousel>
             )}
             {moviesByGenre[Object.values(MOVIE_GENRES)[2]] && (
@@ -154,7 +178,7 @@ function Content() {
             )}
             {moviesByGenre[Object.values(MOVIE_GENRES)[16]] && (
                 <MovieCarousel title={Object.values(MOVIE_GENRES)[16]} movies={moviesByGenre[Object.values(MOVIE_GENRES)[16]]}></MovieCarousel>
-            )}
+            )} */}
 
             {isLoading && <CarouselPlaceholder></CarouselPlaceholder>}
             <div className="h-[2rem]" ref={observerTarget}></div>

@@ -52,6 +52,36 @@ export const fetchTopRatedMovies = async (): Promise<false | MovieProps[]> => {
     return topRatedResponse.results;
 };
 
+export const fetchUpcomingMovies = async (): Promise<false | MovieProps[]> => {
+    let response = {} as MovieResponse;
+    try {
+        response = (await fetch("https://api.themoviedb.org/3/movie/upcoming", options)) as MovieResponse;
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    return response.results;
+};
+
+export const fetchTrendingInPoland = async (): Promise<false | MovieProps[]> => {
+    let response = {} as MovieResponse;
+    try {
+        response = (await fetch("https://api.themoviedb.org/3/movie/popular?region=PL", options)) as MovieResponse;
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    return response.results;
+};
+
 export const fetchPopularMovies = async (): Promise<false | MovieProps[]> => {
     let popularMoviesResponse = {} as MovieResponse;
     try {

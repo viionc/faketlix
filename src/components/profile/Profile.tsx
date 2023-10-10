@@ -1,5 +1,5 @@
-import {useFirebaseContext} from "../context/FirebaseContext";
-import {UserProfile} from "../types/types";
+import {useFirebaseContext} from "../../context/FirebaseContext";
+import {UserProfile} from "../../types/types";
 
 function Profile({profile}: {profile: UserProfile}) {
     const {changeUserProfile} = useFirebaseContext();

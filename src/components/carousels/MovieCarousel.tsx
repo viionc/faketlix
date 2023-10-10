@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import {useEffect, useState} from "react";
-import MovieCarouselInfo from "./MovieCarouselInfo";
-import {IMAGE_SMALL_PATH} from "../types/constants";
-import {MovieProps} from "../types/types";
+import MovieCarouselCard from "./MovieCarouselCard";
+import {IMAGE_SMALL_PATH} from "../../types/constants";
+import {MovieProps} from "../../types/types";
 
 function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
     const [splitMovies, setSplitMovies] = useState<MovieProps[][]>([]);
@@ -54,6 +54,8 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                 {loaded &&
                     splitMovies[currentPage].map((movie, i) => {
                         const position = i === 0 ? "group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
+                        const movieIndex = movies.findIndex(m => m.id === movie.id);
+                        const image = movie.backdrop_path ? `${IMAGE_SMALL_PATH}${movie.backdrop_path}` : "noimage.png";
                         return (
                             <div
                                 onMouseOver={() => setInfoTooltipId(movie.id)}
@@ -63,15 +65,34 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                             >
                                 <div
                                     className={clsx(
-                                        "absolute top-0 left-0 w-[18.5rem] group-hover:top-[-50px] transition-all duration-500",
+                                        "absolute top-0 left-0 w-[18.25rem] group-hover:top-[-50px] transition-all duration-500 ",
                                         position
                                     )}
                                 >
-                                    <img
-                                        src={`${IMAGE_SMALL_PATH}${movie.backdrop_path}`}
-                                        className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
-                                    ></img>
-                                    {infoTooltipId === movie.id && <MovieCarouselInfo movie={movie}></MovieCarouselInfo>}
+                                    {title !== "Top 10 Movies In Poland" ? (
+                                        <img
+                                            src={`${image}`}
+                                            className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
+                                        ></img>
+                                    ) : (
+                                        <>
+                                            <div className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none relative visible group-hover:hidden">
+                                                <img
+                                                    className={clsx(`absolute top-0`, movieIndex + 1 === 10 ? "left-[10%]" : "left-[30%]")}
+                                                    src={`/numbers/${movieIndex + 1}.png`}
+                                                ></img>
+                                                <img
+                                                    className="absolute h-[10rem] w-[9rem] top-0 left-[55%] "
+                                                    src={`${IMAGE_SMALL_PATH}${movie.poster_path}`}
+                                                ></img>
+                                            </div>
+                                            <img
+                                                src={`${image}`}
+                                                className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none hidden group-hover:block"
+                                            ></img>
+                                        </>
+                                    )}
+                                    {infoTooltipId === movie.id && <MovieCarouselCard movie={movie}></MovieCarouselCard>}
                                 </div>
                             </div>
                         );

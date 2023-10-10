@@ -2,7 +2,7 @@ import "./App.css";
 import Content from "./components/Content";
 import LoginForm from "./components/forms/LoginForm";
 import MovieInformationModal from "./components/modals/MovieInformationModal";
-import ProfileScreen from "./components/ProfileScreen";
+import ProfileScreen from "./components/profile/ProfileScreen";
 import RegisterForm from "./components/forms/RegisterForm";
 import {useFirebaseContext} from "./context/FirebaseContext";
 import {useModalContext} from "./context/ModalContext";
