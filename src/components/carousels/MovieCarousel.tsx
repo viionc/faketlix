@@ -36,7 +36,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
 
     return (
         <section className="">
-            <div className="py-2 pt-6 text-2xl ps-4 font-semibold">{title}</div>
+            <div className="py-3 pt-6 text-3xl ps-9 font-semibold">{title}</div>
             <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal">
                 <div
                     className={clsx(

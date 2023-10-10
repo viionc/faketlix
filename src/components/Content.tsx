@@ -47,15 +47,15 @@ function Content() {
             }
             response = await getPopularMovies();
             if (!response) {
-                console.log("Failed to load top rated movies");
+                console.log("Failed to popular movies");
             }
             response = await getUpcomingMovies();
             if (!response) {
-                console.log("Failed to load top rated movies");
+                console.log("Failed to upcoming movies");
             }
             response = await getTrendingInPoland();
             if (!response) {
-                console.log("Failed to load top rated movies");
+                console.log("Failed to top 10 trending movies");
             }
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);
@@ -124,6 +124,7 @@ function Content() {
                     return (
                         moviesByGenre[Object.values(MOVIE_GENRES)[i]] && (
                             <MovieCarousel
+                                key={i}
                                 title={Object.values(MOVIE_GENRES)[i]}
                                 movies={moviesByGenre[Object.values(MOVIE_GENRES)[i]]}
                             ></MovieCarousel>

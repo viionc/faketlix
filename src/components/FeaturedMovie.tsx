@@ -27,13 +27,13 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
     }, []);
 
     return (
-        <section className="w-full h-[60rem] relative mt-10">
+        <section className="w-full h-[60rem] relative">
             {movieTrailer ? (
-                <div className="video-responsive">
+                <div className="overflow-hidden w-full aspect-video ">
                     <iframe
                         width={window.innerWidth - 20}
-                        className="h-[90vh]"
-                        src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1`}
+                        className="h-[90vh] w-[200%] ms-[-50%]"
+                        src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1&rel=0`}
                         allow="autoplay"
                         title="Embedded youtube"
                     />

@@ -26,7 +26,7 @@ function Footer() {
                 <span className="py-2 px-5 border border-zinc-400 text-zinc-400 hover:text-white w-[7.5rem] text-xs cursor-pointer">
                     Service Code
                 </span>
-                <p className="text-xs text-zinc-600">©1997-2023 Faketflix</p>
+                <p className="text-xs text-zinc-600">©2023-2023 Faketflix</p>
             </div>
         </div>
     );
