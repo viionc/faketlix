@@ -40,7 +40,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
             <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal">
                 <div
                     className={clsx(
-                        "h-full w-[2rem] flex justify-center items-center hover:brightness-75 cursor-pointer z-[15] brightness-50",
+                        "h-full w-[2rem] flex justify-center items-center hover:brightness-75 cursor-pointer z-[15] brightness-50 rounded-e-md",
                         currentPage > 0 ? "visible" : "invisible"
                     )}
                     onClick={() => handlePageChange(false)}
@@ -82,7 +82,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                                                     src={`/numbers/${movieIndex + 1}.png`}
                                                 ></img>
                                                 <img
-                                                    className="absolute h-[10rem] w-[9rem] top-0 left-[55%] "
+                                                    className="absolute h-[10rem] w-[8rem] top-0 left-[55%] "
                                                     src={`${IMAGE_SMALL_PATH}${movie.poster_path}`}
                                                 ></img>
                                             </div>
@@ -99,7 +99,7 @@ function MovieCarousel({movies, title}: {movies: MovieProps[]; title: string}) {
                     })}
                 <div
                     className={clsx(
-                        "h-full w-[2rem] flex justify-center items-center hover:bg-black hover:bg-opacity-30 cursor-pointer z-[15]",
+                        "h-full w-[2rem] flex justify-center items-center hover:bg-black hover:bg-opacity-30 cursor-pointer z-[15] rounded-s-md",
                         currentPage < splitMovies.length - 1 ? "visible" : "invisible"
                     )}
                     style={{
