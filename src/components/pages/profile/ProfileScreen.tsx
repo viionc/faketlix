@@ -1,9 +1,9 @@
-import {useFirebaseContext} from "../../context/FirebaseContext";
+import {useFirebaseContext} from "../../../context/FirebaseContext";
 import Profile from "./Profile";
 import {motion} from "framer-motion";
-import {useModalContext} from "../../context/ModalContext";
-import CreateProfileModal from "../modals/CreateProfileModal";
-import ManageProfilesModal from "../modals/ManageProfilesModal";
+import {useModalContext} from "../../../context/ModalContext";
+import CreateProfileModal from "../../modals/CreateProfileModal";
+import ManageProfilesModal from "../../modals/ManageProfilesModal";
 import ManageProfile from "./ManageProfile";
 
 function ProfileScreen() {

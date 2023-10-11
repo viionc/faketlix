@@ -1,4 +1,4 @@
-import {UserProfile} from "../../types/types";
+import {UserProfile} from "../../../types/types";
 
 function ProfileIcon({profile}: {profile: UserProfile}) {
     return (

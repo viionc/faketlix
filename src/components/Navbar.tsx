@@ -1,14 +1,15 @@
 import {useEffect, useState} from "react";
-import ProfileSettingsModal from "./modals/ProfileMenu";
+import ProfileSettingsModal from "./pages/profile/ProfileMenu";
 import {motion} from "framer-motion";
 import clsx from "clsx";
+import {Link} from "react-router-dom";
 
 function Navbar() {
     const [opacity, setOpacity] = useState(0);
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY < 50) {
+            if (window.scrollY < 100) {
                 setOpacity(0);
             } else if (window.scrollY > 600) {
                 setOpacity(100);
@@ -28,10 +29,18 @@ function Navbar() {
             <div className="flex gap-8">
                 <img src="/faketflix-logo.png" alt="" width={100}></img>
                 <ul className="flex gap-4 text-md">
-                    <li className="hover:text-zinc-400 transition cursor-pointer">Movies</li>
-                    <li className="hover:text-zinc-400 transition cursor-pointer">Tv Shows</li>
-                    <li className="hover:text-zinc-400 transition cursor-pointer">New & Popular</li>
-                    <li className="hover:text-zinc-400 transition cursor-pointer">My List</li>
+                    <li className="hover:text-zinc-400 transition cursor-pointer">
+                        <Link to="/movies">Movies</Link>
+                    </li>
+                    <li className="hover:text-zinc-400 transition cursor-pointer">
+                        <Link to="/tv">TV Shows</Link>
+                    </li>
+                    <li className="hover:text-zinc-400 transition cursor-pointer">
+                        <Link to="/new">New & Popular</Link>
+                    </li>
+                    <li className="hover:text-zinc-400 transition cursor-pointer">
+                        <Link to="/mylist">My List</Link>
+                    </li>
                 </ul>
             </div>
             <div className="flex gap-6 items-center">

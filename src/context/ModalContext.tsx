@@ -11,7 +11,8 @@ export const useModalContext = () => {
 
 function ModalContextProvider({children}: {children: ReactNode}) {
     const MODALS_INITIAL_STATE: ModalReducerState = {
-        isMovieModalOpen: false,
+        isMovieInformationModalOpen: false,
+        isTVSeriesInformationModalOpen: false,
         isCreateProfileModalOpen: false,
         isManageProfilesModalOpen: false,
         movieClicked: null,
@@ -57,7 +58,7 @@ function ModalContextProvider({children}: {children: ReactNode}) {
     };
 
     useEffect(() => {
-        if (modalState.isMovieModalOpen || modalState.isCreateProfileModalOpen) {
+        if (modalState.isMovieInformationModalOpen || modalState.isTVSeriesInformationModalOpen || modalState.isCreateProfileModalOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";

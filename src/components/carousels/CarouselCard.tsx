@@ -1,28 +1,33 @@
 import {useState} from "react";
 import {MOVIE_GENRES} from "../../types/constants";
-import {MovieProps} from "../../types/types";
+import {EntryProps} from "../../types/types";
 import {useModalContext} from "../../context/ModalContext";
 import AddToPlanToWatchButton from "../buttons/AddToPlanToWatchButton";
 import AddToFavoritesButton from "../buttons/AddToFavoritesButton";
 
-function MovieCarouselCard({movie}: {movie: MovieProps}) {
+function CarouselCard({entry}: {entry: EntryProps}) {
     const [showTooltip, setShowTooltip] = useState(false);
     const {openModal} = useModalContext();
 
     return (
         <div className="p-4 gap-2 hidden group-hover:flex flex-col w-full bg-[#181818] shadow-2xl rounded-b-md z-20">
-            <p className="text-sm">{movie.title}</p>
+            <p className="text-sm">{entry.title}</p>
             <div className="w-full h-[2rem] flex gap-2">
                 <span className="h-[1.75rem] w-[1.75rem] bg-white rounded-full flex justify-center items-center hover:bg-opacity-50 cursor-pointer">
                     <i className="fa-solid fa-play" style={{color: "#000000"}}></i>
                 </span>
-                <AddToPlanToWatchButton movie={movie} size={"small"} />
-                <AddToFavoritesButton movie={movie} size={"small"}></AddToFavoritesButton>
+                <AddToPlanToWatchButton entry={entry} size={"small"} />
+                <AddToFavoritesButton entry={entry} size={"small"}></AddToFavoritesButton>
 
                 <span
                     onMouseEnter={() => setShowTooltip(true)}
                     onMouseLeave={() => setShowTooltip(false)}
-                    onClick={() => openModal("isMovieModalOpen", {name: "movieClicked", value: movie})}
+                    onClick={() =>
+                        openModal(entry.type === "movie" ? "isMovieInformationModalOpen" : "isTVSeriesInformationModalOpen", {
+                            name: "movieClicked",
+                            value: entry,
+                        })
+                    }
                     className="relative group ms-auto h-[1.75rem] w-[1.75rem] bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer"
                 >
                     <svg
@@ -44,12 +49,12 @@ function MovieCarouselCard({movie}: {movie: MovieProps}) {
                 </span>
             </div>
             <div className="flex gap-2 items-center">
-                <span className="text-lime-600 text-xs font-semibold">Votes: {Math.floor((movie.vote_average / 10) * 100)}%</span>
-                <span className="bg-[#303030] border text-zinc-400 border-zinc-400 rounded-sm text-xs">{movie.adult ? "18+" : "13+"}</span>
+                <span className="text-lime-600 text-xs font-semibold">Votes: {Math.floor((entry.vote_average / 10) * 100)}%</span>
+                <span className="bg-[#303030] border text-zinc-400 border-zinc-400 rounded-sm text-xs">{entry.adult ? "18+" : "13+"}</span>
                 <span className="bg-[#303030] border text-zinc-400 border-zinc-400 rounded-sm text-xs">HD</span>
             </div>
             <div className="flex gap-2">
-                {movie.genre_ids.map(id => {
+                {entry.genre_ids.map(id => {
                     return (
                         <span key={id} className="text-zinc-400 text-xs">
                             {MOVIE_GENRES[id]}
@@ -61,4 +66,4 @@ function MovieCarouselCard({movie}: {movie: MovieProps}) {
     );
 }
 
-export default MovieCarouselCard;
+export default CarouselCard;

@@ -1,30 +1,30 @@
 import {useEffect, useState} from "react";
-import {MovieProps} from "../types/types";
-import {useModalContext} from "../context/ModalContext";
-import {IMAGE_ORIGINAL_PATH} from "../types/constants";
-import {useDataContext} from "../context/DataContext";
-import {useFirebaseContext} from "../context/FirebaseContext";
+import {EntryProps} from "../../../types/types";
+import {useModalContext} from "../../../context/ModalContext";
+import {IMAGE_ORIGINAL_PATH} from "../../../types/constants";
+import {useFirebaseContext} from "../../../context/FirebaseContext";
+import {fetchLogo, fetchTrailer} from "../../../utils/fetchData";
 
-function FeaturedMovie({movie}: {movie: MovieProps}) {
+function FeaturedTVSeries({entry}: {entry: EntryProps}) {
     const [movieLogo, setMovieLogo] = useState<string | null>();
     const [movieTrailer, setMovieTrailer] = useState<string | null>();
 
     const {openModal} = useModalContext();
-    const {getMovieLogo, getMovieTrailer} = useDataContext();
     const {currentProfile} = useFirebaseContext();
 
     useEffect(() => {
-        getMovieLogo(movie.id).then(response => {
+        fetchLogo("tv", entry.id).then(response => {
             if (response) {
                 setMovieLogo(response);
             }
         });
-        getMovieTrailer(movie.id).then(response => {
+
+        fetchTrailer(entry.type, entry.id).then(response => {
             if (response) {
                 setMovieTrailer(response);
             }
         });
-    }, []);
+    }, [entry.id]);
 
     return (
         <section className="w-full h-[60rem] relative">
@@ -40,7 +40,7 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                 </div>
             ) : (
                 <img
-                    src={`${IMAGE_ORIGINAL_PATH}${movie.backdrop_path}`}
+                    src={`${IMAGE_ORIGINAL_PATH}${entry.backdrop_path}`}
                     className="w-full h-[60rem] absolute top-0 left-0 object-cover brightness-75 "
                 ></img>
             )}
@@ -49,17 +49,17 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
                     <img
                         src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`}
                         className="w-[12rem] h-[10rem] object-contain z-10"
-                        alt={movie.title + " logo"}
+                        alt={entry.title + " logo"}
                     ></img>
                 ) : (
-                    <div className="font-4xl z-10">{movie.title}</div>
+                    <div className="font-4xl z-10">{entry.title}</div>
                 )}
                 <div className="flex gap-2 font-semibold z-10">
                     <button className="py-3 px-10 bg-white text-black text-2xl rounded-md hover:bg-opacity-[75%]">
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>
                     <button
-                        onClick={() => openModal("isMovieModalOpen", {name: "movieClicked", value: movie})}
+                        onClick={() => openModal("isTVSeriesInformationModalOpen", {name: "movieClicked", value: entry})}
                         className="py-3 px-10 bg-[#6E6D6D] text-2xl rounded-md text-white bg-opacity-[70%] hover:bg-opacity-[60%] flex justify-center items-center gap-2"
                     >
                         <svg
@@ -84,4 +84,4 @@ function FeaturedMovie({movie}: {movie: MovieProps}) {
     );
 }
 
-export default FeaturedMovie;
+export default FeaturedTVSeries;

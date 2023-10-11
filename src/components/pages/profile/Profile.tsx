@@ -1,8 +1,9 @@
-import {useFirebaseContext} from "../../context/FirebaseContext";
-import {UserProfile} from "../../types/types";
+import {useFirebaseContext} from "../../../context/FirebaseContext";
+import {UserProfile} from "../../../types/types";
 
 function Profile({profile}: {profile: UserProfile}) {
     const {changeUserProfile} = useFirebaseContext();
+
     return (
         <div className="flex flex-col gap-2 justify-center items-center relative">
             <div

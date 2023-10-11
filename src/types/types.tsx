@@ -10,17 +10,18 @@ export type FirebaseContextProps = {
     currentProfile: UserProfile | null;
     account: UserAccount | null;
     changeUserProfile: (profileName: string) => void;
-    addToPlanToWatch: (movie: MovieProps) => void;
-    addToFavorites: (movie: MovieProps) => void;
-    removeFromPlanToWatch: (movie: MovieProps) => void;
-    removeFromFavorites: (movie: MovieProps) => void;
+    addToPlanToWatch: (type: "movie" | "tv", id: number) => void;
+    addToFavorites: (type: "movie" | "tv", id: number) => void;
+    removeFromPlanToWatch: (type: "movie" | "tv", id: number) => void;
+    removeFromFavorites: (type: "movie" | "tv", id: number) => void;
     createProfile: (name: string, profileColor: string) => void;
     manageProfiles: boolean;
     setManageProfiles: React.Dispatch<React.SetStateAction<boolean>>;
     updateProfile: (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => void;
 };
 
-export type MovieProps = {
+export type EntryProps = {
+    type: "movie" | "tv";
     id: number;
     genre_ids: number[];
     backdrop_path: string;
@@ -33,31 +34,32 @@ export type MovieProps = {
     adult: boolean;
 };
 
-export interface MovieInformationResponse extends Response {
-    credits: {cast: Array<{name: string}>; crew: Array<{known_for_department: string; name: string}>};
-    images: {logos: Array<{iso_639_1: string; file_path: string}>};
-    keywords: {keywords: Array<{name: string; id: number}>};
-    similar: {results: Array<MovieProps>};
-    videos: {results: Array<{key: string; type: string}>};
-    adult: boolean;
-    release_date: string;
-    runtime: number;
-    id: number;
-    genre_ids: number[];
-    backdrop_path: string;
-    title: string;
-    overview: string;
-    vote_average: number;
-    vote_count: number;
-    poster_path: string;
-}
+// export interface MovieInformationResponse extends Response {
+//     credits: {cast: Array<{name: string}>; crew: Array<{known_for_department: string; name: string}>};
+//     images: {logos: Array<{iso_639_1: string; file_path: string}>};
+//     keywords: {keywords: Array<{name: string; id: number}>};
+//     similar: {results: Array<EntryProps>};
+//     videos: {results: Array<{key: string; type: string}>};
+//     adult: boolean;
+//     release_date: string;
+//     runtime: number;
+//     id: number;
+//     genre_ids: number[];
+//     backdrop_path: string;
+//     title: string;
+//     overview: string;
+//     vote_average: number;
+//     vote_count: number;
+//     poster_path: string;
+// }
 
 export type MovieInformation = {
+    type: "movie";
     cast: Array<string>;
     director: string;
     logoURL: string;
     keywords: Array<string>;
-    similar: Array<MovieProps>;
+    similar: Array<EntryProps>;
     trailerURL: string;
     adult: boolean;
     release_date: string;
@@ -72,6 +74,28 @@ export type MovieInformation = {
     poster_path: string;
 };
 
+export type TVSeriesInformation = {
+    type: "tv";
+    cast: Array<string>;
+    director: string;
+    logoURL: string;
+    keywords: Array<string>;
+    similar: Array<EntryProps>;
+    trailerURL: string;
+    adult: boolean;
+    release_date: string;
+    id: number;
+    genre_ids: number[];
+    backdrop_path: string;
+    title: string;
+    overview: string;
+    vote_average: number;
+    vote_count: number;
+    poster_path: string;
+    number_of_episodes: number;
+    number_of_seasons: number;
+};
+
 export type ModalContextProps = {
     modalState: ModalReducerState;
     openModal: (name: ModalActionNames, payload?: ModalActionPayload) => void;
@@ -79,27 +103,24 @@ export type ModalContextProps = {
 };
 
 export type DataContextProps = {
-    topRatedMovies: MovieProps[] | null;
-    featuredMovie: MovieProps | null;
-    popularMovies: MovieProps[] | null;
-    planToWatch: MovieProps[] | null;
-    favoritedMovies: MovieProps[] | null;
-    moviesByGenre: Record<string, MovieProps[]>;
-    upcomingMovies: MovieProps[] | null;
-    trendingInPoland: MovieProps[] | null;
+    moviesByGenre: Record<string, EntryProps[]>;
+    dataState: DataReducerState;
     getTopRatedMovies: () => Promise<boolean>;
     getPopularMovies: () => Promise<boolean>;
-    getMovieLogo: (movieId: number) => Promise<false | string>;
-    getMovieCredits: (movieId: number) => Promise<false | MovieCredits>;
-    getMovieDetails: (movieId: number) => Promise<false | MovieDetails>;
-    getSimilarMovies: (movie: MovieProps) => Promise<false | MovieProps[]>;
-    getMovieTrailer: (movieId: number) => Promise<false | string>;
-    checkPlanToWatch: () => void;
-    checkFavorites: () => void;
-    getMovieInformation: (movieId: number) => Promise<false | MovieInformation>;
+    getMovieCredits: (id: number) => Promise<false | MovieCredits>;
+    getMovieDetails: (id: number) => Promise<false | MovieDetails>;
+    getSimilar: (entry: EntryProps) => Promise<false | EntryProps[]>;
+    getMovieInformation: (id: number) => Promise<false | MovieInformation>;
+    getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
     getMoviesByGenre: (genres: number[]) => Promise<boolean>;
     getUpcomingMovies: () => Promise<boolean>;
-    getTrendingInPoland: () => Promise<boolean>;
+    getUpcomingTVSeries: () => Promise<boolean>;
+    getTrendingMoviesInPoland: () => Promise<boolean>;
+    getTrendingTVSeriesInPoland: () => Promise<boolean>;
+    getPlanToWatchData: () => Promise<boolean>;
+    getTopRatedTVSeries: () => Promise<boolean>;
+    getPopularTVSeries: () => Promise<boolean>;
+    getFavoritesData: () => Promise<boolean>;
 };
 
 export type MovieCredits = {
@@ -119,8 +140,8 @@ export type MovieTrailer = {
 
 export type UserProfile = {
     name: string;
-    planToWatch: number[];
-    favoritedMovies: number[];
+    planToWatch: {movieIds: number[]; tvIds: number[]};
+    favoritedMovies: {movieIds: number[]; tvIds: number[]};
     profileColor: string;
     autoplay: boolean;
 };
@@ -131,8 +152,9 @@ export type UserAccount = {
 };
 
 export type ModalReducerState = {
-    isMovieModalOpen: boolean;
-    movieClicked: MovieProps | null;
+    isMovieInformationModalOpen: boolean;
+    isTVSeriesInformationModalOpen: boolean;
+    movieClicked: EntryProps | null;
     isCreateProfileModalOpen: boolean;
     isManageProfilesModalOpen: boolean;
     profileCliked: UserProfile | null;
@@ -146,6 +168,38 @@ export type ModalAction = {
 
 export type ModalActionPayload = {
     name: "movieClicked" | "profileCliked";
-    value: MovieProps | UserProfile | null;
+    value: EntryProps | UserProfile | null;
 };
-export type ModalActionNames = "isMovieModalOpen" | "isCreateProfileModalOpen" | "isManageProfilesModalOpen";
+export type ModalActionNames =
+    | "isMovieInformationModalOpen"
+    | "isCreateProfileModalOpen"
+    | "isManageProfilesModalOpen"
+    | "isTVSeriesInformationModalOpen";
+
+export type DataReducerState = {
+    topRatedMovies: EntryProps[];
+    featuredMovie: EntryProps | null;
+    popularMovies: EntryProps[];
+    planToWatchMovies: EntryProps[];
+    favoritedMovies: EntryProps[];
+    moviesByGenre: Record<string, EntryProps[]>;
+    upcomingMovies: EntryProps[];
+    trendingMoviesInPoland: EntryProps[];
+    topRatedTVSeries: EntryProps[];
+    featuredTVSeries: EntryProps | null;
+    popularTVSeries: EntryProps[];
+    planToWatchTVSeries: EntryProps[];
+    favoritedTVSeries: EntryProps[];
+    TVSeriesByGenre: Record<string, EntryProps[]>;
+    upcomingTVSeries: EntryProps[];
+    trendingTVSeriesInPoland: EntryProps[];
+};
+export type DataReducerAction = {
+    type: "UPDATE_MOVIES";
+    payload: DataReducerPayload;
+};
+
+export type DataReducerPayload = {
+    name: keyof DataReducerState;
+    data: EntryProps | EntryProps[] | EntryProps | EntryProps[];
+};

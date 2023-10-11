@@ -1,8 +1,8 @@
-import {MovieProps} from "../../types/types";
+import {EntryProps, MovieInformation} from "../../types/types";
 import {useFirebaseContext} from "../../context/FirebaseContext";
 import {useEffect, useState} from "react";
 
-function AddToPlanToWatchButton({movie, size}: {movie: MovieProps; size: "small" | "large"}) {
+function AddToPlanToWatchButton({entry, size}: {entry: EntryProps | MovieInformation; size: "small" | "large"}) {
     const {addToPlanToWatch, currentProfile, removeFromPlanToWatch} = useFirebaseContext();
     const [added, setAdded] = useState(false);
 
@@ -11,16 +11,16 @@ function AddToPlanToWatchButton({movie, size}: {movie: MovieProps; size: "small"
         if (!currentProfile.planToWatch) {
             setAdded(false);
         }
-        if (currentProfile?.planToWatch.find(id => id === movie.id)) {
+        if (currentProfile?.planToWatch.movieIds.find(id => id === entry.id) || currentProfile?.planToWatch.tvIds.find(id => id === entry.id)) {
             setAdded(true);
         } else {
             setAdded(false);
         }
-    }, [currentProfile, movie]);
+    }, [currentProfile, entry]);
 
     return added ? (
         <span
-            onClick={() => removeFromPlanToWatch(movie)}
+            onClick={() => removeFromPlanToWatch(entry.type, entry.id)}
             className={`${
                 size === "small" ? "h-[1.75rem] w-[1.75rem] border" : "h-[3rem] w-[3rem] border-2"
             } bg-[#303030] border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer active:scale-105`}
@@ -38,7 +38,7 @@ function AddToPlanToWatchButton({movie, size}: {movie: MovieProps; size: "small"
         </span>
     ) : (
         <span
-            onClick={() => addToPlanToWatch(movie)}
+            onClick={() => addToPlanToWatch(entry.type, entry.id)}
             className={`${
                 size === "small" ? "h-[1.75rem] w-[1.75rem] border" : "h-[3rem] w-[3rem] border-2"
             } bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer active:scale-105`}

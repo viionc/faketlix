@@ -2,7 +2,9 @@ import {initializeApp} from "firebase/app";
 import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
-import {FirebaseContextProps, MovieProps, UserAccount, UserProfile} from "../types/types";
+import {EntryProps, FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
+import {useNavigate} from "react-router-dom";
+import {useLocalStorage} from "../hooks/useLocalStorage";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -33,7 +35,14 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
     const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
     const [account, setAccount] = useState<UserAccount | null>(null);
     const [manageProfiles, setManageProfiles] = useState<boolean>(false);
+    const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage("ptw-movies", [] as EntryProps[]);
+    const [localStoragePTWTVSeries, setLocalStoragePTWTVSeries] = useLocalStorage("ptw-tvseries", [] as EntryProps[]);
+    const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage("fav-movies", [] as EntryProps[]);
+    const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage("fav-tvseries", [] as EntryProps[]);
+    // const [localStoragePTWTV, setLocalStoragePTWTV] = useLocalStorage("ptw-tv", [] as MovieProps[]);
+    // const [localStorageFavoriteTV, setLocalStorageFavoriteTV] = useLocalStorage("fav-tv", [] as MovieProps[]);
 
+    const navigate = useNavigate();
     useEffect(() => {
         const observer = auth.onAuthStateChanged(user => {
             if (user) {
@@ -41,6 +50,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                 setFormTypeOpen(null);
                 loadDataFromDatabase(user);
                 setCurrentUser(user);
+                navigate("/profiles");
             }
         });
         return observer;
@@ -73,8 +83,8 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
             profiles: [
                 {
                     name: user.email?.split("@")[0] || "Anonymous",
-                    planToWatch: [],
-                    favoritedMovies: [],
+                    planToWatch: {movieIds: [], tvIds: []},
+                    favoritedMovies: {movieIds: [], tvIds: []},
                     profileColor: "bg-blue-400",
                     autoplay: true,
                 },
@@ -108,8 +118,8 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         if (!account) return;
         const profile = {
             name: name,
-            planToWatch: [],
-            favoritedMovies: [],
+            planToWatch: {movieIds: [], tvIds: []},
+            favoritedMovies: {movieIds: [], tvIds: []},
             profileColor,
             autoplay: true,
         };
@@ -130,42 +140,69 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === profileName) as UserProfile;
         setCurrentProfile(profile);
+        navigate("/movies");
     };
 
-    const addToPlanToWatch = (movie: MovieProps) => {
+    const addToPlanToWatch = (type: "movie" | "tv", id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
-        if (profile.planToWatch.includes(movie.id)) return;
-        profile.planToWatch.push(movie.id);
+        if (type === "movie") {
+            if (profile.planToWatch.movieIds.includes(id)) return;
+            profile.planToWatch.movieIds.push(id);
+        } else if (type === "tv") {
+            if (profile.planToWatch.tvIds.includes(id)) return;
+            profile.planToWatch.tvIds.push(id);
+        }
         setCurrentProfile({...profile});
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const addToFavorites = (movie: MovieProps) => {
+    const addToFavorites = (type: "movie" | "tv", id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
-        if (profile.favoritedMovies.includes(movie.id)) return;
-        profile.favoritedMovies.push(movie.id);
+        if (type === "movie") {
+            if (profile.favoritedMovies.movieIds.includes(id)) return;
+            profile.favoritedMovies.movieIds.push(id);
+        } else if (type === "tv") {
+            if (profile.favoritedMovies.tvIds.includes(id)) return;
+            profile.favoritedMovies.tvIds.push(id);
+        }
         setCurrentProfile({...profile});
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const removeFromPlanToWatch = (movie: MovieProps) => {
+    const removeFromPlanToWatch = (type: "movie" | "tv", id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
-        profile.planToWatch = profile.planToWatch.filter(id => id !== movie.id);
+        if (type === "movie") {
+            profile.planToWatch.movieIds = profile.planToWatch.movieIds.filter(_id => _id !== id);
+            localStoragePTWMovies.filter(movie => movie.id !== id);
+            setLocalStoragePTWMovies([...localStoragePTWMovies]);
+        } else if (type === "tv") {
+            profile.planToWatch.tvIds = profile.planToWatch.tvIds.filter(_id => _id !== id);
+            localStoragePTWTVSeries.filter(tvseries => tvseries.id !== id);
+            setLocalStoragePTWTVSeries([...localStoragePTWTVSeries]);
+        }
         setCurrentProfile({...profile});
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const removeFromFavorites = (movie: MovieProps) => {
+    const removeFromFavorites = (type: "movie" | "tv", id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
-        profile.favoritedMovies = profile.favoritedMovies.filter(id => id !== movie.id);
+        if (type === "movie") {
+            profile.favoritedMovies.movieIds = profile.favoritedMovies.movieIds.filter(_id => _id !== id);
+            localStorageFavoriteMovies.filter(movie => movie.id !== id);
+            setLocalStorageFavoriteMovies([...localStorageFavoriteMovies]);
+        } else if (type === "tv") {
+            profile.favoritedMovies.tvIds = profile.favoritedMovies.tvIds.filter(_id => _id !== id);
+            localStorageFavoriteTVSeries.filter(tvseries => tvseries.id !== id);
+            setLocalStorageFavoriteTVSeries([...localStorageFavoriteTVSeries]);
+        }
         setCurrentProfile({...profile});
         setDoc(doc(db, "users", account.id), account);
     };

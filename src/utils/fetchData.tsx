@@ -1,4 +1,4 @@
-import {MovieCredits, MovieDetails, MovieInformation, MovieInformationResponse, MovieProps} from "../types/types";
+import {EntryProps, MovieCredits, MovieDetails, MovieInformation, TVSeriesInformation} from "../types/types";
 
 const options = {
     method: "GET",
@@ -7,167 +7,299 @@ const options = {
         Authorization: `Bearer ${import.meta.env.VITE_MOVIEDB_ACCESS_TOKEN}`,
     },
 };
-interface MovieResponse extends Response {
-    results: MovieProps[];
-}
-interface LogoResponse extends Response {
-    logos: Array<Logo>;
-}
+
+export const fetchTopRatedMovies = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    return response;
+};
+
+export const fetchTopRatedTVSeries = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/tv/top_rated?language=en-US&page=1", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"}));
+
+    return response;
+};
+
+export const fetchPopularTVSeries = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/tv/popular?language=en-US&page=1", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"}));
+    return response;
+};
+
+export const fetchUpcomingMovies = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/movie/upcoming", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    return response;
+};
+
+export const fetchUpcomingTVSeries = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/tv/on_the_air", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"}));
+    return response;
+};
+
+export const fetchTrendingTVSeriesInPoland = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/tv/popular?region=PL", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"}));
+    return response;
+};
+
+export const fetchTrendingMoviesInPoland = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/movie/popular?region=PL", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    return response;
+};
+
+export const fetchPopularMovies = async (): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1", options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    return response;
+};
+
+export const fetchMoviesByGenre = async (genre: number): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=${genre}`, options);
+        if (!response.ok) {
+            return false;
+        }
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    return response;
+};
+
+export const fetchDataByIds = async (type: "movie" | "tv", ids: number[]): Promise<false | EntryProps[]> => {
+    const movies = [] as EntryProps[];
+    let response;
+
+    for (const id of ids) {
+        try {
+            response = await fetch(`https://api.themoviedb.org/3/${type}/${id}`, options);
+            if (!response.ok) {
+                return false;
+            }
+            response = await response.json();
+            const ids = response.genres.map((g: {id: number}) => g.id);
+            const movie = {...response, genre_ids: ids, adult: response.adult || false, title: response.title || response.name, type: type};
+            // response = response.results.map((result: any) => ({...result, title: result.name, adult: false}));
+            movies.push(movie);
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+    return movies;
+};
+
 interface Logo {
     iso_639_1: string;
     file_path: string;
 }
-interface CreditsResponse extends Response {
-    crew: Array<{known_for_department: string; name: string}>;
-    cast: Array<{name: string}>;
+
+interface Crew {
+    known_for_department: string;
+    name: string;
 }
-interface DetailsResponse extends Response {
-    adult: boolean;
-    release_date: string;
-    runtime: number;
+interface Trailer {
+    type: string;
+    key: string;
 }
-interface SimilarMoviesResponse extends Response {
-    results: Array<MovieProps>;
+interface Keyword {
+    name: string;
 }
-interface TrailerResponse extends Response {
-    results: Array<{key: string; type: string}>;
+interface Cast {
+    name: string;
 }
-
-//https://api.themoviedb.org/3/movie/upcoming
-//https://api.themoviedb.org/3/movie/popular?region=PL
-
-export const fetchTopRatedMovies = async (): Promise<false | MovieProps[]> => {
-    let topRatedResponse = {} as MovieResponse;
-    try {
-        topRatedResponse = (await fetch("https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1", options)) as MovieResponse;
-        if (!topRatedResponse.ok) {
-            return false;
-        }
-        topRatedResponse = await topRatedResponse.json();
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-
-    return topRatedResponse.results;
-};
-
-export const fetchUpcomingMovies = async (): Promise<false | MovieProps[]> => {
-    let response = {} as MovieResponse;
-    try {
-        response = (await fetch("https://api.themoviedb.org/3/movie/upcoming", options)) as MovieResponse;
-        if (!response.ok) {
-            return false;
-        }
-        response = await response.json();
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-    return response.results;
-};
-
-export const fetchTrendingInPoland = async (): Promise<false | MovieProps[]> => {
-    let response = {} as MovieResponse;
-    try {
-        response = (await fetch("https://api.themoviedb.org/3/movie/popular?region=PL", options)) as MovieResponse;
-        if (!response.ok) {
-            return false;
-        }
-        response = await response.json();
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-    return response.results;
-};
-
-export const fetchPopularMovies = async (): Promise<false | MovieProps[]> => {
-    let popularMoviesResponse = {} as MovieResponse;
-    try {
-        popularMoviesResponse = (await fetch("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1", options)) as MovieResponse;
-        if (!popularMoviesResponse.ok) {
-            return false;
-        }
-        popularMoviesResponse = await popularMoviesResponse.json();
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-    return popularMoviesResponse.results;
-};
-
-export const fetchMoviesByGenre = async (genre: number): Promise<false | MovieProps[]> => {
-    let movies = {} as MovieResponse;
-    try {
-        movies = (await fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=${genre}`, options)) as MovieResponse;
-        if (!movies.ok) {
-            return false;
-        }
-        movies = await movies.json();
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-    return movies.results;
-};
 
 export const fetchMovieInformation = async (movieId: number): Promise<false | MovieInformation> => {
-    let movieInformationResponse = {} as MovieInformationResponse;
+    let response;
     try {
-        movieInformationResponse = (await fetch(
-            `https://api.themoviedb.org/3/movie/${movieId}?append_to_response=images,videos,credits,keywords,details`,
-            options
-        )) as MovieInformationResponse;
-        if (!movieInformationResponse.ok) {
+        response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=images,videos,credits,keywords,details`, options);
+        if (!response.ok) {
             return false;
         }
 
-        movieInformationResponse = await movieInformationResponse.json();
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
 
-    const englishLogo = movieInformationResponse.images.logos.find(logo => logo.iso_639_1 === "en");
-    const logo = englishLogo ? englishLogo.file_path : movieInformationResponse.images.logos[0].file_path;
-    const cast = movieInformationResponse.credits.cast.slice(0, 4).map(c => c.name);
-    let director = movieInformationResponse.credits.crew.find(crew => crew.known_for_department === "Directing")?.name;
-    const hours = Math.floor(movieInformationResponse.runtime / 60);
-    const minutes = Math.floor(movieInformationResponse.runtime % 60);
+    const englishLogo = response.images.logos.find((logo: Logo) => logo.iso_639_1 === "en");
+    const logo = englishLogo ? englishLogo.file_path : response.images.logos[0].file_path;
+    const cast = response.credits.cast.slice(0, 4).map((c: Cast) => c.name);
+    let director = response.credits.crew.find((crew: Crew) => crew.known_for_department === "Directing")?.name;
+    const hours = Math.floor(response.runtime / 60);
+    const minutes = Math.floor(response.runtime % 60);
     const runtime = `${hours ? hours + "h " : null}${minutes}m`;
-    const trailerURL = movieInformationResponse.videos.results.filter(r => r.type === "Trailer")[0].key;
-    const keywords = movieInformationResponse.keywords.keywords.map(k => k.name);
+    const trailerURL = response.videos.results.filter((trailer: Trailer) => trailer.type === "Trailer")[0].key;
+    const keywords = response.keywords.keywords.map((k: Keyword) => k.name);
     if (!director) director = "Unknown";
 
     const movie: MovieInformation = {
-        id: movieInformationResponse.id,
-        adult: movieInformationResponse.adult,
+        type: "movie",
+        id: response.id,
+        adult: response.adult,
         logoURL: logo,
         cast,
         director,
         runtime,
         trailerURL,
-        genre_ids: movieInformationResponse.genre_ids,
-        backdrop_path: movieInformationResponse.backdrop_path,
-        title: movieInformationResponse.title,
-        overview: movieInformationResponse.overview,
-        vote_average: movieInformationResponse.vote_average,
+        genre_ids: response.genre_ids,
+        backdrop_path: response.backdrop_path,
+        title: response.title,
+        overview: response.overview,
+        vote_average: response.vote_average,
         keywords,
         similar: [],
-        release_date: movieInformationResponse.release_date,
-        vote_count: movieInformationResponse.vote_count,
-        poster_path: movieInformationResponse.poster_path,
+        release_date: response.release_date,
+        vote_count: response.vote_count,
+        poster_path: response.poster_path,
     };
     console.log(movie);
     return movie;
 };
 
-export const fetchMovieLogo = async (movieId: number): Promise<false | string> => {
-    let logoResponse = {} as LogoResponse;
-    fetchMovieInformation(2);
+export const fetchTVSeriesInformation = async (id: number): Promise<false | TVSeriesInformation> => {
+    let response;
     try {
-        logoResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movieId}/images`, options)) as LogoResponse;
+        response = await fetch(`https://api.themoviedb.org/3/tv/${id}?append_to_response=videos,credits,keywords,details`, options);
+        if (!response.ok) {
+            return false;
+        }
+
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    const title = response.name;
+    let logo = await fetchLogo("tv", id);
+    if (!logo) logo = "noimage.png";
+    // const englishLogo = response.images.logos.find((logo: Logo) => logo.iso_639_1 === "en");
+    // const logo = englishLogo ? englishLogo.file_path : response.images.logos[0].file_path;
+    const cast = response.credits.cast.slice(0, 5).map((c: Cast) => c.name);
+    let director = response.credits.crew.find((crew: Crew) => crew.known_for_department === "Directing")?.name;
+    let trailerURL = response.videos.results.find((trailer: Trailer) => trailer.type === "Trailer");
+    trailerURL = trailerURL ? trailerURL.key : "notrailer";
+    const keywords = response.keywords.results.map((k: Keyword) => k.name);
+    if (!director) director = "Unknown";
+
+    const tvseries: TVSeriesInformation = {
+        type: "tv",
+        id: response.id,
+        adult: response.adult,
+        logoURL: logo,
+        cast,
+        director,
+        trailerURL,
+        genre_ids: response.genre_ids,
+        backdrop_path: response.backdrop_path,
+        title,
+        overview: response.overview,
+        vote_average: response.vote_average,
+        keywords,
+        similar: [],
+        release_date: response.first_air_date,
+        vote_count: response.vote_count,
+        poster_path: response.poster_path,
+        number_of_episodes: response.number_of_episodes,
+        number_of_seasons: response.number_of_seasons,
+    };
+
+    return tvseries;
+};
+
+export const fetchLogo = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+    let logoResponse;
+    try {
+        logoResponse = await fetch(`https://api.themoviedb.org/3/${type}/${id}/images`, options);
         if (!logoResponse.ok) {
             return false;
         }
@@ -176,15 +308,16 @@ export const fetchMovieLogo = async (movieId: number): Promise<false | string> =
         console.error(err);
         return false;
     }
-    const englishLogo = logoResponse.logos.find(logo => logo.iso_639_1 === "en");
+    const englishLogo = logoResponse.logos.find((logo: Logo) => logo.iso_639_1 === "en");
     const logo = englishLogo ? englishLogo.file_path : logoResponse.logos[0].file_path;
-    return logo;
+    const hasLogo = logo ? logo : "noimage.png";
+    return hasLogo;
 };
 
 export const fetchMovieCredits = async (movieId: number): Promise<false | MovieCredits> => {
-    let creditsResponse = {} as CreditsResponse;
+    let creditsResponse;
     try {
-        creditsResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits`, options)) as CreditsResponse;
+        creditsResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits`, options);
         if (!creditsResponse.ok) {
             return false;
         }
@@ -195,15 +328,15 @@ export const fetchMovieCredits = async (movieId: number): Promise<false | MovieC
     }
 
     const cast = creditsResponse.cast.slice(0, 4);
-    let director = creditsResponse.crew.find(crew => crew.known_for_department === "Directing")?.name;
+    let director = creditsResponse.crew.find((crew: {known_for_department: string}) => crew.known_for_department === "Directing")?.name;
     if (!director) director = "Unknown";
     return {cast, director};
 };
 
 export const fetchMovieDetails = async (movieId: number): Promise<false | MovieDetails> => {
-    let detailsResponse = {} as DetailsResponse;
+    let detailsResponse;
     try {
-        detailsResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movieId}`, options)) as DetailsResponse;
+        detailsResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`, options);
         if (!detailsResponse.ok) {
             return false;
         }
@@ -223,40 +356,41 @@ export const fetchMovieDetails = async (movieId: number): Promise<false | MovieD
     };
 };
 
-export const fetchSimilarMovies = async (movie: MovieProps): Promise<false | MovieProps[]> => {
-    let similarMoviesResponse = {} as SimilarMoviesResponse;
+export const fetchSimilar = async (entry: EntryProps): Promise<false | EntryProps[]> => {
+    let response;
     try {
-        similarMoviesResponse = (await fetch(
-            `https://api.themoviedb.org/3/discover/movie?with_genres=${movie.genre_ids.join(",")}`,
-            options
-        )) as SimilarMoviesResponse;
+        response = await fetch(`https://api.themoviedb.org/3/discover/${entry.type}?with_genres=${entry.genre_ids.join(",")}`, options);
 
-        if (!similarMoviesResponse.ok) {
+        if (!response.ok) {
             return false;
         }
-        similarMoviesResponse = await similarMoviesResponse.json();
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
-    const movies = similarMoviesResponse.results
-        .filter(m => m.id !== movie.id)
+    const entries = response.results
+        .filter((m: {id: number}) => m.id !== entry.id)
         .sort(() => Math.random() - 0.5)
+        .map((e: EntryProps) => ({
+            ...e,
+            type: entry.type,
+        }))
         .slice(0, 9);
-    return movies;
+    return entries;
 };
 
-export const fetchMovieTrailer = async (movieId: number): Promise<false | string> => {
-    let trailerResponse = {} as TrailerResponse;
+export const fetchTrailer = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+    let response;
     try {
-        trailerResponse = (await fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos`, options)) as TrailerResponse;
-        if (!trailerResponse.ok) {
+        response = await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos`, options);
+        if (!response.ok) {
             return false;
         }
-        trailerResponse = await trailerResponse.json();
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
-    return trailerResponse.results.filter(r => r.type === "Trailer")[0].key;
+    return response.results.filter((result: {type: string}) => result.type === "Trailer")[0].key;
 };

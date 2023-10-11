@@ -1,8 +1,8 @@
-import {MovieProps} from "../../types/types";
+import {EntryProps, MovieInformation} from "../../types/types";
 import {useFirebaseContext} from "../../context/FirebaseContext";
 import {useEffect, useState} from "react";
 
-function AddToFavoritesButton({movie, size}: {movie: MovieProps; size: "small" | "large"}) {
+function AddToFavoritesButton({entry, size}: {entry: EntryProps | MovieInformation; size: "small" | "large"}) {
     const {addToFavorites, currentProfile, removeFromFavorites} = useFirebaseContext();
     const [added, setAdded] = useState(false);
 
@@ -11,26 +11,26 @@ function AddToFavoritesButton({movie, size}: {movie: MovieProps; size: "small" |
         if (!currentProfile.favoritedMovies) {
             setAdded(false);
         }
-        if (currentProfile?.favoritedMovies.find(id => id === movie.id)) {
+        if (currentProfile.favoritedMovies.movieIds.find(id => id === entry.id) || currentProfile.favoritedMovies.tvIds.find(id => id === entry.id)) {
             setAdded(true);
         } else {
             setAdded(false);
         }
-    }, [currentProfile, movie]);
+    }, [currentProfile, entry]);
 
     return added ? (
         <span
-            onClick={() => removeFromFavorites(movie)}
+            onClick={() => removeFromFavorites(entry.type, entry.id)}
             className={`${
                 size === "small" ? "h-[1.75rem] w-[1.75rem] border" : "h-[3rem] w-[3rem] border-2"
             } bg-[#303030] border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer active:scale-105`}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                fill="none"
+                fill="red"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke="red"
                 className={`${size === "small" ? "w-5 h-5" : "w-8 h-8"}`}
             >
                 <path
@@ -42,7 +42,7 @@ function AddToFavoritesButton({movie, size}: {movie: MovieProps; size: "small" |
         </span>
     ) : (
         <span
-            onClick={() => addToFavorites(movie)}
+            onClick={() => addToFavorites(entry.type, entry.id)}
             className={`${
                 size === "small" ? "h-[1.75rem] w-[1.75rem] border" : "h-[3rem] w-[3rem] border-2"
             } bg-[#303030] border border-[#5e5e5e] rounded-full flex justify-center items-center hover:border-white cursor-pointer active:scale-105`}

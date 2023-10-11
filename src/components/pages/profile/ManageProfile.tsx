@@ -1,5 +1,5 @@
-import {useModalContext} from "../../context/ModalContext";
-import {UserProfile} from "../../types/types";
+import {useModalContext} from "../../../context/ModalContext";
+import {UserProfile} from "../../../types/types";
 
 function ManageProfile({profile}: {profile: UserProfile}) {
     const {openModal} = useModalContext();
