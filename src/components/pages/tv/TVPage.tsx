@@ -121,6 +121,7 @@ function TVPage() {
                 })}
 
             {isLoading && <CarouselPlaceholder></CarouselPlaceholder>}
+            {isLoading && <CarouselPlaceholder></CarouselPlaceholder>}
             <div className="h-[2rem]" ref={observerTarget}></div>
             <Footer></Footer>
         </section>

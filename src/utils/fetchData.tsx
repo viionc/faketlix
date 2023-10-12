@@ -12,9 +12,8 @@ export const fetchTopRatedMovies = async (): Promise<false | EntryProps[]> => {
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
+
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -28,9 +27,8 @@ export const fetchTopRatedTVSeries = async (): Promise<false | EntryProps[]> => 
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/tv/top_rated?language=en-US&page=1", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
+
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -45,9 +43,8 @@ export const fetchPopularTVSeries = async (): Promise<false | EntryProps[]> => {
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/tv/popular?language=en-US&page=1", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
+
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -61,9 +58,8 @@ export const fetchUpcomingMovies = async (): Promise<false | EntryProps[]> => {
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/movie/upcoming", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
+
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -77,9 +73,8 @@ export const fetchUpcomingTVSeries = async (): Promise<false | EntryProps[]> => 
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/tv/on_the_air", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
+
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -93,9 +88,7 @@ export const fetchTrendingTVSeriesInPoland = async (): Promise<false | EntryProp
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/trending/tv/week", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -109,9 +102,7 @@ export const fetchTrendingMoviesInPoland = async (): Promise<false | EntryProps[
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/movie/popular?region=PL", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -126,9 +117,7 @@ export const fetchPopularMovies = async (): Promise<false | EntryProps[]> => {
     let response;
     try {
         response = await fetch("https://api.themoviedb.org/3/movie/popular?language=en-US&page=1", options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -155,26 +144,24 @@ export const fetchByGenre = async (type: EntryTypes, genre: number): Promise<fal
 };
 
 export const fetchDataByIds = async (type: EntryTypes, ids: number[]): Promise<false | EntryProps[]> => {
-    const movies = [] as EntryProps[];
+    const entries = [] as EntryProps[];
     let response;
 
     for (const id of ids) {
         try {
             response = await fetch(`https://api.themoviedb.org/3/${type}/${id}`, options);
-            if (!response.ok) {
-                return false;
-            }
+            if (!response.ok) return false;
             response = await response.json();
             const ids = response.genres.map((g: {id: number}) => g.id);
             const movie = {...response, genre_ids: ids, adult: response.adult || false, title: response.title || response.name, type: type};
             // response = response.results.map((result: any) => ({...result, title: result.name, adult: false}));
-            movies.push(movie);
+            entries.push(movie);
         } catch (err) {
             console.error(err);
             return false;
         }
     }
-    return movies;
+    return entries;
 };
 
 interface Logo {
@@ -201,10 +188,7 @@ export const fetchMovieInformation = async (movieId: number): Promise<false | Mo
     let response;
     try {
         response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=images,videos,credits,keywords,details`, options);
-        if (!response.ok) {
-            return false;
-        }
-
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -250,10 +234,7 @@ export const fetchTVSeriesInformation = async (id: number): Promise<false | TVSe
     let response;
     try {
         response = await fetch(`https://api.themoviedb.org/3/tv/${id}?append_to_response=videos,credits,keywords,details`, options);
-        if (!response.ok) {
-            return false;
-        }
-
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -297,61 +278,55 @@ export const fetchTVSeriesInformation = async (id: number): Promise<false | TVSe
 };
 
 export const fetchLogo = async (type: EntryTypes, id: number): Promise<false | string> => {
-    let logoResponse;
+    let response;
     try {
-        logoResponse = await fetch(`https://api.themoviedb.org/3/${type}/${id}/images`, options);
-        if (!logoResponse.ok) {
-            return false;
-        }
-        logoResponse = await logoResponse.json();
+        response = await fetch(`https://api.themoviedb.org/3/${type}/${id}/images`, options);
+        if (!response.ok) return false;
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
-    const englishLogo = logoResponse.logos.find((logo: Logo) => logo.iso_639_1 === "en");
-    const logo = englishLogo ? englishLogo.file_path : logoResponse.logos[0].file_path;
+    const englishLogo = response.logos.find((logo: Logo) => logo.iso_639_1 === "en");
+    const logo = englishLogo ? englishLogo.file_path : response.logos[0].file_path;
     const hasLogo = logo ? logo : "noimage.png";
     return hasLogo;
 };
 
 export const fetchMovieCredits = async (movieId: number): Promise<false | MovieCredits> => {
-    let creditsResponse;
+    let response;
     try {
-        creditsResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits`, options);
-        if (!creditsResponse.ok) {
-            return false;
-        }
-        creditsResponse = await creditsResponse.json();
+        response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits`, options);
+        if (!response.ok) return false;
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
 
-    const cast = creditsResponse.cast.slice(0, 4);
-    let director = creditsResponse.crew.find((crew: {known_for_department: string}) => crew.known_for_department === "Directing")?.name;
+    const cast = response.cast.slice(0, 4);
+    let director = response.crew.find((crew: {known_for_department: string}) => crew.known_for_department === "Directing")?.name;
     if (!director) director = "Unknown";
     return {cast, director};
 };
 
 export const fetchMovieDetails = async (movieId: number): Promise<false | MovieDetails> => {
-    let detailsResponse;
+    let response;
     try {
-        detailsResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`, options);
-        if (!detailsResponse.ok) {
-            return false;
-        }
-        detailsResponse = await detailsResponse.json();
+        response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`, options);
+        if (!response.ok) return false;
+        response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
 
-    const hours = Math.floor(detailsResponse.runtime / 60);
-    const minutes = Math.floor(detailsResponse.runtime % 60);
+    const hours = Math.floor(response.runtime / 60);
+    const minutes = Math.floor(response.runtime % 60);
     const runtime = `${hours ? hours + "h " : null}${minutes}m`;
     return {
-        adult: detailsResponse.adult,
-        release_date: detailsResponse.release_date.split("-")[0],
+        adult: response.adult,
+        release_date: response.release_date.split("-")[0],
         runtime,
     };
 };
@@ -361,9 +336,7 @@ export const fetchSimilar = async (entry: EntryProps): Promise<false | EntryProp
     try {
         response = await fetch(`https://api.themoviedb.org/3/discover/${entry.type}?with_genres=${entry.genre_ids.join(",")}`, options);
 
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
@@ -384,9 +357,7 @@ export const fetchTrailer = async (type: EntryTypes, id: number): Promise<false 
     let response;
     try {
         response = await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos`, options);
-        if (!response.ok) {
-            return false;
-        }
+        if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);

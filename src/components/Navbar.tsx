@@ -35,9 +35,9 @@ function Navbar() {
                     <li className="hover:text-zinc-400 transition cursor-pointer">
                         <Link to="/tv">TV Shows</Link>
                     </li>
-                    <li className="hover:text-zinc-400 transition cursor-pointer">
+                    {/* <li className="hover:text-zinc-400 transition cursor-pointer">
                         <Link to="/new">New & Popular</Link>
-                    </li>
+                    </li> */}
                     <li className="hover:text-zinc-400 transition cursor-pointer">
                         <Link to="/mylist">My List</Link>
                     </li>

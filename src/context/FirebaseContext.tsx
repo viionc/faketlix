@@ -71,25 +71,25 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         return observer;
     }, []);
 
-    const registerUser = async (email: string, password: string): Promise<any> => {
+    const registerUser = async (email: string, password: string): Promise<void> => {
         let userCredential = null;
         try {
             userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const account = await createUserAccount(userCredential.user);
             if (!account) {
                 setError("Couldn't create account.");
-                throw new Error("Couldn't create account.");
+                throw new Error("Couldn't create account)");
             }
-        } catch (error: any) {
-            const errorMessage = error.message;
+        } catch (error) {
+            const errorMessage = (error as Error).message;
             setError(errorMessage);
-            throw new Error("Couldn't create account.");
+            throw new Error(errorMessage);
         }
         setError(null);
         setCurrentUser(userCredential.user);
     };
 
-    const loginWithGoogle = async (): Promise<any> => {
+    const loginWithGoogle = async (): Promise<void> => {
         let userCredential = null;
         try {
             userCredential = await signInWithPopup(auth, googleProvider);
@@ -97,10 +97,10 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
             const credential = GoogleAuthProvider.credentialFromResult(userCredential);
             if (!credential || !userCredential) {
                 setError("Couldn't get Google credential.");
-                throw new Error("Couldn't get credential.");
+                throw new Error("Couldn't get Google credential.");
             }
-        } catch (error: any) {
-            const errorMessage = error.message;
+        } catch (error) {
+            const errorMessage = (error as Error).message;
             setError(errorMessage);
             throw new Error(errorMessage);
         }
@@ -111,7 +111,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
             account = await createUserAccount(user);
             if (!account) {
                 setError("Couldn't create account.");
-                throw new Error("Couldn't create account.");
+                throw new Error("Couldn't create account)");
             }
             setAccount(account);
         }

@@ -15,7 +15,7 @@ export type FirebaseContextProps = {
     removeFromPlanToWatch: (type: EntryTypes, id: number) => void;
     removeFromFavorites: (type: EntryTypes, id: number) => void;
     createProfile: (name: string, profileColor: string) => void;
-    loginWithGoogle: () => Promise<any>;
+    loginWithGoogle: () => Promise<void>;
     manageProfiles: boolean;
     setManageProfiles: React.Dispatch<React.SetStateAction<boolean>>;
     updateProfile: (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => void;

@@ -9,6 +9,7 @@ import {
     EntryProps,
     TVSeriesInformation,
     DataReducerActionTypes,
+    EntryTypes,
 } from "../types/types";
 import {
     fetchMovieCredits,
@@ -100,7 +101,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
 
-    const getByGenre = async (type: "tv" | "movie", genres: number[]): Promise<boolean> => {
+    const getByGenre = async (type: EntryTypes, genres: number[]): Promise<boolean> => {
         let response = await fetchByGenre(type, genres[0]);
         if (!response) return false;
         let genre = type === "movie" ? MOVIE_GENRES[genres[0]] : TV_GENRES[genres[0]];
