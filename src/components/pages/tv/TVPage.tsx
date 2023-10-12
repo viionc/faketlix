@@ -9,14 +9,15 @@ import CarouselPlaceholder from "../../carousels/CarouselPlaceholder";
 import {useModalContext} from "../../../context/ModalContext";
 import TVSeriesInformationModal from "../../modals/TVSeriesInformationModal";
 import {fetchPopularTVSeries, fetchTopRatedTVSeries, fetchTrendingTVSeriesInPoland, fetchUpcomingTVSeries} from "../../../utils/fetchData";
+import {TV_GENRES} from "../../../types/constants";
 
 function TVPage() {
-    const {dataState, dataDispatch} = useDataContext();
+    const {dataState, dataDispatch, getByGenre} = useDataContext();
 
     const {modalState} = useModalContext();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [, setPagesLoaded] = useState<number>(0);
+    const [pagesLoaded, setPagesLoaded] = useState<number>(0);
 
     useEffect(() => {
         fetchData(true);
@@ -58,13 +59,10 @@ function TVPage() {
             return;
         }
 
-        // const key1 = parseInt(Object.keys(MOVIE_GENRES)[pagesLoaded]);
-        // const key2 = parseInt(Object.keys(MOVIE_GENRES)[pagesLoaded + 1]);
+        const key1 = parseInt(Object.keys(TV_GENRES)[pagesLoaded]);
+        const key2 = parseInt(Object.keys(TV_GENRES)[pagesLoaded + 1]);
 
-        // response = await getMoviesByGenre([key1, key2]);
-        // if (!response) {
-        //     console.log("Failed to load top rated movies");
-        // }
+        response = await getByGenre("tv", [key1, key2]);
         setTimeout(() => {
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);
@@ -73,26 +71,27 @@ function TVPage() {
 
     const observerTarget = useRef(null);
 
-    // useEffect(() => {
-    //     const observer = new IntersectionObserver(
-    //         entries => {
-    //             if (pagesLoaded === 0 || pagesLoaded >= 18 || isLoading) return;
-    //             if (entries[0].isIntersecting) {
-    //                 fetchData();
-    //             }
-    //         },
-    //         {threshold: 1}
-    //     );
-    //     if (observerTarget.current) {
-    //         observer.observe(observerTarget.current);
-    //     }
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (pagesLoaded === 0 || pagesLoaded >= Object.keys(TV_GENRES).length || isLoading) return;
+                if (entries[0].isIntersecting) {
+                    fetchData();
+                }
+            },
+            {threshold: 1}
+        );
+        const current = observerTarget.current;
+        if (current) {
+            observer.observe(current);
+        }
 
-    //     return () => {
-    //         if (observerTarget.current) {
-    //             observer.unobserve(observerTarget.current);
-    //         }
-    //     };
-    // }, [observerTarget, isLoading, pagesLoaded]);
+        return () => {
+            if (current) {
+                observer.unobserve(current);
+            }
+        };
+    }, [observerTarget, isLoading, pagesLoaded]);
     return (
         <section className="flex min-w-full min-h-[100vh] relative flex-col">
             {modalState.isTVSeriesInformationModalOpen && modalState.movieClicked && (
@@ -114,12 +113,12 @@ function TVPage() {
                 <Carousel entries={dataState.trendingTVSeriesInPoland} title="Top 10 TV Series In Poland"></Carousel>
             )}
 
-            {/* {Array(pagesLoaded)
+            {Array(pagesLoaded)
                 .fill("")
                 .map((_, i) => {
-                    const genre = Object.values(MOVIE_GENRES)[i];
-                    return moviesByGenre[genre] && <Carousel key={i} title={genre} data={moviesByGenre[genre]}></Carousel>;
-                })} */}
+                    const genre = Object.values(TV_GENRES)[i];
+                    return dataState.TVSeriesByGenre[genre] && <Carousel key={i} title={genre} entries={dataState.TVSeriesByGenre[genre]}></Carousel>;
+                })}
 
             {isLoading && <CarouselPlaceholder></CarouselPlaceholder>}
             <div className="h-[2rem]" ref={observerTarget}></div>

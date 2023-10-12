@@ -6,8 +6,8 @@ import CreateProfileModal from "../../modals/CreateProfileModal";
 import ManageProfilesModal from "../../modals/ManageProfilesModal";
 import ManageProfile from "./ManageProfile";
 
-function ProfileScreen() {
-    const {account, manageProfiles, setManageProfiles} = useFirebaseContext();
+function ProfilePage() {
+    const {account, manageProfiles, setManageProfiles, logoutUser} = useFirebaseContext();
 
     const {openModal, modalState} = useModalContext();
 
@@ -17,6 +17,9 @@ function ProfileScreen() {
             animate={{scale: 1, opacity: 1}}
             className="w-full h-[100vh] flex flex-col justify-center items-center flex-wrap gap-4 relative"
         >
+            <div className="absolute top-4 right-8 cursor-pointer hover:underline" onClick={logoutUser}>
+                Logout
+            </div>
             {modalState.isCreateProfileModalOpen && <CreateProfileModal></CreateProfileModal>}
             {modalState.isManageProfilesModalOpen && <ManageProfilesModal></ManageProfilesModal>}
             <h1 className="text-[4rem] text-zinc-400">{manageProfiles ? "Manage Profiles" : "Who's Watching?"}</h1>
@@ -54,4 +57,4 @@ function ProfileScreen() {
     );
 }
 
-export default ProfileScreen;
+export default ProfilePage;

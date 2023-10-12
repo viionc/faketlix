@@ -2,7 +2,7 @@ import {initializeApp} from "firebase/app";
 import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInWithPopup} from "firebase/auth";
 import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
-import {EntryProps, FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
+import {EntryProps, EntryTypes, FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
 import {useNavigate} from "react-router-dom";
 import {useLocalStorage} from "../hooks/useLocalStorage";
 import {GoogleAuthProvider} from "firebase/auth";
@@ -194,7 +194,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         navigate("/movies");
     };
 
-    const addToPlanToWatch = (type: "movie" | "tv", id: number) => {
+    const addToPlanToWatch = (type: EntryTypes, id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
@@ -209,7 +209,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const addToFavorites = (type: "movie" | "tv", id: number) => {
+    const addToFavorites = (type: EntryTypes, id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
@@ -224,7 +224,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const removeFromPlanToWatch = (type: "movie" | "tv", id: number) => {
+    const removeFromPlanToWatch = (type: EntryTypes, id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;
@@ -241,7 +241,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setDoc(doc(db, "users", account.id), account);
     };
 
-    const removeFromFavorites = (type: "movie" | "tv", id: number) => {
+    const removeFromFavorites = (type: EntryTypes, id: number) => {
         if (!account) return;
         const profile = account.profiles.find(profile => profile.name === currentProfile?.name) as UserProfile;
         if (!profile) return;

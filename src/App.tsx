@@ -2,7 +2,7 @@ import "./App.css";
 import {Routes, Route} from "react-router-dom";
 import MoviePage from "./components/pages/movie/MoviePage";
 import LoginForm from "./components/pages/login/LoginForm";
-import ProfileScreen from "./components/pages/profile/ProfileScreen";
+import ProfilePage from "./components/pages/profile/ProfilePage";
 import RegisterForm from "./components/pages/login/RegisterForm";
 import MyListPage from "./components/pages/mylist/MyListPage";
 import TVPage from "./components/pages/tv/TVPage";
@@ -14,10 +14,10 @@ function App() {
         <Routes>
             <Route path="/" element={<LoginForm />}></Route>
             <Route path="/register" element={<RegisterForm></RegisterForm>}></Route>
-            <Route path="/profiles" element={account ? <ProfileScreen /> : <LoginForm />}></Route>
-            <Route path="/movies" element={currentProfile ? <MoviePage /> : <ProfileScreen />}></Route>
-            <Route path="/mylist" element={currentProfile ? <MyListPage /> : <ProfileScreen />}></Route>
-            <Route path="/tv" element={currentProfile ? <TVPage /> : <ProfileScreen />}></Route>
+            <Route path="/profiles" element={account ? <ProfilePage /> : <LoginForm />}></Route>
+            <Route path="/movies" element={currentProfile ? <MoviePage /> : <ProfilePage />}></Route>
+            <Route path="/mylist" element={currentProfile ? <MyListPage /> : <ProfilePage />}></Route>
+            <Route path="/tv" element={currentProfile ? <TVPage /> : <ProfilePage />}></Route>
         </Routes>
     );
 }

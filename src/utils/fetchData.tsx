@@ -1,4 +1,4 @@
-import {EntryProps, MovieCredits, MovieDetails, MovieInformation, TVSeriesInformation} from "../types/types";
+import {EntryProps, EntryTypes, MovieCredits, MovieDetails, MovieInformation, TVSeriesInformation} from "../types/types";
 
 const options = {
     method: "GET",
@@ -138,10 +138,10 @@ export const fetchPopularMovies = async (): Promise<false | EntryProps[]> => {
     return response;
 };
 
-export const fetchMoviesByGenre = async (genre: number): Promise<false | EntryProps[]> => {
+export const fetchByGenre = async (type: EntryTypes, genre: number): Promise<false | EntryProps[]> => {
     let response;
     try {
-        response = await fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=${genre}`, options);
+        response = await fetch(`https://api.themoviedb.org/3/discover/${type}?with_genres=${genre}`, options);
         if (!response.ok) {
             return false;
         }
@@ -150,11 +150,11 @@ export const fetchMoviesByGenre = async (genre: number): Promise<false | EntryPr
         console.error(err);
         return false;
     }
-    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    response = response.results.map((result: EntryProps) => ({...result, type: type}));
     return response;
 };
 
-export const fetchDataByIds = async (type: "movie" | "tv", ids: number[]): Promise<false | EntryProps[]> => {
+export const fetchDataByIds = async (type: EntryTypes, ids: number[]): Promise<false | EntryProps[]> => {
     const movies = [] as EntryProps[];
     let response;
 
@@ -296,7 +296,7 @@ export const fetchTVSeriesInformation = async (id: number): Promise<false | TVSe
     return tvseries;
 };
 
-export const fetchLogo = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+export const fetchLogo = async (type: EntryTypes, id: number): Promise<false | string> => {
     let logoResponse;
     try {
         logoResponse = await fetch(`https://api.themoviedb.org/3/${type}/${id}/images`, options);
@@ -380,7 +380,7 @@ export const fetchSimilar = async (entry: EntryProps): Promise<false | EntryProp
     return entries;
 };
 
-export const fetchTrailer = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+export const fetchTrailer = async (type: EntryTypes, id: number): Promise<false | string> => {
     let response;
     try {
         response = await fetch(`https://api.themoviedb.org/3/${type}/${id}/videos`, options);

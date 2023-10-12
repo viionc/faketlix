@@ -1,4 +1,4 @@
-import {ReactNode, createContext, useContext, useReducer, useState} from "react";
+import {ReactNode, createContext, useContext, useReducer} from "react";
 import {
     DataContextProps,
     DataReducerAction,
@@ -8,18 +8,19 @@ import {
     MovieInformation,
     EntryProps,
     TVSeriesInformation,
+    DataReducerActionTypes,
 } from "../types/types";
 import {
     fetchMovieCredits,
     fetchMovieDetails,
     fetchMovieInformation,
-    fetchMoviesByGenre,
     fetchDataByIds,
     fetchTVSeriesInformation,
     fetchSimilar,
+    fetchByGenre,
 } from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
-import {MOVIE_GENRES} from "../types/constants";
+import {MOVIE_GENRES, TV_GENRES} from "../types/constants";
 import {useLocalStorage} from "../hooks/useLocalStorage";
 
 const DataContext = createContext<DataContextProps | null>(null);
@@ -57,6 +58,22 @@ const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
                 ...state,
                 [payload.name]: payload.data,
             };
+        case "UPDATE_MOVIES_BY_GENRE":
+            return {
+                ...state,
+                moviesByGenre: {
+                    ...state.moviesByGenre,
+                    [payload.name]: Array.isArray(payload.data) ? payload.data : [payload.data],
+                },
+            };
+        case "UPDATE_TVSERIES_BY_GENRE":
+            return {
+                ...state,
+                TVSeriesByGenre: {
+                    ...state.TVSeriesByGenre,
+                    [payload.name]: Array.isArray(payload.data) ? payload.data : [payload.data],
+                },
+            };
         default:
             return state;
     }
@@ -64,7 +81,6 @@ const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
 
 function DataContextProvider({children}: {children: ReactNode}) {
     const {currentProfile, account} = useFirebaseContext();
-    const [moviesByGenre, setMoviesByGenre] = useState<Record<string, EntryProps[]>>({});
     const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage(
         `${account?.id}-${currentProfile?.name}-ptw-movies`,
         [] as EntryProps[]
@@ -84,69 +100,46 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
 
-    const getMoviesByGenre = async (genres: number[]): Promise<boolean> => {
-        let response = await fetchMoviesByGenre(genres[0]);
-        if (!response) {
-            return false;
-        }
-        let genre = MOVIE_GENRES[genres[0]];
-        setMoviesByGenre(prev => {
-            return (prev = {
-                ...prev,
-                [genre]: response as EntryProps[],
-            });
-        });
+    const getByGenre = async (type: "tv" | "movie", genres: number[]): Promise<boolean> => {
+        let response = await fetchByGenre(type, genres[0]);
+        if (!response) return false;
+        let genre = type === "movie" ? MOVIE_GENRES[genres[0]] : TV_GENRES[genres[0]];
+        let dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
+        dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
 
-        response = await fetchMoviesByGenre(genres[1]);
-        if (!response) {
-            return false;
-        }
-        genre = MOVIE_GENRES[genres[1]];
-        setMoviesByGenre(prev => {
-            return (prev = {
-                ...prev,
-                [genre]: response as EntryProps[],
-            });
-        });
-
+        response = await fetchByGenre(type, genres[1]);
+        if (!response) return false;
+        genre = type === "movie" ? MOVIE_GENRES[genres[1]] : TV_GENRES[genres[1]];
+        dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
+        dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
         return true;
     };
 
     const getMovieInformation = async (id: number): Promise<false | MovieInformation> => {
         const response = await fetchMovieInformation(id);
-        if (!response) {
-            return false;
-        }
+        if (!response) return false;
         return response;
     };
 
     const getTVSeriesInformation = async (id: number): Promise<false | TVSeriesInformation> => {
         const response = await fetchTVSeriesInformation(id);
-        if (!response) {
-            return false;
-        }
+        if (!response) return false;
         return response;
     };
     const getMovieCredits = async (id: number): Promise<false | MovieCredits> => {
         const response = await fetchMovieCredits(id);
-        if (!response) {
-            return false;
-        }
+        if (!response) return false;
         return response;
     };
 
     const getMovieDetails = async (id: number): Promise<false | MovieDetails> => {
         const response = await fetchMovieDetails(id);
-        if (!response) {
-            return false;
-        }
+        if (!response) return false;
         return response;
     };
     const getSimilar = async (entry: EntryProps): Promise<false | EntryProps[]> => {
         const response = await fetchSimilar(entry);
-        if (!response) {
-            return false;
-        }
+        if (!response) return false;
         return response;
     };
 
@@ -232,12 +225,11 @@ function DataContextProvider({children}: {children: ReactNode}) {
         <DataContext.Provider
             value={{
                 dataState,
-                moviesByGenre,
                 getMovieCredits,
                 getMovieDetails,
                 getSimilar,
                 getMovieInformation,
-                getMoviesByGenre,
+                getByGenre,
                 getPlanToWatchData,
                 getFavoritesData,
                 getTVSeriesInformation,
@@ -249,7 +241,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     );
 }
 export default DataContextProvider;
-// const getTrailer = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+// const getTrailer = async (type: EntryTypes, id: number): Promise<false | string> => {
 //     const trailer = await fetchTrailer(type, id);
 //     if (!trailer) {
 //         return false;
@@ -321,7 +313,7 @@ export default DataContextProvider;
 //     return true;
 // };
 
-// const getLogo = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+// const getLogo = async (type: EntryTypes, id: number): Promise<false | string> => {
 //     const logo = await fetchLogo(type, id);
 //     if (!logo) {
 //         return false;

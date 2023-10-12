@@ -10,10 +10,10 @@ export type FirebaseContextProps = {
     currentProfile: UserProfile | null;
     account: UserAccount | null;
     changeUserProfile: (profileName: string) => void;
-    addToPlanToWatch: (type: "movie" | "tv", id: number) => void;
-    addToFavorites: (type: "movie" | "tv", id: number) => void;
-    removeFromPlanToWatch: (type: "movie" | "tv", id: number) => void;
-    removeFromFavorites: (type: "movie" | "tv", id: number) => void;
+    addToPlanToWatch: (type: EntryTypes, id: number) => void;
+    addToFavorites: (type: EntryTypes, id: number) => void;
+    removeFromPlanToWatch: (type: EntryTypes, id: number) => void;
+    removeFromFavorites: (type: EntryTypes, id: number) => void;
     createProfile: (name: string, profileColor: string) => void;
     loginWithGoogle: () => Promise<any>;
     manageProfiles: boolean;
@@ -23,7 +23,7 @@ export type FirebaseContextProps = {
 };
 
 export type EntryProps = {
-    type: "movie" | "tv";
+    type: EntryTypes;
     id: number;
     genre_ids: number[];
     backdrop_path: string;
@@ -35,6 +35,8 @@ export type EntryProps = {
     poster_path: string;
     adult: boolean;
 };
+
+export type EntryTypes = "movie" | "tv";
 
 // export interface MovieInformationResponse extends Response {
 //     credits: {cast: Array<{name: string}>; crew: Array<{known_for_department: string; name: string}>};
@@ -105,14 +107,13 @@ export type ModalContextProps = {
 };
 
 export type DataContextProps = {
-    moviesByGenre: Record<string, EntryProps[]>;
     dataState: DataReducerState;
     getMovieCredits: (id: number) => Promise<false | MovieCredits>;
     getMovieDetails: (id: number) => Promise<false | MovieDetails>;
     getSimilar: (entry: EntryProps) => Promise<false | EntryProps[]>;
     getMovieInformation: (id: number) => Promise<false | MovieInformation>;
     getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
-    getMoviesByGenre: (genres: number[]) => Promise<boolean>;
+    getByGenre: (type: EntryTypes, genres: number[]) => Promise<boolean>;
     getPlanToWatchData: () => Promise<boolean>;
     getFavoritesData: () => Promise<boolean>;
     dataDispatch: React.Dispatch<DataReducerAction>;
@@ -190,13 +191,15 @@ export type DataReducerState = {
     trendingTVSeriesInPoland: EntryProps[];
 };
 export type DataReducerAction = {
-    type: "UPDATE_MOVIES";
+    type: DataReducerActionTypes;
     payload: DataReducerPayload;
 };
 
+export type DataReducerActionTypes = "UPDATE_MOVIES" | "UPDATE_TVSERIES_BY_GENRE" | "UPDATE_MOVIES_BY_GENRE";
+
 export type DataReducerPayload = {
-    name: keyof DataReducerState;
-    data: EntryProps | EntryProps[] | EntryProps | EntryProps[];
+    name: string;
+    data: EntryProps | EntryProps[];
 };
 
 export type RegisterReducerState = {

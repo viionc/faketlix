@@ -12,7 +12,7 @@ import {useModalContext} from "../../../context/ModalContext";
 import {fetchPopularMovies, fetchTopRatedMovies, fetchTrendingMoviesInPoland, fetchUpcomingMovies} from "../../../utils/fetchData";
 
 function MoviePage() {
-    const {dataState, moviesByGenre, getMoviesByGenre, dataDispatch} = useDataContext();
+    const {dataState, getByGenre, dataDispatch} = useDataContext();
     const {modalState} = useModalContext();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -67,7 +67,7 @@ function MoviePage() {
         const key1 = parseInt(Object.keys(MOVIE_GENRES)[pagesLoaded]);
         const key2 = parseInt(Object.keys(MOVIE_GENRES)[pagesLoaded + 1]);
 
-        response = await getMoviesByGenre([key1, key2]);
+        response = await getByGenre("movie", [key1, key2]);
         setTimeout(() => {
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);
@@ -79,7 +79,7 @@ function MoviePage() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
-                if (pagesLoaded === 0 || pagesLoaded >= 18 || isLoading) return;
+                if (pagesLoaded === 0 || pagesLoaded >= Object.keys(MOVIE_GENRES).length || isLoading) return;
                 if (entries[0].isIntersecting) {
                     fetchData();
                 }
@@ -140,7 +140,7 @@ function MoviePage() {
                 .fill("")
                 .map((_, i) => {
                     const genre = Object.values(MOVIE_GENRES)[i];
-                    return moviesByGenre[genre] && <Carousel key={i} title={genre} entries={moviesByGenre[genre]}></Carousel>;
+                    return dataState.moviesByGenre[genre] && <Carousel key={i} title={genre} entries={dataState.moviesByGenre[genre]}></Carousel>;
                 })}
 
             {isLoading && <CarouselPlaceholder></CarouselPlaceholder>}

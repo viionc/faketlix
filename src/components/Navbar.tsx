@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import ProfileSettingsModal from "./pages/profile/ProfileMenu";
+import ProfileMenu from "./pages/profile/ProfileMenu";
 import {motion} from "framer-motion";
 import clsx from "clsx";
 import {Link} from "react-router-dom";
@@ -46,7 +46,7 @@ function Navbar() {
             <div className="flex gap-6 items-center">
                 <i className="fa-solid fa-magnifying-glass fa-lg"></i>
                 <i className="fa-regular fa-bell fa-lg"></i>
-                <ProfileSettingsModal></ProfileSettingsModal>
+                <ProfileMenu></ProfileMenu>
             </div>
         </motion.nav>
     );

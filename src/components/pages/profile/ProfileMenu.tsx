@@ -2,10 +2,12 @@ import {useState} from "react";
 import {useFirebaseContext} from "../../../context/FirebaseContext";
 import {UserProfile} from "../../../types/types";
 import ProfileIcon from "./ProfileIcon";
+import {useNavigate} from "react-router-dom";
 
-function ProfileSettingsModal() {
-    const {account, logoutUser, changeUserProfile, currentProfile} = useFirebaseContext();
+function ProfileMenu() {
+    const {account, logoutUser, changeUserProfile, currentProfile, setManageProfiles} = useFirebaseContext();
     const [openMenu, setOpenMenu] = useState(false);
+    const navigate = useNavigate();
     return (
         <div
             onMouseEnter={() => setOpenMenu(true)}
@@ -36,6 +38,15 @@ function ProfileSettingsModal() {
                                 <p>{profile.name}</p>
                             </div>
                         ))}
+                    <span
+                        onClick={() => {
+                            navigate("/profiles");
+                            setManageProfiles(true);
+                        }}
+                        className="p-4 flex justify-center hover:underline text-zinc-400"
+                    >
+                        Manage Profiles
+                    </span>
                     <span onClick={logoutUser} className="border-t border-[#272727] p-4 flex justify-center hover:underline text-zinc-400">
                         Sign out from Faketflix
                     </span>
@@ -45,4 +56,4 @@ function ProfileSettingsModal() {
     );
 }
 
-export default ProfileSettingsModal;
+export default ProfileMenu;
