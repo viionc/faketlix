@@ -63,14 +63,26 @@ const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
 };
 
 function DataContextProvider({children}: {children: ReactNode}) {
+    const {currentProfile, account} = useFirebaseContext();
     const [moviesByGenre, setMoviesByGenre] = useState<Record<string, EntryProps[]>>({});
-    const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage("ptw-movies", [] as EntryProps[]);
-    const [localStoragePTWTVSeries, setLocalStoragePTWTVSeries] = useLocalStorage("ptw-tvseries", [] as EntryProps[]);
-    const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage("fav-movies", [] as EntryProps[]);
-    const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage("fav-tvseries", [] as EntryProps[]);
+    const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-ptw-movies`,
+        [] as EntryProps[]
+    );
+    const [localStoragePTWTVSeries, setLocalStoragePTWTVSeries] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-ptw-tvseries`,
+        [] as EntryProps[]
+    );
+    const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-fav-movies`,
+        [] as EntryProps[]
+    );
+    const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-fav-tvseries`,
+        [] as EntryProps[]
+    );
 
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
-    const {currentProfile} = useFirebaseContext();
 
     const getMoviesByGenre = async (genres: number[]): Promise<boolean> => {
         let response = await fetchMoviesByGenre(genres[0]);

@@ -42,6 +42,7 @@ function LoginForm() {
                             Sign in
                         </button>
                     </form>
+
                     <button onClick={() => loginUser("a@a.pl", "123123")} className="my-2 py-2.5 bg-[#caa34f] rounded-md font-semibold">
                         Demo Account
                     </button>

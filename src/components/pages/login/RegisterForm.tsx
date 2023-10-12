@@ -1,14 +1,89 @@
-import {FormEvent, useState} from "react";
+import {FormEvent, useReducer} from "react";
 import {useFirebaseContext} from "../../../context/FirebaseContext";
+import {RegisterReducerAction, RegisterReducerState} from "../../../types/types";
+
+const REGISTER_INITIAL_STATE = {
+    email: "",
+    password: "",
+    confirmPassword: "",
+    emailError: null,
+    passwordError: null,
+    confirmPasswordError: null,
+};
+
+const registerReducer = (state: RegisterReducerState, action: RegisterReducerAction) => {
+    const {type, payload} = action;
+    switch (type) {
+        case "INPUT":
+            return {
+                ...state,
+                [payload.name]: payload.value,
+            };
+        case "RESET":
+            return REGISTER_INITIAL_STATE;
+        default:
+            return state;
+    }
+};
 
 function RegisterForm() {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [registerState, dispatch] = useReducer(registerReducer, REGISTER_INITIAL_STATE);
+    const {registerUser, setFormTypeOpen, error} = useFirebaseContext();
 
-    const {registerUser, setFormTypeOpen} = useFirebaseContext();
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        const {email, password, confirmPassword} = registerState;
+        if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "emailError",
+                    value: "Invalid email",
+                },
+            });
+            return;
+        }
+        dispatch({
+            type: "INPUT",
+            payload: {
+                name: "emailError",
+                value: null,
+            },
+        });
+        if (password.length < 6) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "passwordError",
+                    value: "Password must be at least 6 characters",
+                },
+            });
+            return;
+        }
+        dispatch({
+            type: "INPUT",
+            payload: {
+                name: "passwordError",
+                value: null,
+            },
+        });
+        if (confirmPassword !== password) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "confirmPasswordError",
+                    value: "Passwords must match",
+                },
+            });
+            return;
+        }
+        dispatch({
+            type: "INPUT",
+            payload: {
+                name: "confirmPasswordError",
+                value: null,
+            },
+        });
         registerUser(email, password);
     };
 
@@ -24,23 +99,26 @@ function RegisterForm() {
                             className="p-3 rounded-md"
                             placeholder="E-mail"
                             type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
+                            value={registerState.email}
+                            onChange={e => dispatch({type: "INPUT", payload: {name: "email", value: e.target.value}})}
                         ></input>
+                        {registerState.emailError && <p className="text-sm text-red-500">{registerState.emailError}</p>}
                         <input
                             className="p-3 rounded-md"
                             placeholder="Password"
                             type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
+                            value={registerState.password}
+                            onChange={e => dispatch({type: "INPUT", payload: {name: "password", value: e.target.value}})}
                         ></input>
+                        {registerState.passwordError && <p className="text-sm text-red-500">{registerState.passwordError}</p>}
                         <input
                             className="p-3 rounded-md"
                             placeholder="Confirm Password"
                             type="password"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
+                            value={registerState.confirmPassword}
+                            onChange={e => dispatch({type: "INPUT", payload: {name: "confirmPassword", value: e.target.value}})}
                         ></input>
+                        {registerState.confirmPasswordError && <p className="text-sm text-red-500">{registerState.confirmPasswordError}</p>}
                         <button
                             type="submit"
                             className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
@@ -48,6 +126,7 @@ function RegisterForm() {
                             Register
                         </button>
                     </form>
+                    {error && <div className="text-md text-red-500">{error}</div>}
                     <div className="flex justify-between mb-12">
                         <a href="/" className="hover:underline text-white">
                             Need help?

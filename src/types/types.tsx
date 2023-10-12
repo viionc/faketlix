@@ -19,6 +19,7 @@ export type FirebaseContextProps = {
     manageProfiles: boolean;
     setManageProfiles: React.Dispatch<React.SetStateAction<boolean>>;
     updateProfile: (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => void;
+    error: string | null;
 };
 
 export type EntryProps = {
@@ -196,4 +197,22 @@ export type DataReducerAction = {
 export type DataReducerPayload = {
     name: keyof DataReducerState;
     data: EntryProps | EntryProps[] | EntryProps | EntryProps[];
+};
+
+export type RegisterReducerState = {
+    email: string;
+    password: string;
+    confirmPassword: string;
+    emailError: null | string;
+    passwordError: null | string;
+    confirmPasswordError: null | string;
+};
+
+export type RegisterReducerAction = {
+    type: "INPUT" | "RESET";
+    payload: RegisterReducerPayload;
+};
+export type RegisterReducerPayload = {
+    name: keyof RegisterReducerState;
+    value: string | null;
 };

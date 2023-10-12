@@ -37,15 +37,27 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
     const [formTypeOpen, setFormTypeOpen] = useState<null | "LOGIN" | "REGISTER">("LOGIN");
     const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
     const [account, setAccount] = useState<UserAccount | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [manageProfiles, setManageProfiles] = useState<boolean>(false);
-    const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage("ptw-movies", [] as EntryProps[]);
-    const [localStoragePTWTVSeries, setLocalStoragePTWTVSeries] = useLocalStorage("ptw-tvseries", [] as EntryProps[]);
-    const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage("fav-movies", [] as EntryProps[]);
-    const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage("fav-tvseries", [] as EntryProps[]);
-    // const [localStoragePTWTV, setLocalStoragePTWTV] = useLocalStorage("ptw-tv", [] as MovieProps[]);
-    // const [localStorageFavoriteTV, setLocalStorageFavoriteTV] = useLocalStorage("fav-tv", [] as MovieProps[]);
+    const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-ptw-movies`,
+        [] as EntryProps[]
+    );
+    const [localStoragePTWTVSeries, setLocalStoragePTWTVSeries] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-ptw-tvseries`,
+        [] as EntryProps[]
+    );
+    const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-fav-movies`,
+        [] as EntryProps[]
+    );
+    const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage(
+        `${account?.id}-${currentProfile?.name}-fav-tvseries`,
+        [] as EntryProps[]
+    );
 
     const navigate = useNavigate();
+
     useEffect(() => {
         const observer = auth.onAuthStateChanged(user => {
             if (user) {
@@ -64,36 +76,55 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         try {
             userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const account = await createUserAccount(userCredential.user);
-            if (!account) throw new Error("Couldn't create account.");
-        } catch (error) {
-            return error;
+            if (!account) {
+                setError("Couldn't create account.");
+                throw new Error("Couldn't create account.");
+            }
+        } catch (error: any) {
+            const errorMessage = error.message;
+            setError(errorMessage);
+            throw new Error("Couldn't create account.");
         }
-
+        setError(null);
         setCurrentUser(userCredential.user);
     };
 
     const loginWithGoogle = async (): Promise<any> => {
-        const result = await signInWithPopup(auth, googleProvider);
-
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        if (!credential) throw new Error("Couldn't get credential.");
+        let userCredential = null;
+        try {
+            userCredential = await signInWithPopup(auth, googleProvider);
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(userCredential);
+            if (!credential || !userCredential) {
+                setError("Couldn't get Google credential.");
+                throw new Error("Couldn't get credential.");
+            }
+        } catch (error: any) {
+            const errorMessage = error.message;
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        }
         // const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
+        const user = userCredential.user;
         let account = await loadDataFromDatabase(user);
         if (!account) {
             account = await createUserAccount(user);
+            if (!account) {
+                setError("Couldn't create account.");
+                throw new Error("Couldn't create account.");
+            }
+            setAccount(account);
         }
-        console.log(account);
+        setError(null);
     };
 
     const loginUser = (email: string, password: string): void | null => {
         signInWithEmailAndPassword(auth, email, password).catch(error => {
             // const errorCode = error.code;
-            const errorMessage = error.message;
-            alert(errorMessage);
+            setError(error.message);
+            throw new Error(error.message);
         });
+        setError(null);
     };
 
     const createUserAccount = async (user: User): Promise<false | UserAccount> => {
@@ -248,6 +279,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                 setManageProfiles,
                 updateProfile,
                 loginWithGoogle,
+                error,
             }}
         >
             {children}

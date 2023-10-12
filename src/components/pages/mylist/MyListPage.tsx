@@ -14,7 +14,6 @@ function MyListPage() {
     const {modalState} = useModalContext();
 
     useEffect(() => {
-        if (!currentProfile) return;
         const fetchData = async () => {
             let response = await getPlanToWatchData();
             if (!response) {
