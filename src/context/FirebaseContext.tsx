@@ -1,10 +1,13 @@
 import {initializeApp} from "firebase/app";
-import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth";
+import {User, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInWithPopup} from "firebase/auth";
 import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {ReactNode, createContext, useContext, useEffect, useState} from "react";
 import {EntryProps, FirebaseContextProps, UserAccount, UserProfile} from "../types/types";
 import {useNavigate} from "react-router-dom";
 import {useLocalStorage} from "../hooks/useLocalStorage";
+import {GoogleAuthProvider} from "firebase/auth";
+
+const googleProvider = new GoogleAuthProvider();
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -69,6 +72,22 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
         setCurrentUser(userCredential.user);
     };
 
+    const loginWithGoogle = async (): Promise<any> => {
+        const result = await signInWithPopup(auth, googleProvider);
+
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (!credential) throw new Error("Couldn't get credential.");
+        // const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        let account = await loadDataFromDatabase(user);
+        if (!account) {
+            account = await createUserAccount(user);
+        }
+        console.log(account);
+    };
+
     const loginUser = (email: string, password: string): void | null => {
         signInWithEmailAndPassword(auth, email, password).catch(error => {
             // const errorCode = error.code;
@@ -109,6 +128,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
 
     const logoutUser = () => {
         signOut(auth);
+        navigate("/");
         setCurrentProfile(null);
         setCurrentUser(null);
         setAccount(null);
@@ -227,6 +247,7 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
                 manageProfiles,
                 setManageProfiles,
                 updateProfile,
+                loginWithGoogle,
             }}
         >
             {children}

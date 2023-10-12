@@ -92,7 +92,7 @@ export const fetchUpcomingTVSeries = async (): Promise<false | EntryProps[]> => 
 export const fetchTrendingTVSeriesInPoland = async (): Promise<false | EntryProps[]> => {
     let response;
     try {
-        response = await fetch("https://api.themoviedb.org/3/tv/popular?region=PL", options);
+        response = await fetch("https://api.themoviedb.org/3/trending/tv/week", options);
         if (!response.ok) {
             return false;
         }

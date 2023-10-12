@@ -8,9 +8,10 @@ import {useDataContext} from "../../../context/DataContext";
 import CarouselPlaceholder from "../../carousels/CarouselPlaceholder";
 import {useModalContext} from "../../../context/ModalContext";
 import TVSeriesInformationModal from "../../modals/TVSeriesInformationModal";
+import {fetchPopularTVSeries, fetchTopRatedTVSeries, fetchTrendingTVSeriesInPoland, fetchUpcomingTVSeries} from "../../../utils/fetchData";
 
 function TVPage() {
-    const {getTopRatedTVSeries, dataState, getPopularTVSeries, getUpcomingTVSeries, getTrendingTVSeriesInPoland} = useDataContext();
+    const {dataState, dataDispatch} = useDataContext();
 
     const {modalState} = useModalContext();
 
@@ -26,21 +27,31 @@ function TVPage() {
         setIsLoading(true);
         let response;
         if (initial) {
-            response = await getTopRatedTVSeries();
+            response = await fetchTopRatedTVSeries();
             if (!response) {
                 console.log("Failed to load top rated movies");
+            } else {
+                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: response}});
+                const number = Math.floor(Math.random() * response.length);
+                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: response[number]}});
             }
-            response = await getPopularTVSeries();
+            response = await fetchPopularTVSeries();
             if (!response) {
                 console.log("Failed to popular movies");
+            } else {
+                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: response}});
             }
-            response = await getUpcomingTVSeries();
+            response = await fetchUpcomingTVSeries();
             if (!response) {
                 console.log("Failed to upcoming movies");
+            } else {
+                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: response}});
             }
-            response = await getTrendingTVSeriesInPoland();
+            response = await fetchTrendingTVSeriesInPoland();
             if (!response) {
                 console.log("Failed to top 10 trending movies");
+            } else {
+                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: response}});
             }
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);

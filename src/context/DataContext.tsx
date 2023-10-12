@@ -14,14 +14,6 @@ import {
     fetchMovieDetails,
     fetchMovieInformation,
     fetchMoviesByGenre,
-    fetchPopularMovies,
-    fetchTopRatedMovies,
-    fetchTrendingMoviesInPoland,
-    fetchUpcomingMovies,
-    fetchPopularTVSeries,
-    fetchTopRatedTVSeries,
-    fetchTrendingTVSeriesInPoland,
-    fetchUpcomingTVSeries,
     fetchDataByIds,
     fetchTVSeriesInformation,
     fetchSimilar,
@@ -38,6 +30,38 @@ export const useDataContext = () => {
     return context;
 };
 
+const REDUCER_INITAL_STATE: DataReducerState = {
+    topRatedMovies: [],
+    featuredMovie: null,
+    popularMovies: [],
+    planToWatchMovies: [],
+    favoritedMovies: [],
+    moviesByGenre: {},
+    upcomingMovies: [],
+    trendingMoviesInPoland: [],
+    topRatedTVSeries: [],
+    featuredTVSeries: null,
+    popularTVSeries: [],
+    planToWatchTVSeries: [],
+    favoritedTVSeries: [],
+    TVSeriesByGenre: {},
+    upcomingTVSeries: [],
+    trendingTVSeriesInPoland: [],
+};
+
+const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
+    const {type, payload} = action;
+    switch (type) {
+        case "UPDATE_MOVIES":
+            return {
+                ...state,
+                [payload.name]: payload.data,
+            };
+        default:
+            return state;
+    }
+};
+
 function DataContextProvider({children}: {children: ReactNode}) {
     const [moviesByGenre, setMoviesByGenre] = useState<Record<string, EntryProps[]>>({});
     const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage("ptw-movies", [] as EntryProps[]);
@@ -45,146 +69,66 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const [localStorageFavoriteMovies, setLocalStorageFavoriteMovies] = useLocalStorage("fav-movies", [] as EntryProps[]);
     const [localStorageFavoriteTVSeries, setLocalStorageFavoriteTVSeries] = useLocalStorage("fav-tvseries", [] as EntryProps[]);
 
-    const REDUCER_INITAL_STATE: DataReducerState = {
-        topRatedMovies: [],
-        featuredMovie: null,
-        popularMovies: [],
-        planToWatchMovies: [],
-        favoritedMovies: [],
-        moviesByGenre: {},
-        upcomingMovies: [],
-        trendingMoviesInPoland: [],
-        topRatedTVSeries: [],
-        featuredTVSeries: null,
-        popularTVSeries: [],
-        planToWatchTVSeries: [],
-        favoritedTVSeries: [],
-        TVSeriesByGenre: {},
-        upcomingTVSeries: [],
-        trendingTVSeriesInPoland: [],
-    };
-
-    const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
-        const {type, payload} = action;
-        switch (type) {
-            case "UPDATE_MOVIES":
-                return {
-                    ...state,
-                    [payload.name]: payload.data,
-                };
-            default:
-                return state;
-        }
-    };
-
-    const [dataState, dispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
-
+    const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
     const {currentProfile} = useFirebaseContext();
 
-    const getTopRatedMovies = async (): Promise<boolean> => {
-        const movies = await fetchTopRatedMovies();
-        if (!movies) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: movies}});
-        const number = Math.floor(Math.random() * movies.length);
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: movies[number]}});
-        return true;
-    };
-
     const getMoviesByGenre = async (genres: number[]): Promise<boolean> => {
-        let movies = await fetchMoviesByGenre(genres[0]);
-        if (!movies) {
+        let response = await fetchMoviesByGenre(genres[0]);
+        if (!response) {
             return false;
         }
         let genre = MOVIE_GENRES[genres[0]];
         setMoviesByGenre(prev => {
             return (prev = {
                 ...prev,
-                [genre]: movies as EntryProps[],
+                [genre]: response as EntryProps[],
             });
         });
 
-        movies = await fetchMoviesByGenre(genres[1]);
-        if (!movies) {
+        response = await fetchMoviesByGenre(genres[1]);
+        if (!response) {
             return false;
         }
         genre = MOVIE_GENRES[genres[1]];
         setMoviesByGenre(prev => {
             return (prev = {
                 ...prev,
-                [genre]: movies as EntryProps[],
+                [genre]: response as EntryProps[],
             });
         });
 
         return true;
     };
-    const getPopularMovies = async (): Promise<boolean> => {
-        const movies = await fetchPopularMovies();
-        if (!movies) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: movies}});
-        return true;
-    };
-
-    const getTopRatedTVSeries = async (): Promise<boolean> => {
-        const tvseries = await fetchTopRatedTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: tvseries}});
-        const number = Math.floor(Math.random() * tvseries.length);
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: tvseries[number]}});
-        return true;
-    };
-
-    const getPopularTVSeries = async (): Promise<boolean> => {
-        const tvseries = await fetchPopularTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: tvseries}});
-        return true;
-    };
-
-    // const getLogo = async (type: "movie" | "tv", id: number): Promise<false | string> => {
-    //     const logo = await fetchLogo(type, id);
-    //     if (!logo) {
-    //         return false;
-    //     }
-    //     return logo;
-    // };
 
     const getMovieInformation = async (id: number): Promise<false | MovieInformation> => {
-        const details = await fetchMovieInformation(id);
-        if (!details) {
+        const response = await fetchMovieInformation(id);
+        if (!response) {
             return false;
         }
-        return details;
+        return response;
     };
 
     const getTVSeriesInformation = async (id: number): Promise<false | TVSeriesInformation> => {
-        const details = await fetchTVSeriesInformation(id);
-        if (!details) {
+        const response = await fetchTVSeriesInformation(id);
+        if (!response) {
             return false;
         }
-        return details;
+        return response;
     };
     const getMovieCredits = async (id: number): Promise<false | MovieCredits> => {
-        const credits = await fetchMovieCredits(id);
-        if (!credits) {
+        const response = await fetchMovieCredits(id);
+        if (!response) {
             return false;
         }
-        return credits;
+        return response;
     };
 
     const getMovieDetails = async (id: number): Promise<false | MovieDetails> => {
-        const details = await fetchMovieDetails(id);
-        if (!details) {
+        const response = await fetchMovieDetails(id);
+        if (!response) {
             return false;
         }
-        return details;
+        return response;
     };
     const getSimilar = async (entry: EntryProps): Promise<false | EntryProps[]> => {
         const response = await fetchSimilar(entry);
@@ -192,49 +136,6 @@ function DataContextProvider({children}: {children: ReactNode}) {
             return false;
         }
         return response;
-    };
-    // const getTrailer = async (type: "movie" | "tv", id: number): Promise<false | string> => {
-    //     const trailer = await fetchTrailer(type, id);
-    //     if (!trailer) {
-    //         return false;
-    //     }
-    //     return trailer;
-    // };
-
-    const getUpcomingMovies = async (): Promise<boolean> => {
-        const movies = await fetchUpcomingMovies();
-        if (!movies) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: movies}});
-        return true;
-    };
-
-    const getUpcomingTVSeries = async (): Promise<boolean> => {
-        const tvseries = await fetchUpcomingTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: tvseries}});
-        return true;
-    };
-
-    const getTrendingMoviesInPoland = async (): Promise<boolean> => {
-        const movies = await fetchTrendingMoviesInPoland();
-        if (!movies) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: movies.slice(0, 10)}});
-        return true;
-    };
-
-    const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
-        const tvseries = await fetchTrendingTVSeriesInPoland();
-        if (!tvseries) {
-            return false;
-        }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: tvseries.slice(0, 10)}});
-        return true;
     };
 
     const getPlanToWatchData = async (): Promise<boolean> => {
@@ -254,7 +155,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
             movies.push(...(response as EntryProps[]));
             setLocalStoragePTWMovies(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchMovies", data: movies}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchMovies", data: movies}});
 
         const tvSeriesArray = [] as EntryProps[];
         idsToFetch = [] as number[];
@@ -271,7 +172,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
             tvSeriesArray.push(...(response as EntryProps[]));
             setLocalStoragePTWTVSeries(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchTVSeries", data: tvSeriesArray}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchTVSeries", data: tvSeriesArray}});
 
         return true;
     };
@@ -293,7 +194,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
             movies.push(...(response as EntryProps[]));
             setLocalStorageFavoriteMovies(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedMovies", data: movies}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedMovies", data: movies}});
 
         const tvSeriesArray = [] as EntryProps[];
         idsToFetch = [] as number[];
@@ -310,7 +211,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
             tvSeriesArray.push(...(response as EntryProps[]));
             setLocalStorageFavoriteTVSeries(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedTVSeries", data: tvSeriesArray}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedTVSeries", data: tvSeriesArray}});
 
         return true;
     };
@@ -320,22 +221,15 @@ function DataContextProvider({children}: {children: ReactNode}) {
             value={{
                 dataState,
                 moviesByGenre,
-                getTopRatedMovies,
-                getPopularMovies,
                 getMovieCredits,
                 getMovieDetails,
                 getSimilar,
                 getMovieInformation,
                 getMoviesByGenre,
-                getUpcomingMovies,
-                getUpcomingTVSeries,
-                getTrendingMoviesInPoland,
-                getTrendingTVSeriesInPoland,
                 getPlanToWatchData,
-                getTopRatedTVSeries,
-                getPopularTVSeries,
                 getFavoritesData,
                 getTVSeriesInformation,
+                dataDispatch,
             }}
         >
             {children}
@@ -343,3 +237,92 @@ function DataContextProvider({children}: {children: ReactNode}) {
     );
 }
 export default DataContextProvider;
+// const getTrailer = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+//     const trailer = await fetchTrailer(type, id);
+//     if (!trailer) {
+//         return false;
+//     }
+//     return trailer;
+// };
+
+// const getUpcomingMovies = async (): Promise<boolean> => {
+//     const movies = await fetchUpcomingMovies();
+//     if (!movies) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: movies}});
+//     return true;
+// };
+
+// const getUpcomingTVSeries = async (): Promise<boolean> => {
+//     const tvseries = await fetchUpcomingTVSeries();
+//     if (!tvseries) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: tvseries}});
+//     return true;
+// };
+
+// const getTrendingMoviesInPoland = async (): Promise<boolean> => {
+//     const movies = await fetchTrendingMoviesInPoland();
+//     if (!movies) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: movies.slice(0, 10)}});
+//     return true;
+// };
+
+// const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
+//     const tvseries = await fetchTrendingTVSeriesInPoland();
+//     if (!tvseries) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: tvseries.slice(0, 10)}});
+//     return true;
+// };
+// const getPopularMovies = async (): Promise<boolean> => {
+//     const movies = await fetchPopularMovies();
+//     if (!movies) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: movies}});
+//     return true;
+// };
+
+// const getTopRatedTVSeries = async (): Promise<boolean> => {
+//     const tvseries = await fetchTopRatedTVSeries();
+//     if (!tvseries) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: tvseries}});
+//     const number = Math.floor(Math.random() * tvseries.length);
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: tvseries[number]}});
+//     return true;
+// };
+
+// const getPopularTVSeries = async (): Promise<boolean> => {
+//     const tvseries = await fetchPopularTVSeries();
+//     if (!tvseries) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: tvseries}});
+//     return true;
+// };
+
+// const getLogo = async (type: "movie" | "tv", id: number): Promise<false | string> => {
+//     const logo = await fetchLogo(type, id);
+//     if (!logo) {
+//         return false;
+//     }
+//     return logo;
+// };
+// const getTopRatedMovies = async (): Promise<boolean> => {
+//     const movies = await fetchTopRatedMovies();
+//     if (!movies) {
+//         return false;
+//     }
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: movies}});
+//     const number = Math.floor(Math.random() * movies.length);
+//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: movies[number]}});
+//     return true;
+// };

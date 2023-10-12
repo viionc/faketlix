@@ -15,6 +15,7 @@ export type FirebaseContextProps = {
     removeFromPlanToWatch: (type: "movie" | "tv", id: number) => void;
     removeFromFavorites: (type: "movie" | "tv", id: number) => void;
     createProfile: (name: string, profileColor: string) => void;
+    loginWithGoogle: () => Promise<any>;
     manageProfiles: boolean;
     setManageProfiles: React.Dispatch<React.SetStateAction<boolean>>;
     updateProfile: (profileClicked: UserProfile, name: string, profileColor: string, autoplay: boolean) => void;
@@ -105,22 +106,15 @@ export type ModalContextProps = {
 export type DataContextProps = {
     moviesByGenre: Record<string, EntryProps[]>;
     dataState: DataReducerState;
-    getTopRatedMovies: () => Promise<boolean>;
-    getPopularMovies: () => Promise<boolean>;
     getMovieCredits: (id: number) => Promise<false | MovieCredits>;
     getMovieDetails: (id: number) => Promise<false | MovieDetails>;
     getSimilar: (entry: EntryProps) => Promise<false | EntryProps[]>;
     getMovieInformation: (id: number) => Promise<false | MovieInformation>;
     getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
     getMoviesByGenre: (genres: number[]) => Promise<boolean>;
-    getUpcomingMovies: () => Promise<boolean>;
-    getUpcomingTVSeries: () => Promise<boolean>;
-    getTrendingMoviesInPoland: () => Promise<boolean>;
-    getTrendingTVSeriesInPoland: () => Promise<boolean>;
     getPlanToWatchData: () => Promise<boolean>;
-    getTopRatedTVSeries: () => Promise<boolean>;
-    getPopularTVSeries: () => Promise<boolean>;
     getFavoritesData: () => Promise<boolean>;
+    dataDispatch: React.Dispatch<DataReducerAction>;
 };
 
 export type MovieCredits = {
