@@ -19,6 +19,7 @@ import {
     fetchTVSeriesInformation,
     fetchSimilar,
     fetchByGenre,
+    fetchByName,
 } from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
 import {MOVIE_GENRES, TV_GENRES} from "../types/constants";
@@ -49,6 +50,7 @@ const REDUCER_INITAL_STATE: DataReducerState = {
     TVSeriesByGenre: {},
     upcomingTVSeries: [],
     trendingTVSeriesInPoland: [],
+    searchedEntries: [],
 };
 
 const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
@@ -102,17 +104,21 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
 
     const getByGenre = async (type: EntryTypes, genres: number[]): Promise<boolean> => {
-        let response = await fetchByGenre(type, genres[0]);
-        if (!response) return false;
         let genre = type === "movie" ? MOVIE_GENRES[genres[0]] : TV_GENRES[genres[0]];
-        let dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
-        dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
+        if (!dataState.moviesByGenre[genre]) {
+            const response = await fetchByGenre(type, genres[0]);
+            if (!response) return false;
+            const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
+            dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
+        }
 
-        response = await fetchByGenre(type, genres[1]);
-        if (!response) return false;
         genre = type === "movie" ? MOVIE_GENRES[genres[1]] : TV_GENRES[genres[1]];
-        dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
-        dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
+        if (!dataState.moviesByGenre[genre]) {
+            const response = await fetchByGenre(type, genres[1]);
+            if (!response) return false;
+            const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
+            dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
+        }
         return true;
     };
 
@@ -141,6 +147,13 @@ function DataContextProvider({children}: {children: ReactNode}) {
     const getSimilar = async (entry: EntryProps): Promise<false | EntryProps[]> => {
         const response = await fetchSimilar(entry);
         if (!response) return false;
+        return response;
+    };
+
+    const getByName = async (query: string): Promise<false | EntryProps[]> => {
+        const response = await fetchByName(query);
+        if (!response) return false;
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "searchedEntries", data: response}});
         return response;
     };
 
@@ -235,6 +248,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 getFavoritesData,
                 getTVSeriesInformation,
                 dataDispatch,
+                getByName,
             }}
         >
             {children}

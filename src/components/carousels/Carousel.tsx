@@ -35,9 +35,39 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
             }
         }
     };
+    let startingPosition = 0;
+
+    const handleTouch = (e: React.TouchEvent<HTMLElement>, start: boolean) => {
+        changePage(e.changedTouches[0].clientX, start);
+    };
+    const handleDrag = (e: React.DragEvent<HTMLElement>, start: boolean) => {
+        changePage(e.clientX, start);
+    };
+    const changePage = (clientX: number, start: boolean) => {
+        if (start) {
+            startingPosition = clientX;
+            return;
+        }
+        if (clientX > startingPosition) {
+            if (currentPage === 0) return;
+            setCurrentPage(prev => prev - 1);
+        }
+        if (clientX < startingPosition) {
+            if (currentPage === splitEntries.length - 1) return;
+            setCurrentPage(prev => prev + 1);
+        }
+        startingPosition = 0;
+    };
 
     return (
-        <section className="">
+        <section
+            className="w-full flex flex-col"
+            onDragStart={e => handleDrag(e, true)}
+            onDragEnd={e => handleDrag(e, false)}
+            onTouchStart={e => handleTouch(e, true)}
+            onTouchEnd={e => handleTouch(e, false)}
+            draggable="true"
+        >
             <div className="py-3 pt-6 text-3xl ps-9 font-semibold">{title}</div>
             <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal">
                 <CarouselBackwardButton
@@ -48,7 +78,7 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
                 ></CarouselBackwardButton>
                 {loaded &&
                     splitEntries[currentPage].map((entry, i) => {
-                        const position = i === 0 ? "group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
+                        const position = i === 0 ? "left-0 md:group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
                         const movieIndex = entries.findIndex(m => m.id === entry.id);
                         const image = entry.backdrop_path ? `${IMAGE_SMALL_PATH}${entry.backdrop_path}` : "noimage.png";
                         return (
@@ -56,22 +86,19 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
                                 onMouseOver={() => setInfoTooltipId(entry.id)}
                                 onMouseLeave={() => setInfoTooltipId(null)}
                                 key={entry.id}
-                                className="group hover:scale-150 transition w-[19rem] relative hover:z-[10] duration-500 "
+                                className="group hover:scale-125 md:hover:scale-150 transition w-[19rem] relative hover:z-[10] duration-500"
                             >
                                 <div
-                                    className={clsx(
-                                        "absolute top-0 left-0 w-[18.25rem] group-hover:top-[-50px] transition-all duration-500 ",
-                                        position
-                                    )}
+                                    className={clsx("absolute top-0 left-0 w-[19rem] group-hover:top-[-50px] transition-all duration-500 ", position)}
                                 >
                                     {!title.includes("Top 10") ? (
                                         <img
                                             src={`${image}`}
-                                            className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
+                                            className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
                                         ></img>
                                     ) : (
                                         <>
-                                            <div className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none relative visible group-hover:hidden">
+                                            <div className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none relative visible group-hover:hidden">
                                                 <img
                                                     className={clsx(`absolute top-0`, movieIndex + 1 === 10 ? "left-[10%]" : "left-[30%]")}
                                                     src={`/numbers/${movieIndex + 1}.png`}
@@ -83,7 +110,7 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
                                             </div>
                                             <img
                                                 src={`${image}`}
-                                                className="rounded-md w-[18.25rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none hidden group-hover:block"
+                                                className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none hidden group-hover:block"
                                             ></img>
                                         </>
                                     )}

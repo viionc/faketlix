@@ -1,7 +1,7 @@
 function Footer() {
     return (
         <div className="w-full flex justify-center">
-            <div className="w-1/2 px-20 pt-32 pb-16 flex flex-col gap-10">
+            <div className="w-full lg:w-1/2 px-20 pt-32 pb-16 flex flex-col gap-10">
                 <div className="flex gap-8">
                     <i className="fa-brands fa-facebook-f fa-xl cursor-pointer" style={{color: "#ffffff"}}></i>
                     <i className="fa-brands fa-instagram fa-xl cursor-pointer" style={{color: "#ffffff"}}></i>

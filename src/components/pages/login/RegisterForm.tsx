@@ -1,6 +1,7 @@
 import {FormEvent, useReducer} from "react";
 import {useFirebaseContext} from "../../../context/FirebaseContext";
 import {RegisterReducerAction, RegisterReducerState} from "../../../types/types";
+import {useNavigate} from "react-router-dom";
 
 const REGISTER_INITIAL_STATE = {
     email: "",
@@ -28,7 +29,8 @@ const registerReducer = (state: RegisterReducerState, action: RegisterReducerAct
 
 function RegisterForm() {
     const [registerState, dispatch] = useReducer(registerReducer, REGISTER_INITIAL_STATE);
-    const {registerUser, setFormTypeOpen, error} = useFirebaseContext();
+    const {registerUser, error} = useFirebaseContext();
+    const navigate = useNavigate();
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -134,7 +136,7 @@ function RegisterForm() {
                     </div>
                     <div className="text-zinc-400">
                         Already registered?{" "}
-                        <a href="#" className="text-white hover:underline" onClick={() => setFormTypeOpen("LOGIN")}>
+                        <a href="#" className="text-white hover:underline" onClick={() => navigate("/")}>
                             Sign in.
                         </a>
                     </div>

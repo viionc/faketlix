@@ -47,13 +47,13 @@ function FeaturedMovie({entry}: {entry: EntryProps}) {
                 {movieLogo ? (
                     <img
                         src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`}
-                        className="w-[12rem] h-[10rem] object-contain z-10"
+                        className="w-[12rem] h-[10rem] object-contain z-[2]"
                         alt={entry.title + " logo"}
                     ></img>
                 ) : (
                     <div className="font-4xl z-10">{entry.title}</div>
                 )}
-                <div className="flex gap-2 font-semibold z-10">
+                <div className="flex gap-2 font-semibold z-[2]">
                     <button className="py-3 px-10 bg-white text-black text-2xl rounded-md hover:bg-opacity-[75%]">
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>

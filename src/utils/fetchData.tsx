@@ -1,3 +1,4 @@
+import stringSimilarity from "string-similarity-js";
 import {EntryProps, EntryTypes, MovieCredits, MovieDetails, MovieInformation, TVSeriesInformation} from "../types/types";
 
 const options = {
@@ -335,7 +336,6 @@ export const fetchSimilar = async (entry: EntryProps): Promise<false | EntryProp
     let response;
     try {
         response = await fetch(`https://api.themoviedb.org/3/discover/${entry.type}?with_genres=${entry.genre_ids.join(",")}`, options);
-
         if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
@@ -363,5 +363,42 @@ export const fetchTrailer = async (type: EntryTypes, id: number): Promise<false 
         console.error(err);
         return false;
     }
-    return response.results.filter((result: {type: string}) => result.type === "Trailer")[0].key;
+    let trailerURL = response.results.filter((trailer: {type: string}) => trailer.type === "Trailer")[0];
+    trailerURL = trailerURL ? trailerURL.key : "notrailer";
+    return trailerURL;
+};
+
+export const fetchByName = async (query: string): Promise<false | EntryProps[]> => {
+    let response;
+    try {
+        response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=1`, options);
+        if (!response.ok) return false;
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    const movieEntries = response.results.map((e: EntryProps) => ({
+        ...e,
+        type: "movie",
+    }));
+    try {
+        response = await fetch(`https://api.themoviedb.org/3/search/tv?query=${query}&include_adult=false&language=en-US&page=1`, options);
+        if (!response.ok) return false;
+        response = await response.json();
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+    const TVEntries = response.results.map((e: any) => ({
+        ...e,
+        adult: e.adult || false,
+        title: e.title || e.name,
+        type: "tv",
+    }));
+    const allEntries = [...movieEntries, ...TVEntries];
+    const bestPossibiltity = allEntries
+        .sort((a: EntryProps, b: EntryProps) => stringSimilarity(b.title, a.title))
+        .sort((a: EntryProps, b: EntryProps) => b.vote_count - a.vote_count);
+    return bestPossibiltity;
 };

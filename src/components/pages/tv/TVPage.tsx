@@ -28,31 +28,39 @@ function TVPage() {
         setIsLoading(true);
         let response;
         if (initial) {
-            response = await fetchTopRatedTVSeries();
-            if (!response) {
-                console.log("Failed to load top rated movies");
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: response}});
-                const number = Math.floor(Math.random() * response.length);
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: response[number]}});
+            if (dataState.topRatedTVSeries.length === 0) {
+                response = await fetchTopRatedTVSeries();
+                if (!response) {
+                    console.log("Failed to load top rated movies");
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: response}});
+                    const number = Math.floor(Math.random() * response.length);
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: response[number]}});
+                }
             }
-            response = await fetchPopularTVSeries();
-            if (!response) {
-                console.log("Failed to popular movies");
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: response}});
+            if (dataState.popularTVSeries.length === 0) {
+                response = await fetchPopularTVSeries();
+                if (!response) {
+                    console.log("Failed to popular movies");
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: response}});
+                }
             }
-            response = await fetchUpcomingTVSeries();
-            if (!response) {
-                console.log("Failed to upcoming movies");
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: response}});
+            if (dataState.upcomingTVSeries.length === 0) {
+                response = await fetchUpcomingTVSeries();
+                if (!response) {
+                    console.log("Failed to upcoming movies");
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: response}});
+                }
             }
-            response = await fetchTrendingTVSeriesInPoland();
-            if (!response) {
-                console.log("Failed to top 10 trending movies");
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: response}});
+            if (dataState.trendingTVSeriesInPoland.length === 0) {
+                response = await fetchTrendingTVSeriesInPoland();
+                if (!response) {
+                    console.log("Failed to top 10 trending movies");
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: response}});
+                }
             }
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);

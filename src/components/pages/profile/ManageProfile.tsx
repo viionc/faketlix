@@ -10,7 +10,7 @@ function ManageProfile({profile}: {profile: UserProfile}) {
                     e.stopPropagation();
                     openModal("isManageProfilesModalOpen", {name: "profileCliked", value: profile});
                 }}
-                className={`w-[10rem] h-[10rem] border border-white justify-center items-center flex rounded-md flex-col hover:scale-105 active:scale-110 transition cursor-pointer ${profile.profileColor}`}
+                className={`w-[7rem] h-[7rem] lg:w-[10rem] lg:h-[10rem] border border-white justify-center items-center flex rounded-md flex-col hover:scale-105 active:scale-110 transition cursor-pointer ${profile.profileColor}`}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
                     <path

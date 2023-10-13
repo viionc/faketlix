@@ -11,7 +11,7 @@ function Profile({profile}: {profile: UserProfile}) {
                     e.stopPropagation();
                     changeUserProfile(profile.name);
                 }}
-                className={`w-[10rem] h-[10rem] border border-white justify-center items-center flex rounded-md flex-col hover:scale-105 active:scale-110 transition cursor-pointer ${profile.profileColor}`}
+                className={`w-[7rem] h-[7rem] lg:w-[10rem] lg:h-[10rem] border border-white justify-center items-center flex rounded-md flex-col hover:scale-105 active:scale-110 transition cursor-pointer ${profile.profileColor}`}
             >
                 <i className="fa-solid fa-user fa-2xl"></i>
             </div>

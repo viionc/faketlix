@@ -111,6 +111,7 @@ export type DataContextProps = {
     getMovieCredits: (id: number) => Promise<false | MovieCredits>;
     getMovieDetails: (id: number) => Promise<false | MovieDetails>;
     getSimilar: (entry: EntryProps) => Promise<false | EntryProps[]>;
+    getByName: (query: string) => Promise<false | EntryProps[]>;
     getMovieInformation: (id: number) => Promise<false | MovieInformation>;
     getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
     getByGenre: (type: EntryTypes, genres: number[]) => Promise<boolean>;
@@ -189,6 +190,7 @@ export type DataReducerState = {
     TVSeriesByGenre: Record<string, EntryProps[]>;
     upcomingTVSeries: EntryProps[];
     trendingTVSeriesInPoland: EntryProps[];
+    searchedEntries: EntryProps[];
 };
 export type DataReducerAction = {
     type: DataReducerActionTypes;

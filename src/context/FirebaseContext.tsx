@@ -63,9 +63,10 @@ export function FirebaseProvider({children}: {children: ReactNode}) {
             if (user) {
                 console.log("user logged in", new Date(Date.now()));
                 setFormTypeOpen(null);
-                loadDataFromDatabase(user);
-                setCurrentUser(user);
-                navigate("/profiles");
+                loadDataFromDatabase(user).then(() => {
+                    setCurrentUser(user);
+                    navigate("/profiles");
+                });
             }
         });
         return observer;

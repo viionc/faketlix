@@ -19,46 +19,50 @@ function MoviePage() {
     const [pagesLoaded, setPagesLoaded] = useState<number>(0);
     const [error, setError] = useState({topRatedFailed: false, popularFailed: false, upcomingFailed: false, trendingInPoland: false});
 
-    useEffect(() => {
-        fetchData(true);
-    }, []);
-
     const fetchData = async (initial?: boolean) => {
         if (isLoading) return;
         setIsLoading(true);
         let response;
         if (initial) {
-            response = await fetchTopRatedMovies();
-            if (!response) {
-                setError(prev => ({...prev, topRatedFailed: true}));
-                console.log(error);
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: response}});
-                const number = Math.floor(Math.random() * response.length);
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: response[number]}});
-                setError(prev => ({...prev, topRatedFailed: false}));
+            if (dataState.topRatedMovies.length === 0) {
+                response = await fetchTopRatedMovies();
+                if (!response) {
+                    setError(prev => ({...prev, topRatedFailed: true}));
+                    console.log(error);
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: response}});
+                    const number = Math.floor(Math.random() * response.length);
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: response[number]}});
+                    setError(prev => ({...prev, topRatedFailed: false}));
+                }
             }
-            response = await fetchPopularMovies();
-            if (!response) {
-                setError(prev => ({...prev, popularFailed: true}));
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: response}});
-                setError(prev => ({...prev, popularFailed: false}));
+            if (dataState.popularMovies.length === 0) {
+                response = await fetchPopularMovies();
+                if (!response) {
+                    setError(prev => ({...prev, popularFailed: true}));
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: response}});
+                    setError(prev => ({...prev, popularFailed: false}));
+                }
             }
-            response = await fetchUpcomingMovies();
-            if (!response) {
-                setError(prev => ({...prev, upcomingFailed: true}));
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: response}});
-                setError(prev => ({...prev, upcomingFailed: false}));
+            if (dataState.upcomingMovies.length === 0) {
+                response = await fetchUpcomingMovies();
+                if (!response) {
+                    setError(prev => ({...prev, upcomingFailed: true}));
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: response}});
+                    setError(prev => ({...prev, upcomingFailed: false}));
+                }
             }
-            response = await fetchTrendingMoviesInPoland();
-            if (!response) {
-                console.log("Failed to top 10 trending movies");
-                setError(prev => ({...prev, trendingInPoland: true}));
-            } else {
-                dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: response}});
-                setError(prev => ({...prev, trendingInPoland: false}));
+            if (dataState.trendingMoviesInPoland.length === 0) {
+                response = await fetchTrendingMoviesInPoland();
+                if (!response) {
+                    console.log("Failed to top 10 trending movies");
+                    setError(prev => ({...prev, trendingInPoland: true}));
+                } else {
+                    dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: response}});
+                    setError(prev => ({...prev, trendingInPoland: false}));
+                }
             }
             setPagesLoaded(prev => prev + 2);
             setIsLoading(false);
@@ -98,8 +102,13 @@ function MoviePage() {
             }
         };
     }, [observerTarget, isLoading, pagesLoaded]);
+
+    useEffect(() => {
+        fetchData(true);
+    }, []);
+
     return (
-        <section className="flex min-w-full min-h-[100vh] relative flex-col">
+        <section className="flex min-w-full min-h-[100vh] relative flex-col items-center">
             {modalState.isMovieInformationModalOpen && modalState.movieClicked && (
                 <MovieInformationModal entry={modalState.movieClicked}></MovieInformationModal>
             )}

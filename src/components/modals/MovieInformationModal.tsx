@@ -51,7 +51,7 @@ function MovieInformationModal({entry}: {entry: EntryProps}) {
                 closeModal("isMovieInformationModalOpen");
             }}
         >
-            <div className="h-full mt-28 w-1/2 overflow-x-hidden overflow-hidden z-30" onClick={e => e.stopPropagation()}>
+            <div className="h-full mt-28 w-[85%] xl:w-1/2 overflow-x-hidden overflow-hidden z-30" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-center z-30 h-[94vh] ">
                     <motion.div
                         className=" bg-[#181818] flex flex-col rounded-md relative z-30 overflow-auto h-full overflow-x-hidden"
@@ -101,7 +101,7 @@ function MovieInformationModal({entry}: {entry: EntryProps}) {
                                 <div className="flex gap-2">
                                     {/* LEFT COLUMN */}
                                     <div className="flex-col w-[60%]">
-                                        <div className="w-[60%] text-md text-zinc-400 flex gap-2 items-center">
+                                        <div className="text-md text-zinc-400 flex gap-2 items-center">
                                             <span className="text-lime-600 text-sm font-semibold">
                                                 Votes: {Math.floor((entry.vote_average / 10) * 100)}%
                                             </span>
