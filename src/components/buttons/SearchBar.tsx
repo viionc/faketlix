@@ -23,7 +23,7 @@ function SearchBar() {
             <div className="flex gap-2 items-center z-1">
                 <div
                     className={clsx(`w-full h-[100vh] absolute top-0 left-0`, show ? "inline-block" : "hidden")}
-                    onClick={e => {
+                    onClick={() => {
                         setShow(prev => !prev);
                     }}
                 ></div>
