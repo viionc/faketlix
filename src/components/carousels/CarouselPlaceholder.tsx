@@ -17,7 +17,10 @@ function CarouselPlaceholder() {
                                 opacity: 1,
                             }}
                             transition={{
-                                duration: 0.5 * i,
+                                delay: 0.1 * (i + 1),
+                                duration: 1,
+                                repeat: Infinity,
+                                repeatType: "reverse",
                             }}
                             key={i}
                             className="rounded-md w-[19rem] h-[10rem] bg-zinc-600"
