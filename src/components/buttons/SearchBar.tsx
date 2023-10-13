@@ -11,6 +11,7 @@ function SearchBar() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         const response = await getByName(search);
         if (response) {
             navigate("/search");
@@ -18,20 +19,50 @@ function SearchBar() {
     };
 
     return (
-        <div className="flex gap-2 items-center">
-            <form className={clsx(`h-[2rem] transition-all`, show ? "w-[250px]" : "w-[0px]")} onSubmit={handleSubmit}>
-                <input
+        <>
+            <div className="flex gap-2 items-center z-1">
+                <div
+                    className={clsx(`w-full h-[100vh] absolute top-0 left-0`, show ? "inline-block" : "hidden")}
+                    onClick={e => {
+                        setShow(prev => !prev);
+                    }}
+                ></div>
+                <form
                     className={clsx(
-                        `h-[2rem] p-1 rounded-full bg-white text-black transition-all`,
-                        show ? "w-[250px] opacity-100" : "w-[0px] opacity-0"
+                        `h-[3rem] ps-2 transition-all flex items-center gap-2 rounded-sm bg-black border border-white z-[1]`,
+                        show ? "w-[260px]" : "w-[0px] opacity-0"
                     )}
-                    placeholder="Type name of a movie..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                ></input>
-            </form>
-            <i className="fa-solid fa-magnifying-glass fa-lg hover:scale-125 cursor-pointer" onClick={() => setShow(prev => !prev)}></i>
-        </div>
+                    onSubmit={handleSubmit}
+                >
+                    <i
+                        className={`fa-solid fa-magnifying-glass fa-lg scale-125`}
+                        style={{
+                            display: show ? "inline-block" : "none",
+                        }}
+                    ></i>
+                    <input
+                        className={clsx(
+                            `h-[2rem] bg-black text-white transition-all outline-none`,
+                            show ? "w-[220px] opacity-100" : "w-[0px] opacity-0"
+                        )}
+                        placeholder="Type name of a movie..."
+                        value={search}
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => setSearch(e.target.value)}
+                    ></input>
+                </form>
+                <i
+                    className={clsx(`fa-solid fa-magnifying-glass fa-lg hover:scale-125 cursor-pointer`, show ? "hidden" : "inline-block")}
+                    onClick={() => {
+                        setShow(prev => !prev);
+                        setSearch("");
+                    }}
+                    style={{
+                        visibility: show ? "hidden" : "visible",
+                    }}
+                ></i>
+            </div>
+        </>
     );
 }
 
