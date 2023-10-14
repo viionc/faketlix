@@ -1,18 +1,17 @@
-import clsx from "clsx";
 import {useEffect, useState} from "react";
-import CarouselCard from "./CarouselCard";
-import {IMAGE_SMALL_PATH, MOVIE_GENRES, TV_GENRES} from "../../types/constants";
+import {MOVIE_GENRES, TV_GENRES} from "../../types/constants";
 import {DataReducerState, EntryProps, EntryTypes} from "../../types/types";
 import CarouselForwardButton from "./CarouselForwardButton";
 import CarouselBackwardButton from "./CarouselBackwardButton";
 import {useDataContext} from "../../context/DataContext";
 import CarouselPlaceholder from "./CarouselPlaceholder";
+import CarouselTile from "./CarouselTile";
 
 function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof DataReducerState; title: string}) {
     const [splitEntries, setSplitEntries] = useState<Array<Array<EntryProps>>>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [infoTooltipId, setInfoTooltipId] = useState<number | null>(null);
+
     const [numberPerPage] = useState<number>(Math.floor((window.outerWidth - 64) / 304));
     const [error, setError] = useState<boolean>(false);
     const [length, setLength] = useState<number>(6);
@@ -67,6 +66,8 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             case "favoritedMovies":
             case "favoritedTVSeries":
                 response = await getFavoritesData();
+                break;
+            case "searchedEntries":
                 break;
             default:
                 // eslint-disable-next-line no-case-declarations
@@ -168,44 +169,8 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
                     splitEntries[currentPage].map((entry, i) => {
                         const position = i === 0 ? "left-0 md:group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
                         const movieIndex = currentPage * numberPerPage + i;
-                        const image = entry.backdrop_path ? `${IMAGE_SMALL_PATH}${entry.backdrop_path}` : "noimage.png";
-                        return (
-                            <div
-                                onMouseOver={() => setInfoTooltipId(entry.id)}
-                                onMouseLeave={() => setInfoTooltipId(null)}
-                                key={entry.id}
-                                className="group hover:scale-125 md:hover:scale-150 transition w-[19rem] relative hover:z-[10] duration-500"
-                            >
-                                <div
-                                    className={clsx("absolute top-0 left-0 w-[19rem] group-hover:top-[-50px] transition-all duration-500 ", position)}
-                                >
-                                    {!title.includes("Top 10") ? (
-                                        <img
-                                            src={`${image}`}
-                                            className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none"
-                                        ></img>
-                                    ) : (
-                                        <>
-                                            <div className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none relative visible group-hover:hidden">
-                                                <img
-                                                    className={clsx(`absolute top-0`, movieIndex + 1 === 10 ? "left-[10%]" : "left-[30%]")}
-                                                    src={`/numbers/${movieIndex + 1}.png`}
-                                                ></img>
-                                                <img
-                                                    className="absolute h-[10rem] w-[8rem] top-0 left-[55%] "
-                                                    src={`${IMAGE_SMALL_PATH}${entry.poster_path}`}
-                                                ></img>
-                                            </div>
-                                            <img
-                                                src={`${image}`}
-                                                className="rounded-md w-[19rem] h-[10rem] group-hover:rounded-t-md group-hover:rounded-b-none hidden group-hover:block"
-                                            ></img>
-                                        </>
-                                    )}
-                                    {infoTooltipId === entry.id && <CarouselCard entry={entry}></CarouselCard>}
-                                </div>
-                            </div>
-                        );
+
+                        return <CarouselTile position={position} movieIndex={movieIndex} entry={entry} title={title}></CarouselTile>;
                     })
                 ) : (
                     <CarouselPlaceholder></CarouselPlaceholder>
