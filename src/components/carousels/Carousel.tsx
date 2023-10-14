@@ -1,32 +1,118 @@
 import clsx from "clsx";
 import {useEffect, useState} from "react";
 import CarouselCard from "./CarouselCard";
-import {IMAGE_SMALL_PATH} from "../../types/constants";
-import {EntryProps} from "../../types/types";
+import {IMAGE_SMALL_PATH, MOVIE_GENRES, TV_GENRES} from "../../types/constants";
+import {DataReducerState, EntryProps, EntryTypes} from "../../types/types";
 import CarouselForwardButton from "./CarouselForwardButton";
 import CarouselBackwardButton from "./CarouselBackwardButton";
+import {useDataContext} from "../../context/DataContext";
+import CarouselPlaceholder from "./CarouselPlaceholder";
 
-function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
+function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof DataReducerState; title: string}) {
     const [splitEntries, setSplitEntries] = useState<Array<Array<EntryProps>>>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const [loaded, setLoaded] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [infoTooltipId, setInfoTooltipId] = useState<number | null>(null);
     const [numberPerPage] = useState<number>(Math.floor((window.outerWidth - 64) / 304));
+    const [error, setError] = useState<boolean>(false);
+    const [length, setLength] = useState<number>(6);
+
+    const {
+        dataState,
+        getTopRatedMovies,
+        getUpcomingMovies,
+        getPopularMovies,
+        getTrendingMoviesInPoland,
+        getByGenre,
+        getTrendingTVSeriesInPoland,
+        getTopRatedTVSeries,
+        getUpcomingTVSeries,
+        getPopularTVSeries,
+        getPlanToWatchData,
+        getFavoritesData,
+    } = useDataContext();
     // const numberPerPage = Math.floor((window.outerWidth - 64) / 304);
+    const fetchData = async (propKey: keyof DataReducerState, type: EntryTypes): Promise<void> => {
+        let response;
+        let genreIndex;
+        switch (propKey) {
+            case "topRatedMovies":
+                response = await getTopRatedMovies();
+                break;
+            case "upcomingMovies":
+                response = await getUpcomingMovies();
+                break;
+            case "popularMovies":
+                response = await getPopularMovies();
+                break;
+            case "trendingMoviesInPoland":
+                response = await getTrendingMoviesInPoland();
+                break;
+            case "topRatedTVSeries":
+                response = await getTopRatedTVSeries();
+                break;
+            case "upcomingTVSeries":
+                response = await getUpcomingTVSeries();
+                break;
+            case "popularTVSeries":
+                response = await getPopularTVSeries();
+                break;
+            case "trendingTVSeriesInPoland":
+                response = await getTrendingTVSeriesInPoland();
+                break;
+            case "planToWatchMovies":
+            case "planToWatchTVSeries":
+                response = await getPlanToWatchData();
+                break;
+            case "favoritedMovies":
+            case "favoritedTVSeries":
+                response = await getFavoritesData();
+                break;
+            default:
+                // eslint-disable-next-line no-case-declarations
+                genreIndex =
+                    type === "movie"
+                        ? Object.keys(MOVIE_GENRES).find(key => MOVIE_GENRES[parseInt(key)] === title)
+                        : Object.keys(TV_GENRES).find(key => TV_GENRES[parseInt(key)] === title);
+                response = await getByGenre(type, parseInt(genreIndex as string));
+                break;
+        }
+        if (!response) {
+            setError(true);
+            setIsLoading(false);
+            return;
+        }
+    };
 
     useEffect(() => {
+        fetchData(propKey, type);
+    }, [propKey, type]);
+
+    useEffect(() => {
+        if (dataState === null || dataState[propKey] === null) return;
         const result: Array<Array<EntryProps>> = [];
+        let entries = [];
+        if (Array.isArray(dataState[propKey])) {
+            entries = dataState[propKey] as Array<EntryProps>;
+        } else {
+            entries = type === "movie" ? dataState.moviesByGenre[title] : dataState.TVSeriesByGenre[title];
+        }
+        if (!entries || !entries.length) return;
+        setLength(entries.length);
         for (let i = 0; i < entries.length; i += numberPerPage) {
             const page = entries.slice(i, i + numberPerPage);
             result.push(page);
         }
         setSplitEntries(result);
-        setLoaded(true);
-    }, [entries, numberPerPage]);
+        setTimeout(() => {
+            setIsLoading(false);
+            setError(false);
+        }, 500);
+    }, [numberPerPage, dataState, type, propKey, title]);
 
     const handlePageChange = (add: boolean) => {
         if (add) {
-            if (currentPage < entries.length / numberPerPage - 1) {
+            if (currentPage < length / numberPerPage - 1) {
                 setCurrentPage(prev => (prev += 1));
             }
         } else {
@@ -58,7 +144,9 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
         }
         startingPosition = 0;
     };
-
+    if (error) {
+        return <div className="w-full h-[10rem] flex items-center justify-center">Failed Loading {title}. Try again later.</div>;
+    }
     return (
         <section
             className="w-full flex flex-col"
@@ -76,10 +164,10 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
                     currentPage={currentPage}
                     numberPerPage={numberPerPage}
                 ></CarouselBackwardButton>
-                {loaded &&
+                {!isLoading ? (
                     splitEntries[currentPage].map((entry, i) => {
                         const position = i === 0 ? "left-0 md:group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
-                        const movieIndex = entries.findIndex(m => m.id === entry.id);
+                        const movieIndex = currentPage * numberPerPage + i;
                         const image = entry.backdrop_path ? `${IMAGE_SMALL_PATH}${entry.backdrop_path}` : "noimage.png";
                         return (
                             <div
@@ -118,7 +206,10 @@ function Carousel({entries, title}: {entries: EntryProps[]; title: string}) {
                                 </div>
                             </div>
                         );
-                    })}
+                    })
+                ) : (
+                    <CarouselPlaceholder></CarouselPlaceholder>
+                )}
                 <CarouselForwardButton callback={handlePageChange} entries={splitEntries} currentPage={currentPage}></CarouselForwardButton>
             </div>
         </section>

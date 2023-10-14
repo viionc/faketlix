@@ -38,25 +38,6 @@ export type EntryProps = {
 
 export type EntryTypes = "movie" | "tv";
 
-// export interface MovieInformationResponse extends Response {
-//     credits: {cast: Array<{name: string}>; crew: Array<{known_for_department: string; name: string}>};
-//     images: {logos: Array<{iso_639_1: string; file_path: string}>};
-//     keywords: {keywords: Array<{name: string; id: number}>};
-//     similar: {results: Array<EntryProps>};
-//     videos: {results: Array<{key: string; type: string}>};
-//     adult: boolean;
-//     release_date: string;
-//     runtime: number;
-//     id: number;
-//     genre_ids: number[];
-//     backdrop_path: string;
-//     title: string;
-//     overview: string;
-//     vote_average: number;
-//     vote_count: number;
-//     poster_path: string;
-// }
-
 export type MovieInformation = {
     type: "movie";
     cast: Array<string>;
@@ -114,10 +95,18 @@ export type DataContextProps = {
     getByName: (query: string) => Promise<false | EntryProps[]>;
     getMovieInformation: (id: number) => Promise<false | MovieInformation>;
     getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
-    getByGenre: (type: EntryTypes, genres: number[]) => Promise<boolean>;
+    getByGenre: (type: EntryTypes, genreId: number) => Promise<boolean>;
     getPlanToWatchData: () => Promise<boolean>;
     getFavoritesData: () => Promise<boolean>;
     dataDispatch: React.Dispatch<DataReducerAction>;
+    getTopRatedMovies: () => Promise<boolean>;
+    getUpcomingMovies: () => Promise<boolean>;
+    getUpcomingTVSeries: () => Promise<boolean>;
+    getTrendingMoviesInPoland: () => Promise<boolean>;
+    getTrendingTVSeriesInPoland: () => Promise<boolean>;
+    getTopRatedTVSeries: () => Promise<boolean>;
+    getPopularMovies: () => Promise<boolean>;
+    getPopularTVSeries: () => Promise<boolean>;
 };
 
 export type MovieCredits = {

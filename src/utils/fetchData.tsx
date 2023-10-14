@@ -60,7 +60,6 @@ export const fetchUpcomingMovies = async (): Promise<false | EntryProps[]> => {
     try {
         response = await fetch("https://api.themoviedb.org/3/movie/upcoming", options);
         if (!response.ok) return false;
-
         response = await response.json();
     } catch (err) {
         console.error(err);
