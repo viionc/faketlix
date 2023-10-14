@@ -51,7 +51,7 @@ function TVSeriesInformationModal({entry}: {entry: EntryProps}) {
                 closeModal("isTVSeriesInformationModalOpen");
             }}
         >
-            <div className="h-full mt-28 w-full xl:w-1/2 overflow-x-hidden overflow-hidden z-30" onClick={e => e.stopPropagation()}>
+            <div className="h-full mt-28 w-[85%] lg:w-3/4 2xl:w-1/2 overflow-x-hidden overflow-hidden z-30" onClick={e => e.stopPropagation()}>
                 <div className="w-full flex items-center justify-center z-30 h-[94vh] ">
                     <motion.div
                         className=" bg-[#181818] flex flex-col rounded-md relative z-30 overflow-auto h-full overflow-x-hidden"

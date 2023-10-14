@@ -20,16 +20,16 @@ function LoginForm() {
             <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[25rem] h-[35rem] bg-black bg-opacity-[80%] px-14 py-12 rounded">
                 <div className="flex flex-col">
                     <h1 className="text-4xl text-white mb-10 font-semibold">Sign in</h1>
-                    <form className="flex flex-col gap-3 mb-2" onSubmit={handleSubmit}>
+                    <form className="flex flex-col gap-3 mb-2 " onSubmit={handleSubmit}>
                         <input
-                            className="p-3 rounded-md"
+                            className="p-3 rounded-md bg-[#3B3B3B] "
                             placeholder="E-mail"
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                         ></input>
                         <input
-                            className="p-3 rounded-md"
+                            className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Password"
                             type="password"
                             value={password}

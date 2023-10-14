@@ -98,7 +98,7 @@ function RegisterForm() {
                     <h1 className="text-4xl text-white mb-10 font-semibold">Register</h1>
                     <form className="flex flex-col gap-3 mb-2" onSubmit={handleSubmit}>
                         <input
-                            className="p-3 rounded-md"
+                            className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="E-mail"
                             type="email"
                             value={registerState.email}
@@ -106,7 +106,7 @@ function RegisterForm() {
                         ></input>
                         {registerState.emailError && <p className="text-sm text-red-500">{registerState.emailError}</p>}
                         <input
-                            className="p-3 rounded-md"
+                            className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Password"
                             type="password"
                             value={registerState.password}
@@ -114,7 +114,7 @@ function RegisterForm() {
                         ></input>
                         {registerState.passwordError && <p className="text-sm text-red-500">{registerState.passwordError}</p>}
                         <input
-                            className="p-3 rounded-md"
+                            className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Confirm Password"
                             type="password"
                             value={registerState.confirmPassword}
