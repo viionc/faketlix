@@ -95,7 +95,7 @@ export const fetchTrendingTVSeriesInPoland = async (): Promise<false | EntryProp
         console.error(err);
         return false;
     }
-    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"}));
+    response = response.results.map((result: {name: string}) => ({...result, title: result.name, adult: false, type: "tv"})).slice(0, 10);
     return response;
 };
 
@@ -110,7 +110,7 @@ export const fetchTrendingMoviesInPoland = async (): Promise<false | EntryProps[
         return false;
     }
 
-    response = response.results.map((result: EntryProps) => ({...result, type: "movie"}));
+    response = response.results.map((result: EntryProps) => ({...result, type: "movie"})).slice(0, 10);
     return response;
 };
 

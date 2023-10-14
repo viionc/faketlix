@@ -24,14 +24,14 @@ function FeaturedMovie({entry}: {entry: EntryProps}) {
             }
         });
     }, [entry.id]);
-
+    //md:h-[20rem] lg:h-[45rem] 2xl:h-[60rem]
     return (
-        <section className="w-full h-[60rem] relative">
+        <section className="w-full h-full relative">
             {movieTrailer ? (
                 <div className="overflow-hidden w-full aspect-video ">
                     <iframe
                         width={window.innerWidth - 20}
-                        className="h-[90vh] w-[200%] ms-[-50%]"
+                        className="h-full w-[200%] ms-[-50%]"
                         src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1&rel=0`}
                         allow="autoplay"
                         title="Embedded youtube"
@@ -40,26 +40,26 @@ function FeaturedMovie({entry}: {entry: EntryProps}) {
             ) : (
                 <img
                     src={`${IMAGE_ORIGINAL_PATH}${entry.backdrop_path}`}
-                    className="w-full h-[60rem] absolute top-0 left-0 object-cover brightness-75 "
+                    className="w-full  h-full absolute top-0 left-0 object-cover brightness-75 "
                 ></img>
             )}
-            <div className="h-[15rem] absolute top-1/3 left-0 ps-20 gap-4 flex flex-col">
+            <div className="h-[15rem] absolute top-2/3 lg:top-1/3 left-0 ps-2 lg:ps-20 gap-4 flex flex-col">
                 {movieLogo ? (
                     <img
                         src={`${IMAGE_ORIGINAL_PATH}${movieLogo}`}
-                        className="w-[12rem] h-[10rem] object-contain z-[2]"
+                        className="w-[10rem] h-[6rem] lg:w-[12rem] lg:h-[10rem] object-contain z-[2] hidden md:block"
                         alt={entry.title + " logo"}
                     ></img>
                 ) : (
-                    <div className="font-4xl z-10">{entry.title}</div>
+                    <div className="font-xl lg:font-4xl z-10">{entry.title}</div>
                 )}
                 <div className="flex gap-2 font-semibold z-[2]">
-                    <button className="py-3 px-10 bg-white text-black text-2xl rounded-md hover:bg-opacity-[75%]">
+                    <button className="py-2 px-6 text-xl lg:py-3 lg:px-10 lg:text-2xl bg-white text-black  rounded-md hover:bg-opacity-[75%]">
                         <i className="fa-solid fa-play" style={{color: "#000000"}}></i> Play
                     </button>
                     <button
                         onClick={() => openModal("isMovieInformationModalOpen", {name: "movieClicked", value: entry})}
-                        className="py-3 px-10 bg-[#6E6D6D] text-2xl rounded-md text-white bg-opacity-[70%] hover:bg-opacity-[60%] flex justify-center items-center gap-2"
+                        className="py-2 px-6 text-xl lg:py-3 lg:px-10 lg:text-2xl  bg-[#6E6D6D] rounded-md text-white bg-opacity-[70%] hover:bg-opacity-[60%] flex justify-center items-center gap-2"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ function FeaturedMovie({entry}: {entry: EntryProps}) {
                             viewBox="0 0 24 24"
                             strokeWidth={1.5}
                             stroke="currentColor"
-                            className="w-8 h-8"
+                            className="w-5 h-5 lg:w-8 lg:h-8"
                         >
                             <path
                                 strokeLinecap="round"

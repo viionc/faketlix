@@ -93,7 +93,7 @@ function RegisterForm() {
         <section className="flex min-w-full min-h-[100vh] relative">
             <div className="bg-[url('/login-backdrop.jpg')] bg-no-repeat brightness-[55%] absolute top-0 left-0 min-w-full min-h-[100vh]"></div>
             <img className="absolute top-6 left-6" src="/faketflix-logo.png" alt=""></img>
-            <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[25rem] h-[35rem] bg-black bg-opacity-[80%] px-14 py-12 rounded">
+            <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[22rem] lg:w-[25rem] h-[35rem] bg-black bg-opacity-[80%] px-14 py-12 rounded">
                 <div className="flex flex-col">
                     <h1 className="text-4xl text-white mb-10 font-semibold">Register</h1>
                     <form className="flex flex-col gap-3 mb-2" onSubmit={handleSubmit}>
