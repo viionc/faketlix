@@ -20,6 +20,14 @@ import {
     fetchSimilar,
     fetchByGenre,
     fetchByName,
+    fetchTopRatedMovies,
+    fetchPopularMovies,
+    fetchPopularTVSeries,
+    fetchTopRatedTVSeries,
+    fetchTrendingMoviesInPoland,
+    fetchTrendingTVSeriesInPoland,
+    fetchUpcomingMovies,
+    fetchUpcomingTVSeries,
 } from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
 import {MOVIE_GENRES, TV_GENRES} from "../types/constants";
@@ -103,18 +111,10 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
 
-    const getByGenre = async (type: EntryTypes, genres: number[]): Promise<boolean> => {
-        let genre = type === "movie" ? MOVIE_GENRES[genres[0]] : TV_GENRES[genres[0]];
+    const getByGenre = async (type: EntryTypes, genreId: number): Promise<boolean> => {
+        const genre = type === "movie" ? MOVIE_GENRES[genreId] : TV_GENRES[genreId];
         if (!dataState.moviesByGenre[genre]) {
-            const response = await fetchByGenre(type, genres[0]);
-            if (!response) return false;
-            const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
-            dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
-        }
-
-        genre = type === "movie" ? MOVIE_GENRES[genres[1]] : TV_GENRES[genres[1]];
-        if (!dataState.moviesByGenre[genre]) {
-            const response = await fetchByGenre(type, genres[1]);
+            const response = await fetchByGenre(type, genreId);
             if (!response) return false;
             const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
             dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
@@ -234,6 +234,79 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
         return true;
     };
+    const getTopRatedMovies = async (): Promise<boolean> => {
+        const movies = await fetchTopRatedMovies();
+        if (!movies) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: movies}});
+        const number = Math.floor(Math.random() * movies.length);
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: movies[number]}});
+        return true;
+    };
+    const getUpcomingMovies = async (): Promise<boolean> => {
+        const movies = await fetchUpcomingMovies();
+        if (!movies) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: movies}});
+        return true;
+    };
+
+    const getUpcomingTVSeries = async (): Promise<boolean> => {
+        const tvseries = await fetchUpcomingTVSeries();
+        if (!tvseries) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: tvseries}});
+        return true;
+    };
+
+    const getTrendingMoviesInPoland = async (): Promise<boolean> => {
+        const movies = await fetchTrendingMoviesInPoland();
+        if (!movies) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: movies.slice(0, 10)}});
+        return true;
+    };
+
+    const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
+        const tvseries = await fetchTrendingTVSeriesInPoland();
+        if (!tvseries) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: tvseries.slice(0, 10)}});
+        return true;
+    };
+    const getPopularMovies = async (): Promise<boolean> => {
+        const movies = await fetchPopularMovies();
+        if (!movies) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: movies}});
+        return true;
+    };
+
+    const getTopRatedTVSeries = async (): Promise<boolean> => {
+        const tvseries = await fetchTopRatedTVSeries();
+        if (!tvseries) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: tvseries}});
+        const number = Math.floor(Math.random() * tvseries.length);
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: tvseries[number]}});
+        return true;
+    };
+
+    const getPopularTVSeries = async (): Promise<boolean> => {
+        const tvseries = await fetchPopularTVSeries();
+        if (!tvseries) {
+            return false;
+        }
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: tvseries}});
+        return true;
+    };
 
     return (
         <DataContext.Provider
@@ -249,6 +322,14 @@ function DataContextProvider({children}: {children: ReactNode}) {
                 getTVSeriesInformation,
                 dataDispatch,
                 getByName,
+                getTopRatedMovies,
+                getUpcomingMovies,
+                getUpcomingTVSeries,
+                getTrendingMoviesInPoland,
+                getTrendingTVSeriesInPoland,
+                getPopularMovies,
+                getTopRatedTVSeries,
+                getPopularTVSeries,
             }}
         >
             {children}
@@ -264,84 +345,10 @@ export default DataContextProvider;
 //     return trailer;
 // };
 
-// const getUpcomingMovies = async (): Promise<boolean> => {
-//     const movies = await fetchUpcomingMovies();
-//     if (!movies) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: movies}});
-//     return true;
-// };
-
-// const getUpcomingTVSeries = async (): Promise<boolean> => {
-//     const tvseries = await fetchUpcomingTVSeries();
-//     if (!tvseries) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: tvseries}});
-//     return true;
-// };
-
-// const getTrendingMoviesInPoland = async (): Promise<boolean> => {
-//     const movies = await fetchTrendingMoviesInPoland();
-//     if (!movies) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: movies.slice(0, 10)}});
-//     return true;
-// };
-
-// const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
-//     const tvseries = await fetchTrendingTVSeriesInPoland();
-//     if (!tvseries) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: tvseries.slice(0, 10)}});
-//     return true;
-// };
-// const getPopularMovies = async (): Promise<boolean> => {
-//     const movies = await fetchPopularMovies();
-//     if (!movies) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: movies}});
-//     return true;
-// };
-
-// const getTopRatedTVSeries = async (): Promise<boolean> => {
-//     const tvseries = await fetchTopRatedTVSeries();
-//     if (!tvseries) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: tvseries}});
-//     const number = Math.floor(Math.random() * tvseries.length);
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: tvseries[number]}});
-//     return true;
-// };
-
-// const getPopularTVSeries = async (): Promise<boolean> => {
-//     const tvseries = await fetchPopularTVSeries();
-//     if (!tvseries) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: tvseries}});
-//     return true;
-// };
-
 // const getLogo = async (type: EntryTypes, id: number): Promise<false | string> => {
 //     const logo = await fetchLogo(type, id);
 //     if (!logo) {
 //         return false;
 //     }
 //     return logo;
-// };
-// const getTopRatedMovies = async (): Promise<boolean> => {
-//     const movies = await fetchTopRatedMovies();
-//     if (!movies) {
-//         return false;
-//     }
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: movies}});
-//     const number = Math.floor(Math.random() * movies.length);
-//     dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: movies[number]}});
-//     return true;
 // };

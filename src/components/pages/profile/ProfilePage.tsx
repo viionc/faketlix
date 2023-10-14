@@ -11,7 +11,6 @@ function ProfilePage() {
 
     const {openModal, modalState} = useModalContext();
 
-    console.log(account);
     return (
         <motion.div
             initial={{scale: 0.8, opacity: 0.7}}

@@ -24,7 +24,7 @@ function FeaturedTVSeries({entry}: {entry: EntryProps}) {
                 setMovieTrailer(response);
             }
         });
-    }, [entry.id]);
+    }, [entry.id, entry.type]);
 
     return (
         <section className="h-full w-full relative">
@@ -32,7 +32,7 @@ function FeaturedTVSeries({entry}: {entry: EntryProps}) {
                 <div className="overflow-hidden w-full aspect-video ">
                     <iframe
                         width={window.innerWidth - 20}
-                        className="h-full w-[200%] ms-[-50%]"
+                        className="h-[100vh] w-[200%] ms-[-50%]"
                         src={`https://www.youtube.com/embed/${movieTrailer}?autoplay=${currentProfile?.autoplay ? 1 : 0}&mute=1&rel=0`}
                         allow="autoplay"
                         title="Embedded youtube"

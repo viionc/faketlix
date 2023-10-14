@@ -5,6 +5,7 @@ import {BrowserRouter} from "react-router-dom";
 import {FirebaseProvider} from "./context/FirebaseContext.tsx";
 import ModalContextProvider from "./context/ModalContext.tsx";
 import DataContextProvider from "./context/DataContext.tsx";
+import ScrollToTop from "./components/ScrollTop.tsx";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     //<React.StrictMode>
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <FirebaseProvider>
             <ModalContextProvider>
                 <DataContextProvider>
+                    <ScrollToTop />
                     <App />
                 </DataContextProvider>
             </ModalContextProvider>
