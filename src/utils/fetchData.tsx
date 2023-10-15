@@ -184,19 +184,18 @@ interface Cast {
     name: string;
 }
 
-export const fetchMovieInformation = async (movieId: number): Promise<false | MovieInformation> => {
+export const fetchMovieInformation = async (id: number): Promise<false | MovieInformation> => {
     let response;
     try {
-        response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=images,videos,credits,keywords,details`, options);
+        response = await fetch(`https://api.themoviedb.org/3/movie/${id}?append_to_response=images,videos,credits,keywords,details`, options);
         if (!response.ok) return false;
         response = await response.json();
     } catch (err) {
         console.error(err);
         return false;
     }
-
-    const englishLogo = response.images.logos.find((logo: Logo) => logo.iso_639_1 === "en");
-    const logo = englishLogo ? englishLogo.file_path : response.images.logos[0].file_path;
+    let logo = await fetchLogo("movie", id);
+    if (!logo) logo = "noimage.png";
     const cast = response.credits.cast.slice(0, 4).map((c: Cast) => c.name);
     let director = response.credits.crew.find((crew: Crew) => crew.known_for_department === "Directing")?.name;
     const hours = Math.floor(response.runtime / 60);
@@ -226,7 +225,6 @@ export const fetchMovieInformation = async (movieId: number): Promise<false | Mo
         vote_count: response.vote_count,
         poster_path: response.poster_path,
     };
-    console.log(movie);
     return movie;
 };
 

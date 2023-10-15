@@ -8,6 +8,7 @@ import {useDataContext} from "../../../context/DataContext";
 import {useModalContext} from "../../../context/ModalContext";
 import TVSeriesInformationModal from "../../modals/TVSeriesInformationModal";
 import {TV_GENRES} from "../../../types/constants";
+import FeaturedEntry from "../../FeaturedEntry";
 
 function TVPage() {
     const {dataState} = useDataContext();
@@ -53,7 +54,7 @@ function TVPage() {
             )}
             <Navbar></Navbar>
             {dataState.featuredTVSeries ? (
-                <FeaturedTVSeries entry={dataState.featuredTVSeries}></FeaturedTVSeries>
+                <FeaturedEntry entry={dataState.featuredTVSeries}></FeaturedEntry>
             ) : (
                 <div className="h-[100vh] flex justify-center items-center">
                     <Spinner></Spinner>

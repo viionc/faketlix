@@ -210,3 +210,9 @@ export type RegisterReducerPayload = {
     name: keyof RegisterReducerState;
     value: string | null;
 };
+export type CarouselTileProps = {
+    entry: EntryProps;
+    title: string;
+    movieIndex: number;
+    numberPerPage: number;
+};

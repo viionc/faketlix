@@ -6,15 +6,17 @@ import CarouselBackwardButton from "./CarouselBackwardButton";
 import {useDataContext} from "../../context/DataContext";
 import CarouselPlaceholder from "./CarouselPlaceholder";
 import CarouselTile from "./CarouselTile";
+import clsx from "clsx";
+import useWindowSize from "../../hooks/useWindowSize";
 
 function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof DataReducerState; title: string}) {
     const [splitEntries, setSplitEntries] = useState<Array<Array<EntryProps>>>([]);
+    const [entries, setEntries] = useState<Array<EntryProps>>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-
-    const [numberPerPage] = useState<number>(Math.floor((window.outerWidth - 64) / 304));
     const [error, setError] = useState<boolean>(false);
     const [length, setLength] = useState<number>(6);
+    const [numberPerPage, setNumberPerPage] = useState<number>(6);
 
     const {
         dataState,
@@ -87,18 +89,20 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
 
     useEffect(() => {
         fetchData(propKey, type);
-    }, [propKey, type]);
+    }, []);
 
     useEffect(() => {
         if (dataState === null || dataState[propKey] === null) return;
         const result: Array<Array<EntryProps>> = [];
-        let entries = [];
         if (Array.isArray(dataState[propKey])) {
-            entries = dataState[propKey] as Array<EntryProps>;
+            setEntries(dataState[propKey] as Array<EntryProps>);
         } else {
-            entries = type === "movie" ? dataState.moviesByGenre[title] : dataState.TVSeriesByGenre[title];
+            setEntries(type === "movie" ? dataState.moviesByGenre[title] : dataState.TVSeriesByGenre[title]);
         }
-        if (!entries || !entries.length) return;
+        if (!entries || !entries.length) {
+            console.log(propKey, entries);
+            return;
+        }
         setLength(entries.length);
         for (let i = 0; i < entries.length; i += numberPerPage) {
             const page = entries.slice(i, i + numberPerPage);
@@ -122,7 +126,6 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             }
         }
     };
-    let startingPosition = 0;
 
     const handleTouch = (e: React.TouchEvent<HTMLElement>, start: boolean) => {
         changePage(e.changedTouches[0].clientX, start);
@@ -130,6 +133,7 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
     const handleDrag = (e: React.DragEvent<HTMLElement>, start: boolean) => {
         changePage(e.clientX, start);
     };
+    let startingPosition = 0;
     const changePage = (clientX: number, start: boolean) => {
         if (start) {
             startingPosition = clientX;
@@ -137,11 +141,11 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
         }
         if (clientX > startingPosition) {
             if (currentPage === 0) return;
-            setCurrentPage(prev => prev - 1);
+            handlePageChange(false);
         }
         if (clientX < startingPosition) {
             if (currentPage === splitEntries.length - 1) return;
-            setCurrentPage(prev => prev + 1);
+            handlePageChange(true);
         }
         startingPosition = 0;
     };
@@ -158,19 +162,34 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             draggable="true"
         >
             <div className="py-3 pt-6 text-3xl ps-9 font-semibold">{title}</div>
-            <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal">
-                <CarouselBackwardButton
-                    callback={handlePageChange}
-                    entries={splitEntries}
-                    currentPage={currentPage}
-                    numberPerPage={numberPerPage}
-                ></CarouselBackwardButton>
+            <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal w-full overflow-hidden">
+                <CarouselBackwardButton callback={handlePageChange} currentPage={currentPage}></CarouselBackwardButton>
                 {!isLoading ? (
-                    splitEntries[currentPage].map((entry, i) => {
-                        const position = i === 0 ? "left-0 md:group-hover:left-[50px]" : i === numberPerPage - 1 ? "group-hover:left-[-50px]" : "";
-                        const movieIndex = currentPage * numberPerPage + i;
-
-                        return <CarouselTile position={position} movieIndex={movieIndex} entry={entry} title={title}></CarouselTile>;
+                    splitEntries.map((entries, i) => {
+                        const left = i < currentPage ? true : false;
+                        const right = i > currentPage ? true : false;
+                        return (
+                            <div
+                                key={i}
+                                className={clsx(
+                                    `flex gap-1 absolute top-0 min-w-full transition-all duration-500 `,
+                                    left ? `left-[-91%]` : right ? `left-[97%]` : "left-[3%]"
+                                )}
+                                style={{zIndex: left ? i + 10 : right ? 10 - i : 1}}
+                            >
+                                {entries.map((entry, j) => {
+                                    return (
+                                        <CarouselTile
+                                            key={j}
+                                            numberPerPage={numberPerPage}
+                                            movieIndex={i * numberPerPage + j}
+                                            entry={entry}
+                                            title={title}
+                                        ></CarouselTile>
+                                    );
+                                })}
+                            </div>
+                        );
                     })
                 ) : (
                     <CarouselPlaceholder></CarouselPlaceholder>
