@@ -29,7 +29,7 @@ function Navbar() {
     return (
         <motion.nav
             className={clsx(
-                `w-full h-[3.5rem] px-2 flex lg:px-16 py-4 justify-between fixed top-0 left-0 z-20 transition-all ease-in-out bg-black duration-500`,
+                `w-full h-[3.5rem] px-2 flex lg:px-16 py-4 justify-between fixed top-0 left-0 z-[10000] transition-all ease-in-out bg-black duration-500`,
                 opacity ? "bg-opacity-100" : "bg-opacity-0"
             )}
         >

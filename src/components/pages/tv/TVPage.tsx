@@ -54,6 +54,7 @@ function TVPage() {
             <Carousel type="tv" propKey="popularTVSeries" title="Popular"></Carousel>
             <Carousel type="tv" propKey="upcomingTVSeries" title="Upcoming"></Carousel>
             <Carousel type="tv" propKey="trendingTVSeriesInPoland" title="Top 10 In Poland"></Carousel>
+
             {Array(pagesLoaded)
                 .fill("")
                 .map((_, i) => {

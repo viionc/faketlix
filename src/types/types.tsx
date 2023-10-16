@@ -213,10 +213,10 @@ export type RegisterReducerPayload = {
 export type CarouselTileProps = {
     entry: EntryProps;
     title: string;
-    movieIndex: number;
     numberPerPage: number;
     width: number;
     index: number;
+    movieIndex: number;
 };
 
 export type SearchTileProps = {

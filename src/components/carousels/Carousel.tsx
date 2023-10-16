@@ -183,12 +183,16 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
                                 style={{zIndex: left ? i + 10 : right ? 10 - i : ""}}
                             >
                                 {entries.map((entry, j) => {
+                                    const movieIndex =
+                                        propKey === "trendingMoviesInPoland" || propKey === "trendingTVSeriesInPoland"
+                                            ? dataState[propKey].findIndex(e => e.id === entry.id)
+                                            : 0;
                                     return (
                                         <CarouselTile
                                             key={j}
                                             numberPerPage={numberPerPage}
                                             index={j}
-                                            movieIndex={i * numberPerPage + j}
+                                            movieIndex={movieIndex}
                                             entry={entry}
                                             title={title}
                                             width={size || 0}

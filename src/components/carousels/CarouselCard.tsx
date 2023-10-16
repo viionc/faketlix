@@ -10,7 +10,7 @@ function CarouselCard({entry}: {entry: EntryProps}) {
     const {openModal} = useModalContext();
 
     return (
-        <div className="p-4 gap-2 hidden group-hover:flex flex-col w-full bg-[#181818] shadow-2xl rounded-b-md">
+        <div className="p-4 gap-2 hidden group-hover:flex flex-col bg-[#181818] shadow-2xl rounded-b-md">
             <p className="text-sm">{entry.title}</p>
             <div className="w-full h-[2rem] flex gap-2">
                 <span className="h-[1.75rem] w-[1.75rem] bg-white rounded-full flex justify-center items-center hover:bg-opacity-50 cursor-pointer">
