@@ -21,11 +21,11 @@ export const MOVIE_GENRES: Record<number, string> = {
 
 export const TV_GENRES: Record<number, string> = {
     16: "Animation",
+    18: "Drama",
     35: "Comedy",
     37: "Western",
     80: "Crime",
     99: "Documentary",
-    18: "Drama",
     9648: "Mystery",
     10751: "Family",
     10759: "Action & Adventure",

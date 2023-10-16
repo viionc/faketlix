@@ -13,10 +13,16 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
     const [splitEntries, setSplitEntries] = useState<Array<Array<EntryProps>>>([]);
     const [entries, setEntries] = useState<Array<EntryProps>>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [length, setLength] = useState<number>(6);
     const [numberPerPage, setNumberPerPage] = useState<number>(6);
+
+    const size = useWindowSize();
+    useEffect(() => {
+        if (!size) return;
+        setNumberPerPage(Math.floor(size / 304));
+    }, [size]);
 
     const {
         dataState,
@@ -34,6 +40,7 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
     } = useDataContext();
     // const numberPerPage = Math.floor((window.outerWidth - 64) / 304);
     const fetchData = async (propKey: keyof DataReducerState, type: EntryTypes): Promise<void> => {
+        setIsLoading(true);
         let response;
         let genreIndex;
         switch (propKey) {
@@ -90,7 +97,6 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
     useEffect(() => {
         fetchData(propKey, type);
     }, []);
-
     useEffect(() => {
         if (dataState === null || dataState[propKey] === null) return;
         const result: Array<Array<EntryProps>> = [];
@@ -99,11 +105,9 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
         } else {
             setEntries(type === "movie" ? dataState.moviesByGenre[title] : dataState.TVSeriesByGenre[title]);
         }
-        if (!entries || !entries.length) {
-            console.log(propKey, entries);
-            return;
-        }
+        if (!entries || !entries.length) return;
         setLength(entries.length);
+
         for (let i = 0; i < entries.length; i += numberPerPage) {
             const page = entries.slice(i, i + numberPerPage);
             result.push(page);
@@ -113,7 +117,7 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             setIsLoading(false);
             setError(false);
         }, 500);
-    }, [numberPerPage, dataState, type, propKey, title]);
+    }, [numberPerPage, dataState, type, propKey, title, entries]);
 
     const handlePageChange = (add: boolean) => {
         if (add) {
@@ -150,7 +154,7 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
         startingPosition = 0;
     };
     if (error) {
-        return <div className="w-full h-[10rem] flex items-center justify-center">Failed Loading {title}. Try again later.</div>;
+        return <div className="w-full max-w-[100vw] h-[10rem] flex items-center justify-center">Failed Loading {title}. Try again later.</div>;
     }
     return (
         <section
@@ -162,29 +166,32 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             draggable="true"
         >
             <div className="py-3 pt-6 text-3xl ps-9 font-semibold">{title}</div>
-            <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal w-full overflow-hidden">
+            <div className="flex gap-1 relative h-[10rem] justify-center sm:justify-normal w-full overflow-y-visible overflow-x-clip">
                 <CarouselBackwardButton callback={handlePageChange} currentPage={currentPage}></CarouselBackwardButton>
                 {!isLoading ? (
                     splitEntries.map((entries, i) => {
                         const left = i < currentPage ? true : false;
                         const right = i > currentPage ? true : false;
+
                         return (
                             <div
                                 key={i}
                                 className={clsx(
-                                    `flex gap-1 absolute top-0 min-w-full transition-all duration-500 `,
-                                    left ? `left-[-91%]` : right ? `left-[97%]` : "left-[3%]"
+                                    `flex gap-1 absolute top-0 bottom-0 min-w-full transition-all duration-500 `,
+                                    left ? `left-[-72%] lg:left-[-91%]` : right ? `left-[92%] lg:left-[97%]` : "left-[10%] lg:left-[3%]"
                                 )}
-                                style={{zIndex: left ? i + 10 : right ? 10 - i : 1}}
+                                style={{zIndex: left ? i + 10 : right ? 10 - i : ""}}
                             >
                                 {entries.map((entry, j) => {
                                     return (
                                         <CarouselTile
                                             key={j}
                                             numberPerPage={numberPerPage}
+                                            index={j}
                                             movieIndex={i * numberPerPage + j}
                                             entry={entry}
                                             title={title}
+                                            width={size || 0}
                                         ></CarouselTile>
                                     );
                                 })}

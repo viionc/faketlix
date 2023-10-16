@@ -3,8 +3,6 @@ import Navbar from "../../Navbar";
 import FeaturedEntry from "../../FeaturedEntry";
 import Carousel from "../../carousels/Carousel";
 import Footer from "../../Footer";
-import Spinner from "../../Spinner";
-import {useDataContext} from "../../../context/DataContext";
 import {MOVIE_GENRES} from "../../../types/constants";
 import MovieInformationModal from "../../modals/MovieInformationModal";
 import {useModalContext} from "../../../context/ModalContext";

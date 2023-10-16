@@ -5,7 +5,7 @@ function CarouselForwardButton({currentPage, entries, callback}: {currentPage: n
     return (
         <div
             className={clsx(
-                "w-[10%] lg:w-[3%] absolute top-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50 hover:bg-opacity-70 cursor-pointer z-[15] rounded-s-md",
+                "w-[10%] lg:w-[3%] absolute top-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-50 hover:bg-opacity-70 cursor-pointer z-[1000] rounded-s-md",
                 currentPage < entries.length - 1 ? "visible" : "invisible"
             )}
             onClick={() => callback(true)}

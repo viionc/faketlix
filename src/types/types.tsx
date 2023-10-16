@@ -215,4 +215,13 @@ export type CarouselTileProps = {
     title: string;
     movieIndex: number;
     numberPerPage: number;
+    width: number;
+    index: number;
+};
+
+export type SearchTileProps = {
+    entry: EntryProps;
+    numberPerPage: number;
+    width: number;
+    index: number;
 };

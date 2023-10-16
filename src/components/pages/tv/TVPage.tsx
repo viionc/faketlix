@@ -1,22 +1,18 @@
 import {useEffect, useRef, useState} from "react";
 import Navbar from "../../Navbar";
-import FeaturedTVSeries from "./FeaturedTVSeries";
 import Carousel from "../../carousels/Carousel";
 import Footer from "../../Footer";
-import Spinner from "../../Spinner";
-import {useDataContext} from "../../../context/DataContext";
 import {useModalContext} from "../../../context/ModalContext";
 import TVSeriesInformationModal from "../../modals/TVSeriesInformationModal";
 import {TV_GENRES} from "../../../types/constants";
 import FeaturedEntry from "../../FeaturedEntry";
 
 function TVPage() {
-    const {dataState} = useDataContext();
     const {modalState} = useModalContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [pagesLoaded, setPagesLoaded] = useState<number>(0);
-
     const observerTarget = useRef(null);
+    console.log(pagesLoaded);
     useEffect(() => {
         const updatePage = () => {
             if (isLoading) return;
@@ -46,20 +42,14 @@ function TVPage() {
             }
         };
     }, [observerTarget, isLoading, pagesLoaded]);
-
+    console.log(pagesLoaded);
     return (
-        <section className="flex min-w-full min-h-[100vh] relative flex-col">
+        <section className="flex min-w-full min-h-[100vh] relative flex-col items-center">
             {modalState.isTVSeriesInformationModalOpen && modalState.movieClicked && (
                 <TVSeriesInformationModal entry={modalState.movieClicked}></TVSeriesInformationModal>
             )}
             <Navbar></Navbar>
-            {dataState.featuredTVSeries ? (
-                <FeaturedEntry entry={dataState.featuredTVSeries}></FeaturedEntry>
-            ) : (
-                <div className="h-[100vh] flex justify-center items-center">
-                    <Spinner></Spinner>
-                </div>
-            )}
+            <FeaturedEntry type="tv"></FeaturedEntry>
             <Carousel type="tv" propKey="topRatedTVSeries" title="Top Rated"></Carousel>
             <Carousel type="tv" propKey="popularTVSeries" title="Popular"></Carousel>
             <Carousel type="tv" propKey="upcomingTVSeries" title="Upcoming"></Carousel>
