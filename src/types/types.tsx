@@ -210,3 +210,18 @@ export type RegisterReducerPayload = {
     name: keyof RegisterReducerState;
     value: string | null;
 };
+export type CarouselTileProps = {
+    entry: EntryProps;
+    title: string;
+    movieIndex: number;
+    numberPerPage: number;
+    width: number;
+    index: number;
+};
+
+export type SearchTileProps = {
+    entry: EntryProps;
+    numberPerPage: number;
+    width: number;
+    index: number;
+};

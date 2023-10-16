@@ -235,6 +235,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return true;
     };
     const getTopRatedMovies = async (): Promise<boolean> => {
+        if (dataState.topRatedMovies.length > 10) return true;
         const movies = await fetchTopRatedMovies();
         if (!movies) {
             return false;
@@ -245,6 +246,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return true;
     };
     const getUpcomingMovies = async (): Promise<boolean> => {
+        if (dataState.upcomingMovies.length > 10) return true;
         const movies = await fetchUpcomingMovies();
         if (!movies) {
             return false;
@@ -254,6 +256,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     };
 
     const getUpcomingTVSeries = async (): Promise<boolean> => {
+        if (dataState.upcomingTVSeries.length > 10) return true;
         const tvseries = await fetchUpcomingTVSeries();
         if (!tvseries) {
             return false;
@@ -263,6 +266,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     };
 
     const getTrendingMoviesInPoland = async (): Promise<boolean> => {
+        if (dataState.trendingMoviesInPoland.length > 9) return true;
         const movies = await fetchTrendingMoviesInPoland();
         if (!movies) {
             return false;
@@ -272,6 +276,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     };
 
     const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
+        if (dataState.trendingTVSeriesInPoland.length > 10) return true;
         const tvseries = await fetchTrendingTVSeriesInPoland();
         if (!tvseries) {
             return false;
@@ -280,6 +285,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return true;
     };
     const getPopularMovies = async (): Promise<boolean> => {
+        if (dataState.popularMovies.length > 10) return true;
         const movies = await fetchPopularMovies();
         if (!movies) {
             return false;
@@ -289,6 +295,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     };
 
     const getTopRatedTVSeries = async (): Promise<boolean> => {
+        if (dataState.topRatedTVSeries.length > 10) return true;
         const tvseries = await fetchTopRatedTVSeries();
         if (!tvseries) {
             return false;
@@ -300,6 +307,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
     };
 
     const getPopularTVSeries = async (): Promise<boolean> => {
+        if (dataState.popularTVSeries.length > 10) return true;
         const tvseries = await fetchPopularTVSeries();
         if (!tvseries) {
             return false;

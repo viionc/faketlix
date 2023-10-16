@@ -6,7 +6,7 @@ function CloseModalButton({modal}: {modal: ModalActionNames}) {
     return (
         <button
             type="button"
-            className="z-30 bg-[#303030] absolute top-2 right-2 cursor-pointer rounded-full border border-white p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:border-gray-800 hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            className="z-30 bg-[#303030] absolute top-2 right-2 cursor-pointer rounded-lg border border-white p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:border-gray-800 hover:bg-opacity-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
             onClick={() => closeModal(modal)}
         >
             <span className="sr-only">Close menu</span>

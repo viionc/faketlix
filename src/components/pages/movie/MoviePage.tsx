@@ -1,22 +1,18 @@
 import {useEffect, useRef, useState} from "react";
 import Navbar from "../../Navbar";
-import FeaturedMovie from "./FeaturedMovie";
+import FeaturedEntry from "../../FeaturedEntry";
 import Carousel from "../../carousels/Carousel";
 import Footer from "../../Footer";
-import Spinner from "../../Spinner";
-import {useDataContext} from "../../../context/DataContext";
 import {MOVIE_GENRES} from "../../../types/constants";
 import MovieInformationModal from "../../modals/MovieInformationModal";
 import {useModalContext} from "../../../context/ModalContext";
 
 function MoviePage() {
-    const {dataState} = useDataContext();
     const {modalState} = useModalContext();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [pagesLoaded, setPagesLoaded] = useState<number>(0);
 
     const observerTarget = useRef(null);
-
     useEffect(() => {
         const updatePage = () => {
             if (isLoading) return;
@@ -46,20 +42,13 @@ function MoviePage() {
             }
         };
     }, [observerTarget, isLoading, pagesLoaded]);
-
     return (
         <section className="flex min-w-full min-h-[100vh] relative flex-col items-center">
             {modalState.isMovieInformationModalOpen && modalState.movieClicked && (
                 <MovieInformationModal entry={modalState.movieClicked}></MovieInformationModal>
             )}
             <Navbar></Navbar>
-            {dataState.featuredMovie ? (
-                <FeaturedMovie entry={dataState.featuredMovie}></FeaturedMovie>
-            ) : (
-                <div className="h-[100vh] flex justify-center items-center">
-                    <Spinner></Spinner>
-                </div>
-            )}
+            <FeaturedEntry type="movie"></FeaturedEntry>
             <Carousel type="movie" propKey="topRatedMovies" title="Top Rated"></Carousel>
             <Carousel type="movie" propKey="popularMovies" title="Popular"></Carousel>
             <Carousel type="movie" propKey="upcomingMovies" title="Upcoming"></Carousel>
