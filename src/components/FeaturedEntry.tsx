@@ -2,12 +2,11 @@ import {useEffect, useState} from "react";
 import {useModalContext} from "../context/ModalContext";
 import {IMAGE_ORIGINAL_PATH} from "../types/constants";
 import {useFirebaseContext} from "../context/FirebaseContext";
-import {fetchLogo, fetchTrailer} from "../utils/fetchData";
+import {fetchLogo, fetchTopRatedMovies, fetchTopRatedTVSeries, fetchTrailer} from "../utils/fetchData";
 import {EntryProps, EntryTypes} from "../types/types";
 import MoreInfoButton from "./buttons/MoreInfoButton";
 import Logo from "./Logo";
 import PlayButton from "./buttons/PlayButton";
-import {useDataContext} from "../context/DataContext";
 import Spinner from "./Spinner";
 
 function FeaturedEntry({type}: {type: EntryTypes}) {
@@ -16,23 +15,29 @@ function FeaturedEntry({type}: {type: EntryTypes}) {
     const [entry, setEntry] = useState<EntryProps | null>(null);
 
     const {openModal} = useModalContext();
-    const {dataState} = useDataContext();
     const {currentProfile} = useFirebaseContext();
 
-    useEffect(() => {
-        type === "movie" ? setEntry(dataState.featuredMovie) : setEntry(dataState.featuredTVSeries);
-        if (!entry) return;
-        fetchLogo(type, entry.id).then(response => {
+    const fetchData = async () => {
+        const response = type === "movie" ? await fetchTopRatedMovies() : await fetchTopRatedTVSeries();
+        if (!response) return;
+        const number = Math.floor(Math.random() * response.length);
+        setEntry(response[number]);
+        fetchLogo(type, response[number].id).then(response => {
             if (response) {
                 setLogo(response);
             }
         });
-        fetchTrailer(type, entry.id).then(response => {
+        fetchTrailer(type, response[number].id).then(response => {
             if (response) {
                 setTrailer(response);
             }
         });
-    }, [dataState.featuredMovie, dataState.featuredTVSeries, type, entry]);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     if (!entry) return <Spinner></Spinner>;
 
     return (

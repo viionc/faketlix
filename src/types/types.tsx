@@ -89,24 +89,10 @@ export type ModalContextProps = {
 
 export type DataContextProps = {
     dataState: DataReducerState;
-    getMovieCredits: (id: number) => Promise<false | MovieCredits>;
-    getMovieDetails: (id: number) => Promise<false | MovieDetails>;
-    getSimilar: (entry: EntryProps) => Promise<false | EntryProps[]>;
     getByName: (query: string) => Promise<false | EntryProps[]>;
-    getMovieInformation: (id: number) => Promise<false | MovieInformation>;
-    getTVSeriesInformation: (id: number) => Promise<false | TVSeriesInformation>;
-    getByGenre: (type: EntryTypes, genreId: number) => Promise<boolean>;
-    getPlanToWatchData: () => Promise<boolean>;
-    getFavoritesData: () => Promise<boolean>;
-    dataDispatch: React.Dispatch<DataReducerAction>;
-    getTopRatedMovies: () => Promise<boolean>;
-    getUpcomingMovies: () => Promise<boolean>;
-    getUpcomingTVSeries: () => Promise<boolean>;
-    getTrendingMoviesInPoland: () => Promise<boolean>;
-    getTrendingTVSeriesInPoland: () => Promise<boolean>;
-    getTopRatedTVSeries: () => Promise<boolean>;
-    getPopularMovies: () => Promise<boolean>;
-    getPopularTVSeries: () => Promise<boolean>;
+
+    getPlanToWatchData: () => Promise<false | {movies: EntryProps[]; tvSeries: EntryProps[]}>;
+    getFavoritesData: () => Promise<false | {movies: EntryProps[]; tvSeries: EntryProps[]}>;
 };
 
 export type MovieCredits = {
@@ -163,22 +149,10 @@ export type ModalActionNames =
     | "isTVSeriesInformationModalOpen";
 
 export type DataReducerState = {
-    topRatedMovies: EntryProps[];
-    featuredMovie: EntryProps | null;
-    popularMovies: EntryProps[];
     planToWatchMovies: EntryProps[];
     favoritedMovies: EntryProps[];
-    moviesByGenre: Record<string, EntryProps[]>;
-    upcomingMovies: EntryProps[];
-    trendingMoviesInPoland: EntryProps[];
-    topRatedTVSeries: EntryProps[];
-    featuredTVSeries: EntryProps | null;
-    popularTVSeries: EntryProps[];
     planToWatchTVSeries: EntryProps[];
     favoritedTVSeries: EntryProps[];
-    TVSeriesByGenre: Record<string, EntryProps[]>;
-    upcomingTVSeries: EntryProps[];
-    trendingTVSeriesInPoland: EntryProps[];
     searchedEntries: EntryProps[];
 };
 export type DataReducerAction = {
@@ -225,3 +199,18 @@ export type SearchTileProps = {
     width: number;
     index: number;
 };
+export type FetchKeys =
+    | "topRatedMovies"
+    | "upcomingMovies"
+    | "popularMovies"
+    | "trendingMoviesInPoland"
+    | "topRatedTVSeries"
+    | "upcomingTVSeries"
+    | "popularTVSeries"
+    | "trendingTVSeriesInPoland"
+    | "planToWatchMovies"
+    | "planToWatchTVSeries"
+    | "favoritedMovies"
+    | "favoritedTVSeries"
+    | "moviesByGenre"
+    | "TVSeriesByGenre";

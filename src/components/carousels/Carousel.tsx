@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {MOVIE_GENRES, TV_GENRES} from "../../types/constants";
-import {DataReducerState, EntryProps, EntryTypes} from "../../types/types";
+import {EntryProps, EntryTypes, FetchKeys} from "../../types/types";
 import CarouselForwardButton from "./CarouselForwardButton";
 import CarouselBackwardButton from "./CarouselBackwardButton";
 import {useDataContext} from "../../context/DataContext";
@@ -8,65 +8,60 @@ import CarouselPlaceholder from "./CarouselPlaceholder";
 import CarouselTile from "./CarouselTile";
 import clsx from "clsx";
 import useWindowSize from "../../hooks/useWindowSize";
+import {
+    fetchByGenre,
+    fetchPopularMovies,
+    fetchPopularTVSeries,
+    fetchTopRatedMovies,
+    fetchTrendingMoviesInPoland,
+    fetchTrendingTVSeriesInPoland,
+    fetchUpcomingMovies,
+    fetchUpcomingTVSeries,
+} from "../../utils/fetchData";
 
-function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof DataReducerState; title: string}) {
+function Carousel({propKey, type, title}: {type: EntryTypes; propKey: FetchKeys; title: string}) {
     const [splitEntries, setSplitEntries] = useState<Array<Array<EntryProps>>>([]);
-    const [entries, setEntries] = useState<Array<EntryProps>>([]);
+    const [data, setData] = useState<Array<EntryProps>>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
-    const [length, setLength] = useState<number>(6);
     const [numberPerPage, setNumberPerPage] = useState<number>(6);
-
     const size = useWindowSize();
     useEffect(() => {
         if (!size) return;
         setNumberPerPage(Math.floor(size / 304));
     }, [size]);
 
-    const {
-        dataState,
-        getTopRatedMovies,
-        getUpcomingMovies,
-        getPopularMovies,
-        getTrendingMoviesInPoland,
-        getByGenre,
-        getTrendingTVSeriesInPoland,
-        getTopRatedTVSeries,
-        getUpcomingTVSeries,
-        getPopularTVSeries,
-        getPlanToWatchData,
-        getFavoritesData,
-    } = useDataContext();
+    const {getPlanToWatchData, getFavoritesData} = useDataContext();
     // const numberPerPage = Math.floor((window.outerWidth - 64) / 304);
-    const fetchData = async (propKey: keyof DataReducerState, type: EntryTypes): Promise<void> => {
+    const fetchData = async (propKey: FetchKeys, type: EntryTypes): Promise<void> => {
         setIsLoading(true);
         let response;
         let genreIndex;
         switch (propKey) {
             case "topRatedMovies":
-                response = await getTopRatedMovies();
+                response = await fetchTopRatedMovies();
                 break;
             case "upcomingMovies":
-                response = await getUpcomingMovies();
+                response = await fetchUpcomingMovies();
                 break;
             case "popularMovies":
-                response = await getPopularMovies();
+                response = await fetchPopularMovies();
                 break;
             case "trendingMoviesInPoland":
-                response = await getTrendingMoviesInPoland();
+                response = await fetchTrendingMoviesInPoland();
                 break;
             case "topRatedTVSeries":
-                response = await getTopRatedTVSeries();
+                response = await fetchTopRatedMovies();
                 break;
             case "upcomingTVSeries":
-                response = await getUpcomingTVSeries();
+                response = await fetchUpcomingTVSeries();
                 break;
             case "popularTVSeries":
-                response = await getPopularTVSeries();
+                response = await fetchPopularTVSeries();
                 break;
             case "trendingTVSeriesInPoland":
-                response = await getTrendingTVSeriesInPoland();
+                response = await fetchTrendingTVSeriesInPoland();
                 break;
             case "planToWatchMovies":
             case "planToWatchTVSeries":
@@ -76,15 +71,13 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             case "favoritedTVSeries":
                 response = await getFavoritesData();
                 break;
-            case "searchedEntries":
-                break;
             default:
                 // eslint-disable-next-line no-case-declarations
                 genreIndex =
                     type === "movie"
-                        ? Object.keys(MOVIE_GENRES).find(key => MOVIE_GENRES[parseInt(key)] === title)
-                        : Object.keys(TV_GENRES).find(key => TV_GENRES[parseInt(key)] === title);
-                response = await getByGenre(type, parseInt(genreIndex as string));
+                        ? (Object.keys(MOVIE_GENRES).find(key => MOVIE_GENRES[parseInt(key)] === title) as string)
+                        : (Object.keys(TV_GENRES).find(key => TV_GENRES[parseInt(key)] === title) as string);
+                response = await fetchByGenre(type, parseInt(genreIndex)); // await getByGenre(type, parseInt(genreIndex as string));
                 break;
         }
         if (!response) {
@@ -92,24 +85,28 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             setIsLoading(false);
             return;
         }
+        if (Array.isArray(response) && response.length > 0) {
+            setData(response);
+        } else {
+            if (propKey.includes("planToWatch") || propKey.includes("favorited")) {
+                interface StorageResponse {
+                    movies: EntryProps[];
+                    tvSeries: EntryProps[];
+                }
+                type === "movie" ? setData((response as StorageResponse).movies) : setData((response as StorageResponse).tvSeries);
+            }
+        }
     };
 
     useEffect(() => {
         fetchData(propKey, type);
     }, []);
-    useEffect(() => {
-        if (dataState === null || dataState[propKey] === null) return;
-        const result: Array<Array<EntryProps>> = [];
-        if (Array.isArray(dataState[propKey])) {
-            setEntries(dataState[propKey] as Array<EntryProps>);
-        } else {
-            setEntries(type === "movie" ? dataState.moviesByGenre[title] : dataState.TVSeriesByGenre[title]);
-        }
-        if (!entries || !entries.length) return;
-        setLength(entries.length);
 
-        for (let i = 0; i < entries.length; i += numberPerPage) {
-            const page = entries.slice(i, i + numberPerPage);
+    useEffect(() => {
+        if (!data.length) return;
+        const result: Array<Array<EntryProps>> = [];
+        for (let i = 0; i < data.length; i += numberPerPage) {
+            const page = data.slice(i, i + numberPerPage);
             result.push(page);
         }
         setSplitEntries(result);
@@ -117,11 +114,11 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
             setIsLoading(false);
             setError(false);
         }, 500);
-    }, [numberPerPage, dataState, type, propKey, title, entries]);
+    }, [numberPerPage, type, propKey, title, data]);
 
     const handlePageChange = (add: boolean) => {
         if (add) {
-            if (currentPage < length / numberPerPage - 1) {
+            if (currentPage < data.length / numberPerPage - 1) {
                 setCurrentPage(prev => (prev += 1));
             }
         } else {
@@ -183,10 +180,8 @@ function Carousel({propKey, type, title}: {type: EntryTypes; propKey: keyof Data
                                 style={{zIndex: left ? i + 10 : right ? 10 - i : ""}}
                             >
                                 {entries.map((entry, j) => {
-                                    const movieIndex =
-                                        propKey === "trendingMoviesInPoland" || propKey === "trendingTVSeriesInPoland"
-                                            ? dataState[propKey].findIndex(e => e.id === entry.id)
-                                            : 0;
+                                    const movieIndex = data.findIndex(e => e.id === entry.id);
+
                                     return (
                                         <CarouselTile
                                             key={j}

@@ -5,7 +5,6 @@ import {useEffect, useRef, useState} from "react";
 import Spinner from "../Spinner";
 import {motion} from "framer-motion";
 import MovieCard from "../pages/movie/MovieCard";
-import {useDataContext} from "../../context/DataContext";
 import AddToPlanToWatchButton from "../buttons/AddToPlanToWatchButton";
 import AddToFavoritesButton from "../buttons/AddToFavoritesButton";
 import CloseModalButton from "../buttons/CloseModalButton";
@@ -13,6 +12,7 @@ import {useClickOutside} from "../../hooks/useClickOutside";
 import PlayButton from "../buttons/PlayButton";
 import Logo from "../Logo";
 import ReactDOM from "react-dom";
+import {fetchSimilar, fetchTVSeriesInformation} from "../../utils/fetchData";
 
 function TVSeriesInformationModal({entry}: {entry: EntryProps}) {
     const {closeModal} = useModalContext();
@@ -21,17 +21,16 @@ function TVSeriesInformationModal({entry}: {entry: EntryProps}) {
     const [TVSeriesInformation, setTVSeriesInformation] = useState<TVSeriesInformation | null>(null);
     const background =
         window.outerWidth > 1000 ? `url(${IMAGE_ORIGINAL_PATH}${entry.backdrop_path})` : `url(${IMAGE_ORIGINAL_PATH}${entry.poster_path})`;
-    const {getSimilar, getTVSeriesInformation} = useDataContext();
 
     const fetchData = async () => {
-        const info = await getTVSeriesInformation(entry.id);
+        const info = await fetchTVSeriesInformation(entry.id);
         if (!info) {
             setError(true);
             return;
         }
         setTVSeriesInformation(info);
         setIsLoading(false);
-        const similar = await getSimilar(entry);
+        const similar = await fetchSimilar(entry);
         if (!similar) return;
         setTVSeriesInformation(prev => ({...(prev as TVSeriesInformation), similar}));
     };

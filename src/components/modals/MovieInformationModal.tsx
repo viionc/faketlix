@@ -5,7 +5,6 @@ import {useEffect, useRef, useState} from "react";
 import Spinner from "../Spinner";
 import {motion} from "framer-motion";
 import MovieCard from "../pages/movie/MovieCard";
-import {useDataContext} from "../../context/DataContext";
 import AddToPlanToWatchButton from "../buttons/AddToPlanToWatchButton";
 import AddToFavoritesButton from "../buttons/AddToFavoritesButton";
 import CloseModalButton from "../buttons/CloseModalButton";
@@ -13,26 +12,26 @@ import {useClickOutside} from "../../hooks/useClickOutside";
 import Logo from "../Logo";
 import PlayButton from "../buttons/PlayButton";
 import ReactDOM from "react-dom";
+import {fetchMovieInformation, fetchSimilar} from "../../utils/fetchData";
 
 function MovieInformationModal({entry}: {entry: EntryProps}) {
     const {closeModal} = useModalContext();
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [movieInformation, setMovieInformation] = useState<MovieInformation | null>(null);
-    const {getSimilar, getMovieInformation} = useDataContext();
 
     const background =
         window.outerWidth > 1000 ? `url(${IMAGE_ORIGINAL_PATH}${entry.backdrop_path})` : `url(${IMAGE_ORIGINAL_PATH}${entry.poster_path})`;
 
     const fetchData = async () => {
-        const info = await getMovieInformation(entry.id);
+        const info = await fetchMovieInformation(entry.id);
         if (!info) {
             setError(true);
             return;
         }
         setMovieInformation(info);
         setIsLoading(false);
-        const similar = await getSimilar(entry);
+        const similar = await fetchSimilar(entry);
         if (!similar) return;
         setMovieInformation(prev => ({...(prev as MovieInformation), similar}));
     };

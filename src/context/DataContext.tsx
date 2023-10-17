@@ -1,36 +1,7 @@
 import {ReactNode, createContext, useContext, useReducer} from "react";
-import {
-    DataContextProps,
-    DataReducerAction,
-    DataReducerState,
-    MovieCredits,
-    MovieDetails,
-    MovieInformation,
-    EntryProps,
-    TVSeriesInformation,
-    DataReducerActionTypes,
-    EntryTypes,
-} from "../types/types";
-import {
-    fetchMovieCredits,
-    fetchMovieDetails,
-    fetchMovieInformation,
-    fetchDataByIds,
-    fetchTVSeriesInformation,
-    fetchSimilar,
-    fetchByGenre,
-    fetchByName,
-    fetchTopRatedMovies,
-    fetchPopularMovies,
-    fetchPopularTVSeries,
-    fetchTopRatedTVSeries,
-    fetchTrendingMoviesInPoland,
-    fetchTrendingTVSeriesInPoland,
-    fetchUpcomingMovies,
-    fetchUpcomingTVSeries,
-} from "../utils/fetchData";
+import {DataContextProps, DataReducerAction, DataReducerState, EntryProps} from "../types/types";
+import {fetchDataByIds, fetchByName} from "../utils/fetchData";
 import {useFirebaseContext} from "./FirebaseContext";
-import {MOVIE_GENRES, TV_GENRES} from "../types/constants";
 import {useLocalStorage} from "../hooks/useLocalStorage";
 
 const DataContext = createContext<DataContextProps | null>(null);
@@ -42,22 +13,11 @@ export const useDataContext = () => {
 };
 
 const REDUCER_INITAL_STATE: DataReducerState = {
-    topRatedMovies: [],
-    featuredMovie: null,
-    popularMovies: [],
     planToWatchMovies: [],
     favoritedMovies: [],
-    moviesByGenre: {},
-    upcomingMovies: [],
-    trendingMoviesInPoland: [],
-    topRatedTVSeries: [],
-    featuredTVSeries: null,
-    popularTVSeries: [],
     planToWatchTVSeries: [],
     favoritedTVSeries: [],
-    TVSeriesByGenre: {},
-    upcomingTVSeries: [],
-    trendingTVSeriesInPoland: [],
+
     searchedEntries: [],
 };
 
@@ -69,22 +29,7 @@ const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
                 ...state,
                 [payload.name]: payload.data,
             };
-        case "UPDATE_MOVIES_BY_GENRE":
-            return {
-                ...state,
-                moviesByGenre: {
-                    ...state.moviesByGenre,
-                    [payload.name]: Array.isArray(payload.data) ? payload.data : [payload.data],
-                },
-            };
-        case "UPDATE_TVSERIES_BY_GENRE":
-            return {
-                ...state,
-                TVSeriesByGenre: {
-                    ...state.TVSeriesByGenre,
-                    [payload.name]: Array.isArray(payload.data) ? payload.data : [payload.data],
-                },
-            };
+
         default:
             return state;
     }
@@ -92,6 +37,7 @@ const dataReducer = (state: DataReducerState, action: DataReducerAction) => {
 
 function DataContextProvider({children}: {children: ReactNode}) {
     const {currentProfile, account} = useFirebaseContext();
+
     const [localStoragePTWMovies, setLocalStoragePTWMovies] = useLocalStorage(
         `${account?.id}-${currentProfile?.name}-ptw-movies`,
         [] as EntryProps[]
@@ -111,45 +57,6 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const [dataState, dataDispatch] = useReducer(dataReducer, REDUCER_INITAL_STATE);
 
-    const getByGenre = async (type: EntryTypes, genreId: number): Promise<boolean> => {
-        const genre = type === "movie" ? MOVIE_GENRES[genreId] : TV_GENRES[genreId];
-        if ((type === "movie" && !dataState.moviesByGenre[genre]) || (type === "tv" && !dataState.TVSeriesByGenre[genre])) {
-            const response = await fetchByGenre(type, genreId);
-            if (!response) return false;
-            const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
-            dataDispatch({type: dispatchType, payload: {name: genre, data: response}});
-        }
-        return true;
-    };
-
-    const getMovieInformation = async (id: number): Promise<false | MovieInformation> => {
-        const response = await fetchMovieInformation(id);
-        if (!response) return false;
-        return response;
-    };
-
-    const getTVSeriesInformation = async (id: number): Promise<false | TVSeriesInformation> => {
-        const response = await fetchTVSeriesInformation(id);
-        if (!response) return false;
-        return response;
-    };
-    const getMovieCredits = async (id: number): Promise<false | MovieCredits> => {
-        const response = await fetchMovieCredits(id);
-        if (!response) return false;
-        return response;
-    };
-
-    const getMovieDetails = async (id: number): Promise<false | MovieDetails> => {
-        const response = await fetchMovieDetails(id);
-        if (!response) return false;
-        return response;
-    };
-    const getSimilar = async (entry: EntryProps): Promise<false | EntryProps[]> => {
-        const response = await fetchSimilar(entry);
-        if (!response) return false;
-        return response;
-    };
-
     const getByName = async (query: string): Promise<false | EntryProps[]> => {
         const response = await fetchByName(query);
         if (!response) return false;
@@ -157,10 +64,11 @@ function DataContextProvider({children}: {children: ReactNode}) {
         return response;
     };
 
-    const getPlanToWatchData = async (): Promise<boolean> => {
+    const getPlanToWatchData = async (): Promise<false | {movies: EntryProps[]; tvSeries: EntryProps[]}> => {
         if (!currentProfile) return false;
         const movies = [] as EntryProps[];
         let idsToFetch = [] as number[];
+
         currentProfile.planToWatch.movieIds.forEach(id => {
             const movie = localStoragePTWMovies.find(m => m.id === id);
             if (movie) {
@@ -176,30 +84,31 @@ function DataContextProvider({children}: {children: ReactNode}) {
         }
         dataDispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchMovies", data: movies}});
 
-        const tvSeriesArray = [] as EntryProps[];
+        const tvSeries = [] as EntryProps[];
         idsToFetch = [] as number[];
         currentProfile.planToWatch.tvIds.forEach(id => {
-            const tvSeries = localStoragePTWTVSeries.find(m => m.id === id);
-            if (tvSeries) {
-                tvSeriesArray.push(tvSeries);
+            const tv = localStoragePTWTVSeries.find(m => m.id === id);
+            if (tv) {
+                tvSeries.push(tv);
             } else {
                 idsToFetch.push(id);
             }
         });
         response = await fetchDataByIds("tv", idsToFetch);
         if (response) {
-            tvSeriesArray.push(...(response as EntryProps[]));
+            tvSeries.push(...(response as EntryProps[]));
             setLocalStoragePTWTVSeries(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchTVSeries", data: tvSeriesArray}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "planToWatchTVSeries", data: tvSeries}});
 
-        return true;
+        return {movies, tvSeries};
     };
 
-    const getFavoritesData = async (): Promise<boolean> => {
+    const getFavoritesData = async (): Promise<false | {movies: EntryProps[]; tvSeries: EntryProps[]}> => {
         if (!currentProfile) return false;
         const movies = [] as EntryProps[];
         let idsToFetch = [] as number[];
+        console.log(localStorageFavoriteMovies);
         currentProfile.favoritedMovies.movieIds.forEach(id => {
             const movie = localStorageFavoriteMovies.find(m => m.id === id);
             if (movie) {
@@ -215,129 +124,33 @@ function DataContextProvider({children}: {children: ReactNode}) {
         }
         dataDispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedMovies", data: movies}});
 
-        const tvSeriesArray = [] as EntryProps[];
+        const tvSeries = [] as EntryProps[];
         idsToFetch = [] as number[];
         currentProfile.favoritedMovies.tvIds.forEach(id => {
-            const tvSeries = localStorageFavoriteTVSeries.find(m => m.id === id);
-            if (tvSeries) {
-                tvSeriesArray.push(tvSeries);
+            const tv = localStorageFavoriteTVSeries.find(m => m.id === id);
+            if (tv) {
+                tvSeries.push(tv);
             } else {
                 idsToFetch.push(id);
             }
         });
         response = await fetchDataByIds("tv", idsToFetch);
         if (response) {
-            tvSeriesArray.push(...(response as EntryProps[]));
+            tvSeries.push(...(response as EntryProps[]));
             setLocalStorageFavoriteTVSeries(prev => [...prev, ...(response as EntryProps[])]);
         }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedTVSeries", data: tvSeriesArray}});
+        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "favoritedTVSeries", data: tvSeries}});
 
-        return true;
-    };
-    const getTopRatedMovies = async (): Promise<boolean> => {
-        if (dataState.topRatedMovies.length > 10) return true;
-        const movies = await fetchTopRatedMovies();
-        if (!movies) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedMovies", data: movies}});
-        const number = Math.floor(Math.random() * movies.length);
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredMovie", data: movies[number]}});
-        return true;
-    };
-    const getUpcomingMovies = async (): Promise<boolean> => {
-        if (dataState.upcomingMovies.length > 10) return true;
-        const movies = await fetchUpcomingMovies();
-        if (!movies) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingMovies", data: movies}});
-        return true;
-    };
-
-    const getUpcomingTVSeries = async (): Promise<boolean> => {
-        if (dataState.upcomingTVSeries.length > 10) return true;
-        const tvseries = await fetchUpcomingTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "upcomingTVSeries", data: tvseries}});
-        return true;
-    };
-
-    const getTrendingMoviesInPoland = async (): Promise<boolean> => {
-        if (dataState.trendingMoviesInPoland.length > 9) return true;
-        const movies = await fetchTrendingMoviesInPoland();
-        if (!movies) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingMoviesInPoland", data: movies.slice(0, 10)}});
-        return true;
-    };
-
-    const getTrendingTVSeriesInPoland = async (): Promise<boolean> => {
-        if (dataState.trendingTVSeriesInPoland.length > 10) return true;
-        const tvseries = await fetchTrendingTVSeriesInPoland();
-        if (!tvseries) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "trendingTVSeriesInPoland", data: tvseries.slice(0, 10)}});
-        return true;
-    };
-    const getPopularMovies = async (): Promise<boolean> => {
-        if (dataState.popularMovies.length > 10) return true;
-        const movies = await fetchPopularMovies();
-        if (!movies) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularMovies", data: movies}});
-        return true;
-    };
-
-    const getTopRatedTVSeries = async (): Promise<boolean> => {
-        if (dataState.topRatedTVSeries.length > 10) return true;
-        const tvseries = await fetchTopRatedTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "topRatedTVSeries", data: tvseries}});
-        const number = Math.floor(Math.random() * tvseries.length);
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "featuredTVSeries", data: tvseries[number]}});
-        return true;
-    };
-
-    const getPopularTVSeries = async (): Promise<boolean> => {
-        if (dataState.popularTVSeries.length > 10) return true;
-        const tvseries = await fetchPopularTVSeries();
-        if (!tvseries) {
-            return false;
-        }
-        dataDispatch({type: "UPDATE_MOVIES", payload: {name: "popularTVSeries", data: tvseries}});
-        return true;
+        return {movies, tvSeries};
     };
 
     return (
         <DataContext.Provider
             value={{
                 dataState,
-                getMovieCredits,
-                getMovieDetails,
-                getSimilar,
-                getMovieInformation,
-                getByGenre,
                 getPlanToWatchData,
                 getFavoritesData,
-                getTVSeriesInformation,
-                dataDispatch,
                 getByName,
-                getTopRatedMovies,
-                getUpcomingMovies,
-                getUpcomingTVSeries,
-                getTrendingMoviesInPoland,
-                getTrendingTVSeriesInPoland,
-                getPopularMovies,
-                getTopRatedTVSeries,
-                getPopularTVSeries,
             }}
         >
             {children}
@@ -345,18 +158,3 @@ function DataContextProvider({children}: {children: ReactNode}) {
     );
 }
 export default DataContextProvider;
-// const getTrailer = async (type: EntryTypes, id: number): Promise<false | string> => {
-//     const trailer = await fetchTrailer(type, id);
-//     if (!trailer) {
-//         return false;
-//     }
-//     return trailer;
-// };
-
-// const getLogo = async (type: EntryTypes, id: number): Promise<false | string> => {
-//     const logo = await fetchLogo(type, id);
-//     if (!logo) {
-//         return false;
-//     }
-//     return logo;
-// };

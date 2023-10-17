@@ -35,6 +35,7 @@ function RegisterForm() {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const {email, password, confirmPassword} = registerState;
+        let failed = false;
         if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
             dispatch({
                 type: "INPUT",
@@ -43,15 +44,17 @@ function RegisterForm() {
                     value: "Invalid email",
                 },
             });
-            return;
+            failed = true;
         }
-        dispatch({
-            type: "INPUT",
-            payload: {
-                name: "emailError",
-                value: null,
-            },
-        });
+        if (!failed) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "emailError",
+                    value: null,
+                },
+            });
+        }
         if (password.length < 6) {
             dispatch({
                 type: "INPUT",
@@ -60,15 +63,17 @@ function RegisterForm() {
                     value: "Password must be at least 6 characters",
                 },
             });
-            return;
+            failed = true;
         }
-        dispatch({
-            type: "INPUT",
-            payload: {
-                name: "passwordError",
-                value: null,
-            },
-        });
+        if (!failed) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "passwordError",
+                    value: null,
+                },
+            });
+        }
         if (confirmPassword !== password) {
             dispatch({
                 type: "INPUT",
@@ -77,15 +82,18 @@ function RegisterForm() {
                     value: "Passwords must match",
                 },
             });
-            return;
+            failed = true;
         }
-        dispatch({
-            type: "INPUT",
-            payload: {
-                name: "confirmPasswordError",
-                value: null,
-            },
-        });
+        if (!failed) {
+            dispatch({
+                type: "INPUT",
+                payload: {
+                    name: "confirmPasswordError",
+                    value: null,
+                },
+            });
+        }
+        if (failed) return;
         registerUser(email, password);
     };
 
@@ -100,29 +108,45 @@ function RegisterForm() {
                         <input
                             className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="E-mail"
+                            aria-label="email"
                             type="email"
                             value={registerState.email}
                             onChange={e => dispatch({type: "INPUT", payload: {name: "email", value: e.target.value}})}
                         ></input>
-                        {registerState.emailError && <p className="text-sm text-red-500">{registerState.emailError}</p>}
+                        {registerState.emailError && (
+                            <p className="text-sm text-red-500" aria-label="email-error">
+                                {registerState.emailError}
+                            </p>
+                        )}
                         <input
                             className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Password"
+                            aria-label="password"
                             type="password"
                             value={registerState.password}
                             onChange={e => dispatch({type: "INPUT", payload: {name: "password", value: e.target.value}})}
                         ></input>
-                        {registerState.passwordError && <p className="text-sm text-red-500">{registerState.passwordError}</p>}
+                        {registerState.passwordError && (
+                            <p className="text-sm text-red-500" aria-label="password-error">
+                                {registerState.passwordError}
+                            </p>
+                        )}
                         <input
                             className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Confirm Password"
+                            aria-label="confirm-password"
                             type="password"
                             value={registerState.confirmPassword}
                             onChange={e => dispatch({type: "INPUT", payload: {name: "confirmPassword", value: e.target.value}})}
                         ></input>
-                        {registerState.confirmPasswordError && <p className="text-sm text-red-500">{registerState.confirmPasswordError}</p>}
+                        {registerState.confirmPasswordError && (
+                            <p className="text-sm text-red-500" aria-label="confirm-password-error">
+                                {registerState.confirmPasswordError}
+                            </p>
+                        )}
                         <button
                             type="submit"
+                            aria-label="submit-button"
                             className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
                         >
                             Register

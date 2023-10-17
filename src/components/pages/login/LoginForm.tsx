@@ -24,6 +24,7 @@ function LoginForm() {
                         <input
                             className="p-3 rounded-md bg-[#3B3B3B] "
                             placeholder="E-mail"
+                            aria-label="email"
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
@@ -31,19 +32,25 @@ function LoginForm() {
                         <input
                             className="p-3 rounded-md bg-[#3B3B3B]"
                             placeholder="Password"
+                            aria-label="password"
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                         ></input>
                         <button
                             type="submit"
+                            aria-label="submit-button"
                             className="py-2.5 bg-[#e50914] rounded-md font-semibold hover:bg-opacity-50 active:scale-105 transition"
                         >
                             Sign in
                         </button>
                     </form>
 
-                    <button onClick={() => loginUser("a@a.pl", "123123")} className="my-2 py-2.5 bg-[#caa34f] rounded-md font-semibold">
+                    <button
+                        onClick={() => loginUser("a@a.pl", "123123")}
+                        aria-label="demo-button"
+                        className="my-2 py-2.5 bg-[#caa34f] rounded-md font-semibold"
+                    >
                         Demo Account
                     </button>
                     <button onClick={() => loginWithGoogle()} className="my-2 py-2.5 bg-white rounded-md font-semibold text-black">
@@ -60,7 +67,7 @@ function LoginForm() {
                     </div>
                     <div className="text-zinc-400">
                         New to Netflix?{" "}
-                        <a href="#" className="text-white hover:underline" onClick={() => navigate("/register")}>
+                        <a href="#" className="text-white hover:underline" aria-label="register-button" onClick={() => navigate("/register")}>
                             Sign up now.
                         </a>
                     </div>
