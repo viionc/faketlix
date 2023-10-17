@@ -21,12 +21,6 @@ function SearchBar() {
     return (
         <>
             <div className="flex gap-2 items-center z-1">
-                <div
-                    className={clsx(`w-full h-[100vh] absolute top-0 left-0`, show ? "inline-block" : "hidden")}
-                    onClick={() => {
-                        setShow(prev => !prev);
-                    }}
-                ></div>
                 <form
                     className={clsx(
                         `h-[3rem] ps-2 transition-all flex items-center gap-2 rounded-sm bg-black border border-white z-[1]`,
@@ -45,6 +39,7 @@ function SearchBar() {
                             `h-[2rem] bg-black text-white transition-all outline-none`,
                             show ? "w-[220px] opacity-100" : "w-[0px] opacity-0"
                         )}
+                        onBlur={() => setShow(false)}
                         placeholder="Type name of a movie..."
                         value={search}
                         onClick={e => e.stopPropagation()}

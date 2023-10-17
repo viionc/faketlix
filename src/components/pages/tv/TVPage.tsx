@@ -12,7 +12,6 @@ function TVPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [pagesLoaded, setPagesLoaded] = useState<number>(0);
     const observerTarget = useRef(null);
-    console.log(pagesLoaded);
     useEffect(() => {
         const updatePage = () => {
             if (isLoading) return;
@@ -42,7 +41,6 @@ function TVPage() {
             }
         };
     }, [observerTarget, isLoading, pagesLoaded]);
-    console.log(pagesLoaded);
     return (
         <section className="flex min-w-full min-h-[100vh] relative flex-col items-center">
             {modalState.isTVSeriesInformationModalOpen && modalState.movieClicked && (

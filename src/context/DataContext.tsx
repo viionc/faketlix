@@ -113,7 +113,7 @@ function DataContextProvider({children}: {children: ReactNode}) {
 
     const getByGenre = async (type: EntryTypes, genreId: number): Promise<boolean> => {
         const genre = type === "movie" ? MOVIE_GENRES[genreId] : TV_GENRES[genreId];
-        if (!dataState.moviesByGenre[genre]) {
+        if ((type === "movie" && !dataState.moviesByGenre[genre]) || (type === "tv" && !dataState.TVSeriesByGenre[genre])) {
             const response = await fetchByGenre(type, genreId);
             if (!response) return false;
             const dispatchType = type === "movie" ? "UPDATE_MOVIES_BY_GENRE" : ("UPDATE_TVSERIES_BY_GENRE" as DataReducerActionTypes);
